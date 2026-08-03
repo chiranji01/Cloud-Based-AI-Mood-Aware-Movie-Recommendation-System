@@ -1,9 +1,9 @@
 # Advanced-Project
 
-# Cloud-Based AI Movie Recommendation System
+# Cloud-Based AI Mood-Aware Movie Recommendation System
 
 ## Client
-CineVerse Pty Ltd (Fictional Australian Company)
+Dr. Ayesha Ashfaq
 
 ## Technologies
 
@@ -13,6 +13,13 @@ CineVerse Pty Ltd (Fictional Australian Company)
 - MySQL
 - AWS
 - GitHub
+
+## AI
+
+- Content-Based Filtering
+- TF-IDF
+- Cosine Similarity
+- Mood-Aware Recommendation
 
 ## Team
 
