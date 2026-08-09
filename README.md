@@ -34,7 +34,7 @@ The user's mood is mapped to suitable genres, and movie features are compared to
 | Frontend | React.js |
 | Backend | Python |
 | Database | MySQL |
-| Recommendation | Scikit-learn |
+| Recommendation Engine | Python, Scikit-learn (TF-IDF & Cosine Similarity) |
 | Cloud | Amazon Web Services (AWS) |
 | Version Control | Git & GitHub |
 
