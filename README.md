@@ -32,7 +32,7 @@ The user's mood is mapped to suitable genres, and movie features are compared to
 | Component | Technology |
 |---|---|
 | Frontend | React.js |
-| Backend | Python, Flask |
+| Backend | Python |
 | Database | MySQL |
 | Recommendation | Scikit-learn |
 | Cloud | Amazon Web Services (AWS) |
