@@ -30,9 +30,9 @@ The user's mood is mapped to suitable genres, and movie features are compared to
 ## Technology Stack
 
 | Component | Technology |
-|---|---|
+| --- | --- |
 | Frontend | React.js |
-| Backend | Python |
+| Backend | Python / Django |
 | Database | MySQL |
 | Recommendation Engine | Python, Scikit-learn (TF-IDF & Cosine Similarity) |
 | Cloud | Amazon Web Services (AWS) |
@@ -51,10 +51,11 @@ The project follows the **Agile Scrum** methodology, with regular team meetings,
 ## Project Team
 
 | Team Member | Role |
-|---|---|
+| --- | --- |
 | Chiranji Vinodya Ranaweera Jayalathge | Project Manager & AI Developer |
-| Meghan Reddy Podduturi | Frontend Developer & Tester |
+| Meghan Reddy Podduturi | Frontend Developer |
 | Prapti Pokharel | Backend Developer & Cloud Engineer |
+| Prashanth | Frontend Support & QA Tester |
 
 ## Client
 
@@ -62,7 +63,7 @@ The project follows the **Agile Scrum** methodology, with regular team meetings,
 
 ## Project Status
 
-**Current Stage:** System Analysis and Design
+**Current Stage:** System Analysis, Design and Development
 
 ## Academic Information
 
