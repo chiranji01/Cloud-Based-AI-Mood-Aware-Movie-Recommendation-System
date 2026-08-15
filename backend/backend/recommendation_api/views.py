@@ -3,8 +3,6 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from recommendation.recommendation_engine import get_mood_recommendations
-
 
 @csrf_exempt
 def mood_recommendations(request):
@@ -29,6 +27,9 @@ def mood_recommendations(request):
                 },
                 status=400
             )
+
+        # Load the AI engine only when recommendation API is called
+        from recommendation.recommendation_engine import get_mood_recommendations
 
         recommendations = get_mood_recommendations(mood)
 
