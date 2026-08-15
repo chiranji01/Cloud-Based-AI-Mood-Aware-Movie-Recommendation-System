@@ -8,6 +8,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("",include("movieapp.urls")),
 
+ # AI recommendation API
+    path("api/", include("recommendation_api.urls")),
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
