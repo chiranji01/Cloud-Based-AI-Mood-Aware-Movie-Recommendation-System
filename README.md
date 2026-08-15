@@ -12,20 +12,23 @@ This project is developed for the **NIT6150 Advanced Project** at **Victoria Uni
 - Browse and search movies
 - View movie details
 - Select current mood
-- Personalised movie recommendations
+- Mood-aware movie recommendations
 - Rate movies and view ratings
 - User profile management
 - Admin movie and user management
 
-## Recommendation Approach
+## Recommendation System
 
 MoodFlix uses **Content-Based Filtering** with:
 
-- Mood-to-Genre Mapping
+- Mood-to-Genre and Keyword Mapping
 - TF-IDF
 - Cosine Similarity
+- Movie rating information
 
-The user's mood is mapped to suitable genres, and movie features are compared to generate relevant recommendations.
+The system uses the selected mood and movie features to generate and rank suitable movie recommendations.
+
+More details about the recommendation engine are available in the `recommendation` folder.
 
 ## Technology Stack
 
@@ -34,19 +37,30 @@ The user's mood is mapped to suitable genres, and movie features are compared to
 | Frontend | React.js |
 | Backend | Python / Django |
 | Database | MySQL |
-| Recommendation Engine | Python, Scikit-learn (TF-IDF & Cosine Similarity) |
+| Recommendation Engine | Python, Pandas, Scikit-learn |
+| Dataset | MovieLens |
 | Cloud | Amazon Web Services (AWS) |
 | Version Control | Git & GitHub |
 
 ## Dataset
 
-MoodFlix uses the **MovieLens dataset** provided by GroupLens Research for movie and rating data.
+MoodFlix uses the **MovieLens dataset** provided by GroupLens Research for movie, genre, rating, and tag data.
 
 [MovieLens Dataset – GroupLens Research](https://grouplens.org/datasets/movielens/)
 
 ## Development Methodology
 
-The project follows the **Agile Scrum** methodology, with regular team meetings, task allocation, and progress reviews.
+The project follows the **Agile Scrum** methodology with regular sprint planning, task allocation, development, testing, and progress reviews.
+
+## System Architecture
+
+MoodFlix consists of:
+
+- **Frontend:** React.js
+- **Backend:** Django
+- **Database:** MySQL
+- **Recommendation Engine:** Python and Scikit-learn
+- **Cloud Platform:** AWS
 
 ## Project Team
 
@@ -57,15 +71,14 @@ The project follows the **Agile Scrum** methodology, with regular team meetings,
 | Prapti Pokharel | Backend Developer & Cloud Engineer |
 | Prashanth | Frontend Support & QA Tester |
 
-## Client
-
-**Dr. Ayesha Ashfaq**
-
 ## Project Status
 
-**Current Stage:** System Analysis, Design and Development
+**Current Stage:** Development and Integration
+
+The team is currently developing and integrating the frontend, backend, database, and recommendation components. AWS deployment will follow after system integration and testing.
 
 ## Academic Information
 
 **Unit:** NIT6150 – Advanced Project  
-**Institution:** Victoria University
+**Institution:** Victoria University  
+**Client:** Dr. Ayesha Ashfaq
