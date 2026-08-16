@@ -89,7 +89,9 @@ class MoodHistory(models.Model):
 # Movies Model
 class Movie(models.Model):
     movie_id = models.AutoField(primary_key=True)
+    movielens_id = models.IntegerField(unique=True, null=True, blank=True)  # Original ID from the MovieLens dataset (Chiranji)
     title = models.CharField(max_length=255)
+    genres = models.CharField(max_length=255, blank=True, null=True) # MovieLens genres, for example: Action|Adventure|Thriller (Chiranji)
     year = models.CharField(max_length=255, blank=True, null=True)
     release_date = models.DateTimeField(blank=True, null=True)
     duration = models.IntegerField(blank=True, null=True)  # in minutes
