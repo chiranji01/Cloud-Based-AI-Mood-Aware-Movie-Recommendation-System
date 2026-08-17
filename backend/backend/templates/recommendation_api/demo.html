@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MoodFlix - AI Movie Recommendations</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f6f5fb;
+            color: #222;
+        }
+
+        .header {
+            background: white;
+            padding: 22px 40px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #5b4bdb;
+        }
+
+        .logo span {
+            color: #222;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+            padding: 45px 25px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .hero h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            color: #666;
+            font-size: 17px;
+            margin-top: 0;
+        }
+
+        .moods {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 40px;
+        }
+
+        .mood-button {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px 22px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+        }
+
+        .mood-button:hover {
+            transform: translateY(-3px);
+            border-color: #6c4cf1;
+        }
+
+        .mood-button.active {
+            background: #6c4cf1;
+            color: white;
+            border-color: #6c4cf1;
+        }
+
+        #status {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .movies {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .movie-card {
+            background: white;
+            border-radius: 14px;
+            padding: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .rank {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #eeeafd;
+            color: #5b4bdb;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .movie-card h3 {
+            margin-top: 5px;
+            margin-right: 45px;
+            font-size: 20px;
+            line-height: 1.3;
+        }
+
+        .genres {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 42px;
+        }
+
+        .movie-info {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .rating,
+        .match,
+        .score {
+            background: #f7f7fa;
+            padding: 10px 11px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .score {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: #f0edff;
+            color: #4f3cc9;
+            font-weight: bold;
+        }
+
+        .ai-info {
+            background: white;
+            margin-top: 45px;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-info h3 {
+            margin-top: 0;
+            color: #5b4bdb;
+        }
+
+        .ai-info p {
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .loading {
+            color: #6c4cf1;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 13px;
+        }
+
+        @media (max-width: 850px) {
+            .movies {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .movies {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                padding: 18px 20px;
+            }
+
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .movie-info {
+                grid-template-columns: 1fr;
+            }
+
+            .score {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo">
+            Mood<span>Flix</span>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div class="hero">
+            <h1>How are you feeling today?</h1>
+
+            <p>
+                Select your mood and let our AI recommendation system
+                find suitable movies for you.
+            </p>
+        </div>
+
+        <div class="moods">
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Happy', this)">
+                😊 Happy
+            </button>
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Sad', this)">
+                😢 Sad
+            </button>
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Relaxed', this)">
+                😌 Relaxed
+            </button>
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Excited', this)">
+                🤩 Excited
+            </button>
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Romantic', this)">
+                ❤️ Romantic
+            </button>
+
+            <button class="mood-button"
+                    onclick="getRecommendations('Stressed', this)">
+                😰 Stressed
+            </button>
+
+        </div>
+
+        <div id="status">
+            Select a mood to see your recommendations
+        </div>
+
+        <div id="movies" class="movies"></div>
+
+        <div class="ai-info">
+
+            <h3>🤖 How does MoodFlix work?</h3>
+
+            <p>
+                MoodFlix uses a content-based recommendation approach.
+                The selected mood is mapped to suitable genres and keywords.
+                TF-IDF converts the movie features into numerical vectors,
+                and cosine similarity measures how closely each movie matches
+                the selected mood. Movie rating information and rating
+                reliability are also considered to calculate the final
+                ranking score and produce the top recommendations.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        MoodFlix • AI Mood-Based Movie Recommendation System
+    </div>
+
+
+<script>
+
+async function getRecommendations(mood, selectedButton) {
+
+    const status = document.getElementById("status");
+    const moviesContainer = document.getElementById("movies");
+
+    document.querySelectorAll(".mood-button").forEach(button => {
+        button.classList.remove("active");
+    });
+
+    selectedButton.classList.add("active");
+
+    status.innerHTML =
+        `<span class="loading">
+            Finding the best movies for your ${mood} mood...
+        </span>`;
+
+    moviesContainer.innerHTML = "";
+
+    try {
+
+        const response = await fetch(
+            "/api/recommendations/",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    mood: mood
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            status.innerText =
+                data.error || "Unable to get recommendations.";
+
+            return;
+        }
+
+        status.innerHTML =
+            `✨ Top recommendations for your
+            <span style="color:#6c4cf1">${data.mood}</span>
+            mood`;
+
+        data.recommendations.forEach(function(movie, index) {
+
+            const card = document.createElement("div");
+            card.className = "movie-card";
+
+            const genres = movie.genres
+                ? movie.genres.replaceAll("|", " • ")
+                : "Genre information unavailable";
+
+            const moodMatch =
+                Math.round(movie.mood_similarity * 100);
+
+            card.innerHTML = `
+
+                <div class="rank">
+                    #${index + 1}
+                </div>
+
+                <h3>
+                    🎬 ${movie.title}
+                </h3>
+
+                <div class="genres">
+                    ${genres}
+                </div>
+
+                <div class="movie-info">
+
+                    <div class="rating">
+                        ⭐ <strong>Average Rating</strong><br>
+                        ${movie.average_rating ?? "N/A"} / 5
+                    </div>
+
+                    <div class="match">
+                        🎯 <strong>Mood Match</strong><br>
+                        ${moodMatch}%
+                    </div>
+
+                    <div class="score">
+                        🏆 Final Ranking Score:
+                        ${movie.final_score}
+                    </div>
+
+                </div>
+            `;
+
+            moviesContainer.appendChild(card);
+        });
+
+    } catch (error) {
+
+        status.innerText =
+            "Unable to connect to the recommendation system.";
+
+        console.error(error);
+    }
+}
+
+</script>
+
+</body>
+</html>
