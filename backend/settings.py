@@ -71,14 +71,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Main MoodFlix backend
-    'movieapp',
-
-    # Django REST Framework
-    'rest_framework',
-
-    # MovieLens database/API integration
-    'moviesapp',
+    'rest_framework', # Django REST Framework
+    'moviesapp', # MovieLens database/API integration
 ]
 
 
@@ -231,8 +225,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# =========================================================
-# Custom User Model
-# =========================================================
-
-AUTH_USER_MODEL = 'movieapp.User'
