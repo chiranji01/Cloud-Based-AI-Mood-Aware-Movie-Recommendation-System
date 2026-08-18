@@ -52,7 +52,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Existing main backend
     'movieapp',
+
+    # Django REST Framework
+    'rest_framework',
+
+    # MovieLens database/API integration
+    'moviesapp',
 ]
 
 MIDDLEWARE = [
