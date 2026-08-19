@@ -57,7 +57,7 @@ movies["genres_clean"] = movies["genres"].str.replace(
     regex=False
 )
 
-# Combine genres and tags
+# Combine genres and tags to create the movie features
 movies["combined_features"] = (
     movies["genres_clean"]
     + " "
@@ -137,8 +137,7 @@ mood_profiles = {
         ]
     }
 }
-
-
+# Main reusable recommendation function (receives only user's selected mood & returns Top 10 recommendations)
 def get_mood_recommendations(mood, number_of_movies=10):
 
     # Clean the mood received from Django or testing
