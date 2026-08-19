@@ -1,0 +1,158 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111827;
+  font-family: Arial, sans-serif;
+}
+
+.register-container {
+  width: 900px;
+  min-height: 600px;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Left side */
+
+.register-left {
+  width: 45%;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #7c3aed;
+  color: white;
+}
+
+.register-left h1 {
+  font-size: 42px;
+  margin-bottom: 20px;
+}
+
+.register-left p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Register card */
+
+.register-card {
+  width: 55%;
+  padding: 45px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.register-card h2 {
+  font-size: 30px;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+/* Inputs */
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: #374151;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.input-group input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
+}
+
+/* Button */
+
+.register-button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 8px;
+  background: #7c3aed;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.register-button:hover {
+  background: #6d28d9;
+}
+
+/* Login */
+
+.login-text {
+  text-align: center;
+  margin-top: 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.login-text a {
+  color: #7c3aed;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .register-container {
+    width: 90%;
+    flex-direction: column;
+  }
+
+  .register-left,
+  .register-card {
+    width: 100%;
+  }
+
+  .register-left {
+    padding: 35px;
+    text-align: center;
+  }
+
+  .register-left h1 {
+    font-size: 32px;
+  }
+
+  .register-card {
+    padding: 35px;
+  }
+}
