@@ -38,7 +38,12 @@ if not apps.ready:
 # 2. IMPORT DATABASE MODELS
 # =========================================================
 
-from moviesapp.models import Movie, MovieTag, Rating
+from moviesapp.models import (
+    Movie,
+    MovieTag,
+    Rating,
+    MoodGenreMapping,
+)
 
 
 # =========================================================
@@ -55,8 +60,8 @@ movies = pd.DataFrame(
     list(movie_records)
 )
 
-# Rename database field so the rest of the existing
-# recommendation code can continue using "movieId"
+# Rename database field so the rest of the recommendation
+# code can continue using "movieId"
 movies = movies.rename(
     columns={
         "movie_id": "movieId"
@@ -198,101 +203,7 @@ tfidf_matrix = tfidf.fit_transform(
 
 
 # =========================================================
-# 13. MOOD PROFILES
-# =========================================================
-
-mood_profiles = {
-
-    "Happy": {
-        "genres": [
-            "Comedy",
-            "Animation",
-            "Adventure"
-        ],
-        "keywords": [
-            "funny",
-            "fun",
-            "uplifting",
-            "feel good",
-            "lighthearted"
-        ]
-    },
-
-    "Sad": {
-        "genres": [
-            "Drama",
-            "Romance"
-        ],
-        "keywords": [
-            "emotional",
-            "sad",
-            "heartbreaking",
-            "touching"
-        ]
-    },
-
-    "Relaxed": {
-        "genres": [
-            "Comedy",
-            "Romance",
-            "Fantasy"
-        ],
-        "keywords": [
-            "calm",
-            "relaxing",
-            "gentle",
-            "feel good",
-            "easygoing"
-        ]
-    },
-
-    "Excited": {
-        "genres": [
-            "Action",
-            "Adventure",
-            "Thriller"
-        ],
-        "keywords": [
-            "exciting",
-            "fast paced",
-            "intense",
-            "action",
-            "suspense"
-        ]
-    },
-
-    "Romantic": {
-        "genres": [
-            "Romance",
-            "Drama"
-        ],
-        "keywords": [
-            "romantic",
-            "love",
-            "relationship",
-            "heartwarming"
-        ]
-    },
-
-    "Stressed": {
-        "genres": [
-            "Comedy",
-            "Animation",
-            "Fantasy"
-        ],
-        "keywords": [
-            "funny",
-            "lighthearted",
-            "feel good",
-            "comfort",
-            "relaxing"
-        ]
-    }
-}
-
-
-# =========================================================
-# 14. MAIN RECOMMENDATION FUNCTION
+# 13. MAIN RECOMMENDATION FUNCTION
 # =========================================================
 
 def get_mood_recommendations(
@@ -303,21 +214,32 @@ def get_mood_recommendations(
     # Clean mood received from Django/frontend
     mood = mood.strip().title()
 
-    # Unsupported mood
-    if mood not in mood_profiles:
+    # -----------------------------------------------------
+    # Get mood profile from MySQL
+    # -----------------------------------------------------
+
+    try:
+        mood_profile = MoodGenreMapping.objects.get(
+            mood_name__iexact=mood
+        )
+
+    except MoodGenreMapping.DoesNotExist:
         return []
 
-    # Get genres and keywords for selected mood
-    selected_genres = (
-        mood_profiles[mood]["genres"]
-    )
+    # Convert database genre string into Python list
+    selected_genres = [
+        genre.strip()
+        for genre in mood_profile.genres.split(",")
+    ]
 
-    selected_keywords = (
-        mood_profiles[mood]["keywords"]
-    )
+    # Convert database keyword string into Python list
+    selected_keywords = [
+        keyword.strip()
+        for keyword in mood_profile.keywords.split(",")
+    ]
 
     # -----------------------------------------------------
-    # Create mood profile
+    # Create mood profile text
     # -----------------------------------------------------
 
     mood_text = " ".join(
