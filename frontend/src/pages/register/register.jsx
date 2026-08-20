@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -13,42 +15,85 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Handle input changes
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
   };
 
+  // Handle registration
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check all fields
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Check password length
+    if (formData.password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return;
+    }
+
+    // Check passwords
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
+    // Registration successful
     console.log("Registration Data:", formData);
+
     alert("Registration successful!");
+
+    // Navigate to login page
+    navigate("/login");
   };
 
   return (
     <div className="register-page">
+
       <div className="register-container">
 
-        {/* LEFT SIDE */}
+        {/* =====================================================
+            LEFT SIDE
+        ===================================================== */}
+
         <div className="register-left">
 
           <div className="left-overlay"></div>
 
           <div className="left-content">
 
+            {/* LOGO */}
+
             <div className="logo">
-              <span className="logo-icon">●●●</span>
-              <span>Mood<span>Flix</span></span>
+
+              <span className="logo-icon">
+                ●●●
+              </span>
+
+              <span>
+                Mood<span>Flix</span>
+              </span>
+
             </div>
 
+            {/* TEXT */}
+
             <div className="left-text">
+
               <h1>
                 Find movies
                 <br />
@@ -64,56 +109,95 @@ function Register() {
                 <br />
                 recommendations.
               </p>
+
             </div>
 
+            {/* MOVIE IMAGE */}
+
             <div className="movie-image">
+
               <div className="clapper">
+
                 <div className="clapper-top">
+
                   <span></span>
                   <span></span>
                   <span></span>
                   <span></span>
+
                 </div>
 
                 <div className="clapper-body">
+
                   <div></div>
                   <div></div>
                   <div></div>
+
                 </div>
+
               </div>
 
               <div className="popcorn">
-                <span>🍿</span>
+                🍿
               </div>
+
             </div>
 
           </div>
+
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* =====================================================
+            RIGHT SIDE
+        ===================================================== */}
+
         <div className="register-right">
 
+          {/* TOP LOGIN */}
+
           <div className="top-login">
-            Already have an account?
-            <Link to="/login">Login</Link>
+
+            <span>
+              Already have an account?
+            </span>
+
+            <Link to="/login">
+              Login
+            </Link>
+
           </div>
+
+          {/* REGISTER CARD */}
 
           <div className="register-card">
 
-            <h2>Create your account</h2>
+            <h2>
+              Create your account
+            </h2>
 
             <p className="subtitle">
               Join MoodFlix and start your personalized journey.
             </p>
 
+            {/* =================================================
+                SINGLE FORM
+            ================================================= */}
+
             <form onSubmit={handleSubmit}>
 
               {/* NAME */}
+
               <div className="input-group">
-                <label>Full Name</label>
+
+                <label>
+                  Full Name
+                </label>
 
                 <div className="input-wrapper">
-                  <span className="input-icon">♙</span>
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
 
                   <input
                     type="text"
@@ -121,17 +205,25 @@ function Register() {
                     placeholder="Enter your full name"
                     value={formData.name}
                     onChange={handleChange}
-                    required
                   />
+
                 </div>
+
               </div>
 
               {/* EMAIL */}
+
               <div className="input-group">
-                <label>Email</label>
+
+                <label>
+                  Email
+                </label>
 
                 <div className="input-wrapper">
-                  <span className="input-icon">✉</span>
+
+                  <span className="input-icon">
+                    ✉
+                  </span>
 
                   <input
                     type="email"
@@ -139,53 +231,78 @@ function Register() {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleChange}
-                    required
                   />
+
                 </div>
+
               </div>
 
               {/* PASSWORD */}
+
               <div className="input-group">
-                <label>Password</label>
+
+                <label>
+                  Password
+                </label>
 
                 <div className="input-wrapper">
-                  <span className="input-icon">♙</span>
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
 
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
                     name="password"
                     placeholder="Create a password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
                   />
 
                   <button
                     type="button"
                     className="eye-button"
                     onClick={() =>
-                      setShowPassword(!showPassword)
+                      setShowPassword(
+                        !showPassword
+                      )
                     }
                   >
                     {showPassword ? "◉" : "◌"}
                   </button>
+
                 </div>
+
               </div>
 
               {/* CONFIRM PASSWORD */}
+
               <div className="input-group">
-                <label>Confirm Password</label>
+
+                <label>
+                  Confirm Password
+                </label>
 
                 <div className="input-wrapper">
-                  <span className="input-icon">♙</span>
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
 
                   <input
-                    type={showConfirmPassword ? "text" : "password"}
+                    type={
+                      showConfirmPassword
+                        ? "text"
+                        : "password"
+                    }
                     name="confirmPassword"
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    required
                   />
 
                   <button
@@ -197,44 +314,79 @@ function Register() {
                       )
                     }
                   >
-                    {showConfirmPassword ? "◉" : "◌"}
+                    {showConfirmPassword
+                      ? "◉"
+                      : "◌"}
                   </button>
+
                 </div>
+
               </div>
 
+              {/* PASSWORD INFORMATION */}
+
               <div className="password-info">
+
                 <span>●</span>
-                Password must be at least 8 characters long
+
+                <span>
+                  Password must be at least 8 characters long
+                </span>
+
               </div>
 
               {/* CREATE ACCOUNT */}
+
               <button
                 type="submit"
                 className="register-button"
               >
-                <span>♙</span>
+
+                <span>
+                  ♙
+                </span>
+
                 Create Account
+
               </button>
 
             </form>
 
-            {/* OR */}
+            {/* OR DIVIDER */}
+
             <div className="or-divider">
+
               <span></span>
-              <p>OR</p>
+
+              <p>
+                OR
+              </p>
+
               <span></span>
+
             </div>
 
-            {/* GOOGLE */}
-            <button className="google-button">
-              <span className="google-icon">G</span>
+            {/* GOOGLE BUTTON */}
+
+            <button
+              type="button"
+              className="google-button"
+            >
+
+              <span className="google-icon">
+                G
+              </span>
+
               Sign up with Google
+
             </button>
 
           </div>
+
         </div>
 
       </div>
+
     </div>
   );
 }
