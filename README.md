@@ -99,7 +99,7 @@ The React frontend communicates with the Django backend, which connects to the M
 | --- | --- |
 | Chiranji Vinodya Ranaweera Jayalathge | Project Manager & AI Developer |
 | Meghan Reddy Podduturi | Frontend Developer |
-| Prapti Pokharel | Backend Developer & Cloud Engineer |
+| Prapti Pokharel | Backend Developer  |
 | Prashanth | Frontend Support & QA Tester |
 
 ## Project Status
