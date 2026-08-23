@@ -1,3 +1,7 @@
+/* =====================================================
+   GLOBAL
+===================================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -7,7 +11,6 @@
 body {
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Arial, sans-serif;
-
   background: #f7f7fc;
   color: #17182d;
 }
@@ -48,10 +51,14 @@ button {
   left: 0;
   top: 0;
   bottom: 0;
+
+  z-index: 100;
 }
 
 
-/* LOGO */
+/* =====================================================
+   LOGO - ORIGINAL SIZE
+===================================================== */
 
 .logo {
   display: flex;
@@ -59,7 +66,6 @@ button {
   gap: 9px;
 
   padding-left: 6px;
-
   margin-bottom: 38px;
 
   font-size: 20px;
@@ -86,7 +92,9 @@ button {
 }
 
 
-/* NAVIGATION */
+/* =====================================================
+   NAVIGATION - ORIGINAL SIZE
+===================================================== */
 
 .navigation {
   display: flex;
@@ -126,7 +134,8 @@ button {
 
   color: white;
 
-  box-shadow: 0 5px 18px rgba(108, 45, 235, 0.3);
+  box-shadow:
+    0 5px 18px rgba(108, 45, 235, 0.3);
 }
 
 .nav-icon {
@@ -135,7 +144,9 @@ button {
 }
 
 
-/* SIDEBAR DECORATION */
+/* =====================================================
+   SIDEBAR DECORATION
+===================================================== */
 
 .sidebar-decoration {
   height: 350px;
@@ -148,6 +159,7 @@ button {
 
 .director-chair {
   position: absolute;
+
   left: 25px;
   top: 30px;
 
@@ -220,9 +232,10 @@ button {
 
   font-size: 45px;
 
-  filter: drop-shadow(
-    0 8px 8px rgba(0, 0, 0, 0.4)
-  );
+  filter:
+    drop-shadow(
+      0 8px 8px rgba(0, 0, 0, 0.4)
+    );
 }
 
 .clapper {
@@ -265,7 +278,9 @@ button {
 }
 
 
-/* HELP */
+/* =====================================================
+   HELP CARD - ORIGINAL TEXT SIZE
+===================================================== */
 
 .help-card {
   margin-top: auto;
@@ -353,7 +368,6 @@ button {
 
   display: flex;
   align-items: center;
-
   justify-content: space-between;
 
   margin-bottom: 15px;
@@ -361,7 +375,7 @@ button {
 
 .search-container {
   width: 58%;
-  height: 37px;
+  height: 39px;
 
   background: white;
 
@@ -374,11 +388,13 @@ button {
 
   padding: 0 10px;
 
-  box-shadow: 0 1px 5px rgba(45, 42, 88, 0.04);
+  box-shadow:
+    0 1px 5px rgba(45, 42, 88, 0.04);
 }
 
 .search-icon {
   font-size: 22px;
+
   color: #77778d;
 
   margin-right: 9px;
@@ -390,7 +406,7 @@ button {
 
   flex: 1;
 
-  font-size: 10px;
+  font-size: 12px;
 
   color: #34344b;
 }
@@ -406,9 +422,9 @@ button {
 
   color: #6932e5;
 
-  height: 27px;
+  height: 29px;
 
-  padding: 0 11px;
+  padding: 0 12px;
 
   border-radius: 6px;
 
@@ -416,16 +432,17 @@ button {
   align-items: center;
   gap: 7px;
 
-  font-size: 10px;
+  font-size: 12px;
 }
 
 
-/* PROFILE */
+/* =====================================================
+   PROFILE
+===================================================== */
 
 .profile-area {
   display: flex;
   align-items: center;
-
   gap: 10px;
 }
 
@@ -478,7 +495,7 @@ button {
 }
 
 .username {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -493,14 +510,13 @@ button {
 ===================================================== */
 
 .hero {
-  height: 124px;
+  height: 130px;
 
   border-radius: 13px;
 
   padding: 25px 20px;
 
   position: relative;
-
   overflow: hidden;
 
   background:
@@ -515,7 +531,7 @@ button {
 }
 
 .hero h1 {
-  font-size: 23px;
+  font-size: 27px;
   font-weight: 700;
 
   color: #16162b;
@@ -530,7 +546,7 @@ button {
 
   color: #606078;
 
-  font-size: 11px;
+  font-size: 13px;
 
   line-height: 1.55;
 }
@@ -593,7 +609,7 @@ button {
 
 
 /* =====================================================
-   MOODS
+   MOOD SECTION
 ===================================================== */
 
 .mood-section {
@@ -617,7 +633,7 @@ button {
 }
 
 .mood-card {
-  height: 134px;
+  min-height: 140px;
 
   border-radius: 8px;
 
@@ -671,15 +687,15 @@ button {
 }
 
 .mood-emoji {
-  font-size: 32px;
+  font-size: 35px;
 
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 }
 
 .mood-card h3 {
-  font-size: 11px;
+  font-size: 14px;
 
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 
   font-weight: 700;
 }
@@ -711,13 +727,15 @@ button {
 .mood-card p {
   color: #6c6c79;
 
-  font-size: 8px;
+  font-size: 10px;
 
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 
-/* RECOMMEND BUTTON */
+/* =====================================================
+   RECOMMEND BUTTON
+===================================================== */
 
 .recommend-button {
   display: flex;
@@ -726,8 +744,8 @@ button {
 
   gap: 8px;
 
-  width: 225px;
-  height: 32px;
+  width: 240px;
+  height: 36px;
 
   margin: 18px auto 0;
 
@@ -747,7 +765,10 @@ button {
   box-shadow:
     0 5px 14px rgba(106, 38, 231, 0.22);
 
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 600;
+
+  transition: 0.2s;
 }
 
 .recommend-button:hover {
@@ -757,13 +778,23 @@ button {
     0 7px 18px rgba(106, 38, 231, 0.3);
 }
 
+.recommend-button:disabled {
+  opacity: 0.65;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
 
 /* =====================================================
    RECOMMENDATIONS
 ===================================================== */
 
 .recommendations {
-  margin-top: 17px;
+  margin-top: 20px;
+
+  padding-bottom: 30px;
 }
 
 .section-header {
@@ -773,11 +804,13 @@ button {
 
   justify-content: space-between;
 
-  margin-bottom: 8px;
+  margin-bottom: 13px;
 }
 
 .section-header h2 {
-  font-size: 14px;
+  font-size: 18px;
+
+  font-weight: 700;
 
   color: #202037;
 }
@@ -789,64 +822,138 @@ button {
 
   color: #6a31df;
 
-  font-size: 10px;
+  font-size: 12px;
 
   display: flex;
   align-items: center;
 
-  gap: 7px;
+  gap: 6px;
+}
+
+.view-all:hover {
+  color: #4f1fc2;
 }
 
 .view-all span {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 
-/* MOVIE GRID */
+/* =====================================================
+   EMPTY / LOADING / ERROR
+===================================================== */
+
+.empty-recommendations,
+.loading-recommendations {
+  background: white;
+
+  min-height: 110px;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #77778d;
+
+  font-size: 13px;
+
+  border: 1px solid #eeeef5;
+}
+
+.recommendation-error {
+  margin-top: 15px;
+
+  padding: 13px 15px;
+
+  background: #fff1f1;
+
+  border: 1px solid #ffd5d5;
+
+  border-radius: 8px;
+
+  color: #c33;
+
+  font-size: 12px;
+}
+
+
+/* =====================================================
+   MOVIE WRAPPER
+===================================================== */
 
 .movie-wrapper {
   position: relative;
 }
 
+
+/* =====================================================
+   MOVIE GRID
+===================================================== */
+
 .movie-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(6, 1fr);
+    repeat(5, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: 14px;
 }
+
+
+/* =====================================================
+   MOVIE CARD
+===================================================== */
 
 .movie-card {
   min-width: 0;
 
   background: white;
 
-  border-radius: 7px;
+  border: 1px solid #eeeef5;
+
+  border-radius: 11px;
 
   overflow: hidden;
 
   box-shadow:
-    0 2px 7px rgba(33, 32, 65, 0.07);
+    0 3px 10px rgba(33, 32, 65, 0.07);
 
-  transition: transform 0.2s;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  cursor: pointer;
 }
 
 .movie-card:hover {
   transform: translateY(-4px);
 
   box-shadow:
-    0 8px 20px rgba(33, 32, 65, 0.12);
+    0 10px 25px rgba(33, 32, 65, 0.13);
 }
+
+
+/* =====================================================
+   POSTER
+===================================================== */
 
 .poster {
   width: 100%;
 
-  height: 165px;
+  height: 190px;
 
-  background: #ddd;
+  position: relative;
 
   overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eee9ff,
+      #ded5fb
+    );
 }
 
 .poster img {
@@ -858,23 +965,98 @@ button {
   display: block;
 }
 
-.movie-info {
-  padding: 8px 8px 9px;
+
+/* =====================================================
+   POSTER PLACEHOLDER
+===================================================== */
+
+.poster-placeholder {
+  width: 100%;
+  height: 100%;
+
+  padding: 18px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #f6f2ff,
+      #e6ddff 60%,
+      #d9ccfb
+    );
 }
 
-.movie-info h3 {
-  font-size: 9px;
+.poster-icon {
+  font-size: 40px;
+
+  margin-bottom: 14px;
+
+  filter:
+    drop-shadow(
+      0 4px 5px rgba(62, 32, 120, 0.15)
+    );
+}
+
+.poster-title {
+  max-width: 100%;
+
+  color: #312753;
+
+  font-size: 14px;
 
   font-weight: 700;
 
-  white-space: nowrap;
+  line-height: 1.4;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 
   overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  margin-bottom: 7px;
 }
+
+
+/* =====================================================
+   MOVIE INFORMATION
+===================================================== */
+
+.movie-info {
+  padding: 12px 11px 13px;
+}
+
+.movie-info h3 {
+  min-height: 36px;
+
+  margin-bottom: 8px;
+
+  color: #202037;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  display: -webkit-box;
+
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+}
+
+
+/* =====================================================
+   GENRE + RATING
+===================================================== */
 
 .movie-bottom {
   display: flex;
@@ -883,13 +1065,21 @@ button {
 
   justify-content: space-between;
 
-  gap: 5px;
+  gap: 8px;
+
+  margin-bottom: 10px;
 }
 
 .genre {
-  color: #898999;
+  flex: 1;
 
-  font-size: 7px;
+  min-width: 0;
+
+  color: #858596;
+
+  font-size: 10px;
+
+  line-height: 1.4;
 
   white-space: nowrap;
 
@@ -899,21 +1089,69 @@ button {
 }
 
 .rating {
+  flex-shrink: 0;
+
   color: #ef9b00;
 
-  font-size: 8px;
+  font-size: 11px;
+
+  font-weight: 700;
 
   white-space: nowrap;
 }
+
+
+/* =====================================================
+   AI RECOMMENDATION DETAILS
+===================================================== */
+
+.recommendation-details {
+  padding-top: 9px;
+
+  border-top: 1px solid #f0eff5;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+.recommendation-details small {
+  color: #77778d;
+
+  font-size: 10px;
+
+  font-weight: 500;
+}
+
+.recommendation-details small:last-child {
+  color: #6a31df;
+
+  font-weight: 700;
+
+  background: #f3efff;
+
+  padding: 4px 7px;
+
+  border-radius: 5px;
+}
+
+
+/* =====================================================
+   NEXT BUTTON
+===================================================== */
 
 .next-button {
   position: absolute;
 
   right: -14px;
-  top: 65px;
+  top: 82px;
 
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
 
   border: 1px solid #e5e4ed;
 
@@ -921,20 +1159,31 @@ button {
 
   background: white;
 
-  box-shadow: 0 3px 8px rgba(30, 30, 60, 0.1);
+  box-shadow:
+    0 4px 12px rgba(30, 30, 60, 0.12);
 
-  color: #51516a;
+  color: #6330d7;
 
-  font-size: 23px;
+  font-size: 24px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  transition: 0.2s;
+}
+
+.next-button:hover {
+  background: #6c2ce8;
+
+  color: white;
+
+  transform: scale(1.05);
 }
 
 
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE - SMALL DESKTOP
 ===================================================== */
 
 @media (max-width: 1100px) {
@@ -946,14 +1195,18 @@ button {
 
   .movie-grid {
     grid-template-columns:
-      repeat(3, 1fr);
+      repeat(3, minmax(0, 1fr));
   }
 
   .poster {
-    height: 200px;
+    height: 210px;
   }
 }
 
+
+/* =====================================================
+   RESPONSIVE - TABLET
+===================================================== */
 
 @media (max-width: 800px) {
 
@@ -973,6 +1226,7 @@ button {
 
   .nav-item {
     justify-content: center;
+
     padding: 0;
   }
 
@@ -990,6 +1244,7 @@ button {
 
   .logout {
     justify-content: center;
+
     padding: 0;
   }
 
@@ -1010,8 +1265,21 @@ button {
   .username {
     display: none;
   }
+
+  .movie-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .poster {
+    height: 220px;
+  }
 }
 
+
+/* =====================================================
+   RESPONSIVE - MOBILE
+===================================================== */
 
 @media (max-width: 600px) {
 
@@ -1034,11 +1302,15 @@ button {
   }
 
   .hero {
-    height: 145px;
+    height: 150px;
   }
 
   .hero h1 {
-    font-size: 19px;
+    font-size: 22px;
+  }
+
+  .hero p {
+    font-size: 12px;
   }
 
   .hero-decoration {
@@ -1054,10 +1326,62 @@ button {
 
   .movie-grid {
     grid-template-columns:
-      repeat(2, 1fr);
+      repeat(2, minmax(0, 1fr));
   }
 
   .poster {
-    height: 230px;
+    height: 220px;
+  }
+
+  .next-button {
+    display: none;
+  }
+
+  .recommend-button {
+    width: 100%;
+  }
+
+  .section-header h2 {
+    font-size: 16px;
+  }
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media (max-width: 420px) {
+
+  .mood-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .movie-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .poster {
+    height: 260px;
+  }
+
+  .hero-decoration {
+    display: none;
+  }
+
+  .movie-info h3 {
+    font-size: 14px;
+  }
+
+  .genre {
+    font-size: 11px;
+  }
+
+  .rating {
+    font-size: 12px;
+  }
+
+  .recommendation-details small {
+    font-size: 11px;
   }
 }
