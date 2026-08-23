@@ -40,91 +40,159 @@ const moods = [
   },
 ];
 
-const movies = [
-  {
-    title: "The Grand Budapest Hotel",
-    genre: "Comedy • Drama",
-    rating: "4.4",
-    image:
-      "https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg",
-  },
-  {
-    title: "Toy Story 4",
-    genre: "Animation • Family",
-    rating: "4.3",
-    image:
-      "https://image.tmdb.org/t/p/w500/w9kR8qbmQ01HwnvK4alvnQ2ca0L.jpg",
-  },
-  {
-    title: "The Intern",
-    genre: "Comedy • Drama",
-    rating: "4.2",
-    image:
-      "https://image.tmdb.org/t/p/w500/9Q3Ez2C2qjK0Y8M2q9zK7Y9bq5.jpg",
-  },
-  {
-    title: "About Time",
-    genre: "Romance • Drama",
-    rating: "4.3",
-    image:
-      "https://image.tmdb.org/t/p/w500/iR1bVfURbN7r1C46oH1rXxD9R7G.jpg",
-  },
-  {
-    title: "Chef",
-    genre: "Comedy • Drama",
-    rating: "4.1",
-    image:
-      "https://image.tmdb.org/t/p/w500/9a2sK2gYpL1QxQ0J7X2g8fK8gV0.jpg",
-  },
-  {
-    title: "Paddington 2",
-    genre: "Adventure • Family",
-    rating: "4.5",
-    image:
-      "https://image.tmdb.org/t/p/w500/1OJ9VKbS4cQhJ2x1P9W8w6P8m4T.jpg",
-  },
-];
-
 function App() {
+  // =====================================================
+  // STATE
+  // =====================================================
+
   const [selectedMood, setSelectedMood] = useState("Happy");
+
+  const [movies, setMovies] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
+
+  // =====================================================
+  // GET RECOMMENDATIONS FROM DJANGO
+  // =====================================================
+
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/recommendations/",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            mood: selectedMood,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        throw new Error(
+          errorData.error ||
+            "Unable to get movie recommendations."
+        );
+      }
+
+      const data = await response.json();
+
+      console.log(
+        "Recommendation API response:",
+        data
+      );
+
+      setMovies(
+        data.recommendations || []
+      );
+    } catch (err) {
+      console.error(
+        "Recommendation API error:",
+        err
+      );
+
+      setMovies([]);
+
+      setError(
+        err.message ||
+          "Could not load recommendations. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =====================================================
+  // MOOD SELECTION
+  // =====================================================
+
+  const handleMoodSelect = (moodName) => {
+    setSelectedMood(moodName);
+
+    // Remove old recommendations when mood changes
+    setMovies([]);
+
+    setError("");
+  };
 
   return (
     <div className="app">
 
-      {/* ================= SIDEBAR ================= */}
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
+
       <aside className="sidebar">
 
         <div className="logo">
-          <div className="logo-icon">✣</div>
-          <span>MoodFlix</span>
+          <div className="logo-icon">
+            ✣
+          </div>
+
+          <span>
+            MoodFlix
+          </span>
         </div>
 
         <nav className="navigation">
 
           <a className="nav-item">
-            <span className="nav-icon">⌂</span>
-            <span>Home</span>
+            <span className="nav-icon">
+              ⌂
+            </span>
+
+            <span>
+              Home
+            </span>
           </a>
 
           <a className="nav-item active">
-            <span className="nav-icon">☻</span>
-            <span>Mood</span>
+            <span className="nav-icon">
+              ☻
+            </span>
+
+            <span>
+              Mood
+            </span>
           </a>
 
           <a className="nav-item">
-            <span className="nav-icon">♡</span>
-            <span>My Ratings</span>
+            <span className="nav-icon">
+              ♡
+            </span>
+
+            <span>
+              My Ratings
+            </span>
           </a>
 
           <a className="nav-item">
-            <span className="nav-icon">♙</span>
-            <span>Profile</span>
+            <span className="nav-icon">
+              ♙
+            </span>
+
+            <span>
+              Profile
+            </span>
           </a>
 
         </nav>
 
-        {/* Decorative movie illustration */}
+        {/* Sidebar decoration */}
+
         <div className="sidebar-decoration">
+
           <div className="director-chair">
             <div className="chair-back"></div>
             <div className="chair-seat"></div>
@@ -137,37 +205,73 @@ function App() {
           </div>
 
           <div className="clapper">
+
             <div className="clapper-top"></div>
+
             <div className="clapper-body">
               🎬
             </div>
+
           </div>
+
         </div>
+
+        {/* Help */}
 
         <div className="help-card">
-          <div className="help-icon">?</div>
-          <div>
-            <strong>Need help?</strong>
-            <small>We're here to help</small>
+
+          <div className="help-icon">
+            ?
           </div>
-          <span className="help-arrow">›</span>
+
+          <div>
+            <strong>
+              Need help?
+            </strong>
+
+            <small>
+              We're here to help
+            </small>
+          </div>
+
+          <span className="help-arrow">
+            ›
+          </span>
+
         </div>
 
+        {/* Logout */}
+
         <div className="logout">
-          <span>⇥</span>
-          <span>Logout</span>
+          <span>
+            ⇥
+          </span>
+
+          <span>
+            Logout
+          </span>
         </div>
 
       </aside>
 
-      {/* ================= MAIN CONTENT ================= */}
+
+      {/* =================================================
+          MAIN CONTENT
+      ================================================= */}
+
       <main className="main">
 
-        {/* Top bar */}
+        {/* =================================================
+            TOP BAR
+        ================================================= */}
+
         <header className="topbar">
 
           <div className="search-container">
-            <span className="search-icon">⌕</span>
+
+            <span className="search-icon">
+              ⌕
+            </span>
 
             <input
               type="text"
@@ -175,40 +279,61 @@ function App() {
             />
 
             <button className="filter-button">
-              <span>☷</span>
+              <span>
+                ☷
+              </span>
+
               Filters
             </button>
+
           </div>
 
           <div className="profile-area">
 
             <div className="notification">
               ♧
-              <span>3</span>
+
+              <span>
+                3
+              </span>
             </div>
 
             <div className="avatar">
+
               <img
                 src="https://i.pravatar.cc/100?img=12"
                 alt="Profile"
               />
+
             </div>
 
-            <span className="username">Chiranjeevi</span>
+            <span className="username">
+              User
+            </span>
 
-            <span className="dropdown">⌄</span>
+            <span className="dropdown">
+              ⌄
+            </span>
 
           </div>
 
         </header>
 
-        {/* ================= HERO ================= */}
+
+        {/* =================================================
+            HERO
+        ================================================= */}
+
         <section className="hero">
 
           <div className="hero-text">
 
             <h1>
-              How are you <span>feeling</span> today? 😊
+              How are you{" "}
+              <span>
+                feeling
+              </span>{" "}
+              today? 😊
             </h1>
 
             <p>
@@ -220,107 +345,322 @@ function App() {
           </div>
 
           <div className="hero-decoration">
-            <div className="popcorn-large">🍿</div>
-            <div className="film-reel">◉</div>
-            <div className="straw">╱</div>
+
+            <div className="popcorn-large">
+              🍿
+            </div>
+
+            <div className="film-reel">
+              ◉
+            </div>
+
+            <div className="straw">
+              ╱
+            </div>
+
           </div>
 
         </section>
 
-        {/* ================= MOOD SECTION ================= */}
+
+        {/* =================================================
+            MOOD SECTION
+        ================================================= */}
+
         <section className="mood-section">
 
           <div className="mood-grid">
 
             {moods.map((mood) => (
+
               <button
                 key={mood.name}
+
                 className={`mood-card ${mood.className} ${
-                  selectedMood === mood.name ? "selected" : ""
+                  selectedMood === mood.name
+                    ? "selected"
+                    : ""
                 }`}
-                onClick={() => setSelectedMood(mood.name)}
+
+                onClick={() =>
+                  handleMoodSelect(
+                    mood.name
+                  )
+                }
               >
 
                 <div className="mood-emoji">
                   {mood.emoji}
                 </div>
 
-                <h3>{mood.name}</h3>
+                <h3>
+                  {mood.name}
+                </h3>
 
-                <p>{mood.description}</p>
+                <p>
+                  {mood.description}
+                </p>
 
               </button>
+
             ))}
 
           </div>
 
-          <button className="recommend-button">
+
+          {/* Show Recommendations */}
+
+          <button
+            className="recommend-button"
+
+            onClick={
+              fetchRecommendations
+            }
+
+            disabled={
+              loading
+            }
+          >
+
             ✨
-            <span>Show Recommendations</span>
+
+            <span>
+              {
+                loading
+                  ? "Loading Recommendations..."
+                  : "Show Recommendations"
+              }
+            </span>
+
           </button>
 
         </section>
 
-        {/* ================= MOVIES ================= */}
+
+        {/* =================================================
+            ERROR
+        ================================================= */}
+
+        {error && (
+
+          <div className="recommendation-error">
+            {error}
+          </div>
+
+        )}
+
+
+        {/* =================================================
+            RECOMMENDATIONS
+        ================================================= */}
+
         <section className="recommendations">
 
           <div className="section-header">
 
-            <h2>Recommended for your mood</h2>
+            <h2>
+              Recommended for{" "}
+              {selectedMood}
+            </h2>
 
-            <button className="view-all">
-              View all
-              <span>›</span>
-            </button>
+            {movies.length > 0 && (
+
+              <button className="view-all">
+                View all
+
+                <span>
+                  ›
+                </span>
+              </button>
+
+            )}
 
           </div>
 
-          <div className="movie-wrapper">
 
-            <div className="movie-grid">
+          {/* =================================================
+              EMPTY STATE
+          ================================================= */}
 
-              {movies.map((movie) => (
+          {!loading &&
+            movies.length === 0 &&
+            !error && (
 
-                <div className="movie-card" key={movie.title}>
+              <div className="empty-recommendations">
 
-                  <div className="poster">
+                <p>
+                  Select your mood and click
+                  <strong>
+                    {" "}Show Recommendations
+                  </strong>
+                  {" "}to discover movies.
+                </p>
 
-                    <img
-                      src={movie.image}
-                      alt={movie.title}
-                    />
+              </div>
 
-                  </div>
+            )}
 
-                  <div className="movie-info">
 
-                    <h3>{movie.title}</h3>
+          {/* =================================================
+              LOADING STATE
+          ================================================= */}
 
-                    <div className="movie-bottom">
+          {loading && (
 
-                      <span className="genre">
-                        {movie.genre}
-                      </span>
+            <div className="loading-recommendations">
+              Finding the best movies for your mood...
+            </div>
 
-                      <span className="rating">
-                        ★ {movie.rating}
-                      </span>
+          )}
+
+
+          {/* =================================================
+              MOVIE CARDS
+          ================================================= */}
+
+          {!loading &&
+            movies.length > 0 && (
+
+              <div className="movie-wrapper">
+
+                <div className="movie-grid">
+
+                  {movies.map((movie) => (
+
+                    <div
+                      className="movie-card"
+                      key={movie.movieId}
+                    >
+
+                      {/* =====================================
+                          POSTER
+                      ===================================== */}
+
+                      <div className="poster">
+
+                        {movie.poster_url ? (
+
+                          <img
+                            src={
+                              movie.poster_url
+                            }
+
+                            alt={`${movie.title} poster`}
+
+                            loading="lazy"
+
+                            onError={(event) => {
+                              event.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
+
+                        ) : (
+
+                          <div className="poster-placeholder">
+
+                            <span className="poster-icon">
+                              🎬
+                            </span>
+
+                            <span className="poster-title">
+                              {movie.title}
+                            </span>
+
+                          </div>
+
+                        )}
+
+                      </div>
+
+
+                      {/* =====================================
+                          MOVIE INFORMATION
+                      ===================================== */}
+
+                      <div className="movie-info">
+
+                        <h3>
+                          {movie.title}
+                        </h3>
+
+                        <div className="movie-bottom">
+
+                          <span className="genre">
+
+                            {movie.genres
+                              ? movie.genres.replaceAll(
+                                  "|",
+                                  " • "
+                                )
+                              : "No genre"}
+
+                          </span>
+
+                          <span className="rating">
+
+                            ★{" "}
+
+                            {movie.average_rating !== null &&
+                            movie.average_rating !== undefined
+                              ? Number(
+                                  movie.average_rating
+                                ).toFixed(1)
+                              : "N/A"}
+
+                          </span>
+
+                        </div>
+
+
+                        {/* =====================================
+                            AI DETAILS
+                        ===================================== */}
+
+                        <div className="recommendation-details">
+
+                          <small>
+                            Ratings:{" "}
+                            {movie.rating_count ?? 0}
+                          </small>
+
+                          <small>
+                            Match:{" "}
+
+                            {Math.round(
+                              Number(
+                                movie.mood_similarity ||
+                                  0
+                              ) * 100
+                            )}
+
+                            %
+                          </small>
+
+                        </div>
+
+
+                        {/* =====================================
+                            IMDb link is already returned by
+                            Django and will be used in the
+                            Movie Details page next.
+                        ===================================== */}
+
+                      </div>
 
                     </div>
 
-                  </div>
+                  ))}
 
                 </div>
 
-              ))}
+                <button className="next-button">
+                  ›
+                </button>
 
-            </div>
+              </div>
 
-            <button className="next-button">
-              ›
-            </button>
-
-          </div>
+            )}
 
         </section>
 
