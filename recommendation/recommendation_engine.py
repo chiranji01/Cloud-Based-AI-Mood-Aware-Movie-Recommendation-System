@@ -3,388 +3,181 @@ import sys
 from pathlib import Path
 
 import django
+import numpy as np
 import pandas as pd
 from django.apps import apps
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-# =========================================================
-# 1. CONNECT THE AI ENGINE TO DJANGO
-# =========================================================
-
-# Main project folder
+# Connect recommendation engine to Django
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Django backend folder
 BACKEND_DIR = PROJECT_ROOT / "backend"
 
-# Allow Python to find backend/settings.py and moviesapp
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-# Tell Django which settings file to use
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE",
-    "settings"
-)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
-# Initialise Django only if it has not already been started
 if not apps.ready:
     django.setup()
 
 
-# =========================================================
-# 2. IMPORT DATABASE MODELS
-# =========================================================
-
-from moviesapp.models import (
-    Movie,
-    MovieTag,
-    Rating,
-    MoodGenreMapping,
-)
+from moviesapp.models import Movie, MovieTag, Rating, MoodGenreMapping
 
 
-# =========================================================
-# 3. LOAD MOVIES FROM MYSQL
-# =========================================================
-
-movie_records = Movie.objects.values(
-    "movie_id",
-    "title",
-    "genres"
-)
-
-movies = pd.DataFrame(
-    list(movie_records)
-)
-
-# Rename database field so the rest of the recommendation
-# code can continue using "movieId"
-movies = movies.rename(
-    columns={
-        "movie_id": "movieId"
-    }
-)
+# Load movies
+movies = pd.DataFrame(list(Movie.objects.values("movie_id", "title", "genres")))
+movies.rename(columns={"movie_id": "movieId"}, inplace=True)
 
 
-# =========================================================
-# 4. LOAD MOVIE TAGS FROM MYSQL
-# =========================================================
-
-movie_tag_records = MovieTag.objects.select_related(
-    "movie",
-    "tag"
-).values(
-    "movie_id",
-    "tag__tag"
-)
-
-tags = pd.DataFrame(
-    list(movie_tag_records)
-)
-
-tags = tags.rename(
-    columns={
-        "movie_id": "movieId",
-        "tag__tag": "tag"
-    }
-)
+# Load movie tags
+tags = pd.DataFrame(list(
+    MovieTag.objects.select_related("movie", "tag").values("movie_id", "tag__tag")
+))
+tags.rename(columns={"movie_id": "movieId", "tag__tag": "tag"}, inplace=True)
 
 
-# =========================================================
-# 5. LOAD RATINGS FROM MYSQL
-# =========================================================
-
-rating_records = Rating.objects.values(
-    "movie_id",
-    "rating"
-)
-
-ratings = pd.DataFrame(
-    list(rating_records)
-)
-
-ratings = ratings.rename(
-    columns={
-        "movie_id": "movieId"
-    }
-)
+# Load ratings
+ratings = pd.DataFrame(list(Rating.objects.values("movie_id", "rating")))
+ratings.rename(columns={"movie_id": "movieId"}, inplace=True)
 
 
-# =========================================================
-# 6. COMBINE ALL TAGS FOR EACH MOVIE
-# =========================================================
-
-movie_tags = (
-    tags.groupby("movieId")["tag"]
-    .apply(lambda x: " ".join(x.astype(str)))
-    .reset_index()
-)
+# Combine tags for each movie
+movie_tags = tags.groupby("movieId")["tag"].apply(
+    lambda x: " ".join(x.astype(str))
+).reset_index()
 
 
-# =========================================================
-# 7. CALCULATE AVERAGE RATING AND RATING COUNT
-# =========================================================
-
-rating_summary = (
-    ratings.groupby("movieId")["rating"]
-    .agg(["mean", "count"])
-    .reset_index()
-)
-
-rating_summary.columns = [
-    "movieId",
-    "average_rating",
-    "rating_count"
-]
+# Calculate average rating and rating count
+rating_summary = ratings.groupby("movieId")["rating"].agg(["mean", "count"]).reset_index()
+rating_summary.columns = ["movieId", "average_rating", "rating_count"]
 
 
-# =========================================================
-# 8. MERGE MOVIE, TAG AND RATING INFORMATION
-# =========================================================
-
-movies = movies.merge(
-    movie_tags,
-    on="movieId",
-    how="left"
-)
-
-movies = movies.merge(
-    rating_summary,
-    on="movieId",
-    how="left"
-)
-
-
-# =========================================================
-# 9. FILL MISSING VALUES
-# =========================================================
+# Merge movie information
+movies = movies.merge(movie_tags, on="movieId", how="left")
+movies = movies.merge(rating_summary, on="movieId", how="left")
 
 movies["tag"] = movies["tag"].fillna("")
+movies["genres"] = movies["genres"].fillna("")
 movies["average_rating"] = movies["average_rating"].fillna(0)
 movies["rating_count"] = movies["rating_count"].fillna(0)
 
 
-# =========================================================
-# 10. PREPARE MOVIE GENRES
-# =========================================================
-
-movies["genres_clean"] = movies["genres"].str.replace(
-    "|",
-    " ",
-    regex=False
-)
+# Extract release year
+movies["year"] = pd.to_numeric(
+    movies["title"].str.extract(r"\((\d{4})\)$")[0],
+    errors="coerce"
+).fillna(1900)
 
 
-# =========================================================
-# 11. COMBINE GENRES AND TAGS
-# =========================================================
-
-movies["combined_features"] = (
-    movies["genres_clean"]
-    + " "
-    + movies["tag"]
-)
+# Prepare movie features
+movies["genres_clean"] = movies["genres"].str.replace("|", " ", regex=False)
+movies["combined_features"] = movies["genres_clean"] + " " + movies["tag"]
 
 
-# =========================================================
-# 12. CREATE TF-IDF VECTORS
-# =========================================================
-
-tfidf = TfidfVectorizer(
-    stop_words="english"
-)
-
-tfidf_matrix = tfidf.fit_transform(
-    movies["combined_features"]
-)
+# Create TF-IDF vectors
+tfidf = TfidfVectorizer(stop_words="english")
+tfidf_matrix = tfidf.fit_transform(movies["combined_features"])
 
 
-# =========================================================
-# 13. MAIN RECOMMENDATION FUNCTION
-# =========================================================
+def calculate_genre_match(movie_genres, selected_genres):
+    if not selected_genres:
+        return 0.0
 
-def get_mood_recommendations(
-    mood,
-    number_of_movies=10
-):
+    movie_genres = movie_genres.split("|")
+    matches = sum(genre in movie_genres for genre in selected_genres)
 
-    # Clean mood received from Django/frontend
+    return matches / len(selected_genres)
+
+
+def get_mood_recommendations(mood, number_of_movies=10):
+
     mood = mood.strip().title()
 
-    # -----------------------------------------------------
-    # Get mood profile from MySQL
-    # -----------------------------------------------------
-
     try:
-        mood_profile = MoodGenreMapping.objects.get(
-            mood_name__iexact=mood
-        )
-
+        mood_profile = MoodGenreMapping.objects.get(mood_name__iexact=mood)
     except MoodGenreMapping.DoesNotExist:
         return []
 
-    # Convert database genre string into Python list
-    selected_genres = [
-        genre.strip()
-        for genre in mood_profile.genres.split(",")
-    ]
+    selected_genres = [x.strip() for x in mood_profile.genres.split(",") if x.strip()]
+    selected_keywords = [x.strip() for x in mood_profile.keywords.split(",") if x.strip()]
 
-    # Convert database keyword string into Python list
-    selected_keywords = [
-        keyword.strip()
-        for keyword in mood_profile.keywords.split(",")
-    ]
+    # Mood similarity
+    mood_text = " ".join(selected_genres + selected_keywords)
+    mood_vector = tfidf.transform([mood_text])
+    mood_similarity = cosine_similarity(mood_vector, tfidf_matrix).flatten()
 
-    # -----------------------------------------------------
-    # Create mood profile text
-    # -----------------------------------------------------
-
-    mood_text = " ".join(
-        selected_genres
-        + selected_keywords
+    # Genre match
+    genre_match = movies["genres"].apply(
+        lambda x: calculate_genre_match(x, selected_genres)
     )
 
-    # Convert mood profile using the same TF-IDF model
-    mood_vector = tfidf.transform(
-        [mood_text]
-    )
+    # Rating quality
+    rating_score = movies["average_rating"] / 5.0
+    rating_reliability = movies["rating_count"] / (movies["rating_count"] + 20)
+    reliable_rating = rating_score * rating_reliability
 
-    # -----------------------------------------------------
-    # Calculate mood similarity
-    # -----------------------------------------------------
+    # Popularity
+    popularity = np.log1p(movies["rating_count"])
+    if popularity.max() > 0:
+        popularity = popularity / popularity.max()
 
-    mood_similarity = cosine_similarity(
-        mood_vector,
-        tfidf_matrix
-    ).flatten()
+    # Recency - newer movies get higher scores
+    movie_age = (2026 - movies["year"]).clip(lower=0)
+    recency = np.exp(-movie_age / 12.0)
 
-    # -----------------------------------------------------
-    # Normalise average rating
-    # MovieLens ratings are between 0 and 5
-    # -----------------------------------------------------
-
-    rating_score = (
-        movies["average_rating"]
-        / 5.0
-    )
-
-    # -----------------------------------------------------
-    # Rating reliability
-    #
-    # Movies with very few ratings receive less influence.
-    # As rating_count increases, reliability approaches 1.
-    # -----------------------------------------------------
-
-    rating_reliability = (
-        movies["rating_count"]
-        /
-        (
-            movies["rating_count"]
-            + 10
-        )
-    )
-
-    reliable_rating_score = (
-        rating_score
-        * rating_reliability
-    )
-
-    # -----------------------------------------------------
-    # Final ranking
-    #
-    # 80% = mood relevance
-    # 20% = reliable rating score
-    # -----------------------------------------------------
-
+    # Final score
     final_score = (
-        0.8 * mood_similarity
-        + 0.2 * reliable_rating_score
+        0.55 * mood_similarity
+        + 0.15 * genre_match
+        + 0.05 * reliable_rating
+        + 0.05 * popularity
+        + 0.20 * recency
     )
 
-    # Rank highest score first
-    ranked_indices = (
-        final_score
-        .argsort()[::-1]
-    )
+    ranked_indices = final_score.argsort()[::-1]
 
     recommendations = []
 
-    # -----------------------------------------------------
-    # Select Top 10 appropriate movies
-    # -----------------------------------------------------
+    # First try movies from 2015 onwards
+    for minimum_year in [2022, 2020, 2015, 2010]:
+        for index in ranked_indices:
 
-    for movie_index in ranked_indices:
+            movie = movies.iloc[index]
 
-        movie = movies.iloc[
-            movie_index
-        ]
+            if movie["year"] < minimum_year:
+                continue
 
-        movie_genres = movie[
-            "genres"
-        ]
+            # Avoid duplicates when fallback runs
+            if any(x["movieId"] == int(movie["movieId"]) for x in recommendations):
+                continue
 
-        # Movie must contain at least one genre
-        # associated with the selected mood
-        if any(
-            genre in movie_genres
-            for genre in selected_genres
-        ):
+            mood_score = float(mood_similarity[index])
+            genre_score = float(genre_match.iloc[index])
 
-            recommendations.append(
-                {
-                    "movieId": int(
-                        movie["movieId"]
-                    ),
+            # Skip unrelated movies
+            if genre_score <= 0 and mood_score < 0.15:
+                continue
 
-                    "title": movie[
-                        "title"
-                    ],
+            # Skip unreliable low-rated movies
+            if movie["rating_count"] < 10 and movie["average_rating"] < 3.0:
+                continue
 
-                    "genres": movie_genres,
+            recommendations.append({
+                "movieId": int(movie["movieId"]),
+                "title": movie["title"],
+                "genres": movie["genres"],
+                "year": int(movie["year"]),
+                "mood_similarity": round(mood_score, 3),
+                "genre_match_score": round(genre_score, 3),
+                "average_rating": round(float(movie["average_rating"]), 2),
+                "rating_count": int(movie["rating_count"]),
+                "recency_score": round(float(recency.iloc[index]), 3),
+                "final_score": round(float(final_score.iloc[index]), 3)
+            })
 
-                    "mood_similarity": round(
-                        float(
-                            mood_similarity[
-                                movie_index
-                            ]
-                        ),
-                        3
-                    ),
-
-                    "average_rating": round(
-                        float(
-                            movie[
-                                "average_rating"
-                            ]
-                        ),
-                        2
-                    ),
-
-                    "rating_count": int(
-                        movie[
-                            "rating_count"
-                        ]
-                    ),
-
-                    "final_score": round(
-                        float(
-                            final_score.iloc[
-                                movie_index
-                            ]
-                        ),
-                        3
-                    )
-                }
-            )
-
-        # Stop when required number is reached
-        if (
-            len(recommendations)
-            == number_of_movies
-        ):
-            break
+            if len(recommendations) == number_of_movies:
+                return recommendations
 
     return recommendations
