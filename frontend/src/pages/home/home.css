@@ -109,7 +109,7 @@ body {
 
 .sidebar-card {
   margin-top: auto;
-  margin-bottom: 50px;
+  margin-bottom: 12px;
   padding: 13px 11px;
   border-radius: 8px;
   background: linear-gradient(
@@ -160,15 +160,19 @@ body {
 /* Logout */
 
 .logout {
-  position: absolute;
-  bottom: 23px;
-  left: 20px;
+  position: static;
   display: flex;
   align-items: center;
   gap: 11px;
+  padding: 8px 10px 0;
   color: #b5b7c7;
   font-size: 11px;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.logout:hover {
+  color: white;
 }
 
 
