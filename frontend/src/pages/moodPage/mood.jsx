@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./mood.css";
 
 const moods = [
@@ -85,8 +86,18 @@ const movies = [
   },
 ];
 
-function App() {
+function Mood() {
+  const navigate = useNavigate();
+
   const [selectedMood, setSelectedMood] = useState("Happy");
+
+  const handleRecommendation = () => {
+    navigate("/movies", {
+      state: {
+        mood: selectedMood,
+      },
+    });
+  };
 
   return (
     <div className="app">
@@ -94,37 +105,56 @@ function App() {
       {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
 
+        {/* Logo */}
         <div className="logo">
           <div className="logo-icon">✣</div>
           <span>MoodFlix</span>
         </div>
 
+        {/* Navigation */}
         <nav className="navigation">
 
-          <a className="nav-item">
+          <button
+            type="button"
+            className="nav-item"
+            onClick={() => navigate("/home")}
+          >
             <span className="nav-icon">⌂</span>
             <span>Home</span>
-          </a>
+          </button>
 
-          <a className="nav-item active">
+          <button
+            type="button"
+            className="nav-item active"
+            onClick={() => navigate("/mood")}
+          >
             <span className="nav-icon">☻</span>
             <span>Mood</span>
-          </a>
+          </button>
 
-          <a className="nav-item">
+          <button
+            type="button"
+            className="nav-item"
+            onClick={() => navigate("/ratings")}
+          >
             <span className="nav-icon">♡</span>
             <span>My Ratings</span>
-          </a>
+          </button>
 
-          <a className="nav-item">
+          <button
+            type="button"
+            className="nav-item"
+            onClick={() => navigate("/profile")}
+          >
             <span className="nav-icon">♙</span>
             <span>Profile</span>
-          </a>
+          </button>
 
         </nav>
 
         {/* Decorative movie illustration */}
         <div className="sidebar-decoration">
+
           <div className="director-chair">
             <div className="chair-back"></div>
             <div className="chair-seat"></div>
@@ -138,48 +168,72 @@ function App() {
 
           <div className="clapper">
             <div className="clapper-top"></div>
+
             <div className="clapper-body">
               🎬
             </div>
           </div>
+
         </div>
 
+        {/* Help */}
         <div className="help-card">
-          <div className="help-icon">?</div>
+
+          <div className="help-icon">
+            ?
+          </div>
+
           <div>
             <strong>Need help?</strong>
             <small>We're here to help</small>
           </div>
-          <span className="help-arrow">›</span>
+
+          <span className="help-arrow">
+            ›
+          </span>
+
         </div>
 
-        <div className="logout">
+        {/* Logout */}
+        <button
+          type="button"
+          className="logout"
+          onClick={() => navigate("/login")}
+        >
           <span>⇥</span>
           <span>Logout</span>
-        </div>
+        </button>
 
       </aside>
 
       {/* ================= MAIN CONTENT ================= */}
       <main className="main">
 
-        {/* Top bar */}
+        {/* ================= TOP BAR ================= */}
         <header className="topbar">
 
           <div className="search-container">
-            <span className="search-icon">⌕</span>
+
+            <span className="search-icon">
+              ⌕
+            </span>
 
             <input
               type="text"
               placeholder="Search movies by title, genre, actor..."
             />
 
-            <button className="filter-button">
+            <button
+              type="button"
+              className="filter-button"
+            >
               <span>☷</span>
               Filters
             </button>
+
           </div>
 
+          {/* Profile area */}
           <div className="profile-area">
 
             <div className="notification">
@@ -187,16 +241,24 @@ function App() {
               <span>3</span>
             </div>
 
-            <div className="avatar">
+            <button
+              type="button"
+              className="avatar"
+              onClick={() => navigate("/profile")}
+            >
               <img
                 src="https://i.pravatar.cc/100?img=12"
                 alt="Profile"
               />
-            </div>
+            </button>
 
-            <span className="username">Chiranjeevi</span>
+            <span className="username">
+              Chiranjeevi
+            </span>
 
-            <span className="dropdown">⌄</span>
+            <span className="dropdown">
+              ⌄
+            </span>
 
           </div>
 
@@ -220,9 +282,19 @@ function App() {
           </div>
 
           <div className="hero-decoration">
-            <div className="popcorn-large">🍿</div>
-            <div className="film-reel">◉</div>
-            <div className="straw">╱</div>
+
+            <div className="popcorn-large">
+              🍿
+            </div>
+
+            <div className="film-reel">
+              ◉
+            </div>
+
+            <div className="straw">
+              ╱
+            </div>
+
           </div>
 
         </section>
@@ -233,8 +305,10 @@ function App() {
           <div className="mood-grid">
 
             {moods.map((mood) => (
+
               <button
                 key={mood.name}
+                type="button"
                 className={`mood-card ${mood.className} ${
                   selectedMood === mood.name ? "selected" : ""
                 }`}
@@ -245,30 +319,48 @@ function App() {
                   {mood.emoji}
                 </div>
 
-                <h3>{mood.name}</h3>
+                <h3>
+                  {mood.name}
+                </h3>
 
-                <p>{mood.description}</p>
+                <p>
+                  {mood.description}
+                </p>
 
               </button>
+
             ))}
 
           </div>
 
-          <button className="recommend-button">
+          {/* Recommendation button */}
+          <button
+            type="button"
+            className="recommend-button"
+            onClick={handleRecommendation}
+          >
             ✨
-            <span>Show Recommendations</span>
+            <span>
+              Show Recommendations
+            </span>
           </button>
 
         </section>
 
-        {/* ================= MOVIES ================= */}
+        {/* ================= MOVIE RECOMMENDATIONS ================= */}
         <section className="recommendations">
 
           <div className="section-header">
 
-            <h2>Recommended for your mood</h2>
+            <h2>
+              Recommended for your mood
+            </h2>
 
-            <button className="view-all">
+            <button
+              type="button"
+              className="view-all"
+              onClick={() => navigate("/movies")}
+            >
               View all
               <span>›</span>
             </button>
@@ -281,7 +373,10 @@ function App() {
 
               {movies.map((movie) => (
 
-                <div className="movie-card" key={movie.title}>
+                <div
+                  className="movie-card"
+                  key={movie.title}
+                >
 
                   <div className="poster">
 
@@ -294,7 +389,9 @@ function App() {
 
                   <div className="movie-info">
 
-                    <h3>{movie.title}</h3>
+                    <h3>
+                      {movie.title}
+                    </h3>
 
                     <div className="movie-bottom">
 
@@ -316,7 +413,10 @@ function App() {
 
             </div>
 
-            <button className="next-button">
+            <button
+              type="button"
+              className="next-button"
+            >
               ›
             </button>
 
@@ -330,4 +430,4 @@ function App() {
   );
 }
 
-export default App;
+export default Mood;

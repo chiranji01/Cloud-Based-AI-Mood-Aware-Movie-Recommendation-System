@@ -5,6 +5,7 @@ import Register from "./pages/register/Register";
 import Home from "./pages/home/Home";
 import Ratings from "./pages/ratings/Rating";
 import MovieDetails from "./pages/movie details/movie details";
+import Mood from "./pages/moodPage/mood";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/ratings" element={<Ratings />} />
         <Route path="/movie/:id" element={<MovieDetails />} />
+        <Route path="/mood" element={<Mood />} />
       </Routes>
     </BrowserRouter>
   );
