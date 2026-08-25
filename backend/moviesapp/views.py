@@ -3,6 +3,9 @@ import io
 
 from django.db import transaction
 
+from django.contrib.auth import authenticate, get_user_model
+User = get_user_model()
+
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
@@ -13,7 +16,8 @@ from .models import (
     Tag,
     MovieTag,
     Rating,
-    MovieLink
+    MovieLink,
+    MoodGenreMapping
 )
 
 
@@ -481,3 +485,231 @@ def link_list(request):
         })
 
     return Response(data)
+
+@api_view(["GET"])
+def mood_recommendations(request):
+
+    mood = request.GET.get("mood")
+
+    if not mood:
+        return Response(
+            {"error": "Please provide a mood"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    try:
+        mood_mapping = MoodGenreMapping.objects.get(
+            mood_name__iexact=mood
+        )
+
+    except MoodGenreMapping.DoesNotExist:
+        return Response(
+            {"error": "Mood not found"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # Convert:
+    # "Comedy,Adventure,Romance"
+    # into:
+    # ["comedy", "adventure", "romance"]
+
+    recommended_genres = [
+        genre.strip().lower()
+        for genre in mood_mapping.genres.split(",")
+    ]
+
+    movies = Movie.objects.all()
+
+    recommended_movies = []
+
+    for movie in movies:
+
+        # MovieLens stores genres like:
+        # "Comedy|Drama"
+
+        movie_genres = [
+            genre.strip().lower()
+            for genre in movie.genres.split("|")
+        ]
+
+        # Check whether at least one genre matches
+        if any(
+            genre in recommended_genres
+            for genre in movie_genres
+        ):
+
+            recommended_movies.append({
+                "movie_id": movie.movie_id,
+                "title": movie.title,
+                "genres": movie.genres
+            })
+
+    return Response({
+        "mood": mood,
+        "movies": recommended_movies[:20]
+    })
+
+
+
+
+# =========================================================
+# USER REGISTRATION
+# =========================================================
+
+@api_view(["POST"])
+def register_user(request):
+
+    User = get_user_model()
+
+    name = request.data.get("name")
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    # -----------------------------------------
+    # Check required fields
+    # -----------------------------------------
+
+    if not name or not email or not password:
+        return Response(
+            {
+                "error": "Name, email and password are required."
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Remove unnecessary spaces from email
+    email = email.strip().lower()
+
+    # -----------------------------------------
+    # Check password length
+    # -----------------------------------------
+
+    if len(password) < 8:
+        return Response(
+            {
+                "error": "Password must be at least 8 characters long."
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # -----------------------------------------
+    # Check whether email already exists
+    # -----------------------------------------
+
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {
+                "error": "An account with this email already exists."
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # -----------------------------------------
+    # Create user
+    # -----------------------------------------
+
+    user = User.objects.create_user(
+        username=email,
+        email=email,
+        password=password,
+        first_name=name
+    )
+
+    return Response(
+        {
+            "message": "Registration successful!",
+            "user": {
+                "id": user.id,
+                "name": user.first_name,
+                "email": user.email
+            }
+        },
+        status=status.HTTP_201_CREATED
+    )
+
+
+# =========================================================
+# USER LOGIN
+# =========================================================
+
+@api_view(["POST"])
+def login_view(request):
+
+    User = get_user_model()
+
+    email = request.data.get("email")
+    password = request.data.get("password")
+
+    # -----------------------------------------
+    # Check required fields
+    # -----------------------------------------
+
+    if not email or not password:
+        return Response(
+            {
+                "message": "Email and password are required."
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Remove unnecessary spaces from email
+    email = email.strip().lower()
+
+    # -----------------------------------------
+    # Find user
+    # -----------------------------------------
+
+    try:
+
+        user = User.objects.get(
+            email=email
+        )
+
+    except User.DoesNotExist:
+
+        return Response(
+            {
+                "message": "Invalid email or password."
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    # -----------------------------------------
+    # Verify password
+    # -----------------------------------------
+
+    authenticated_user = authenticate(
+        username=user.username,
+        password=password
+    )
+
+    # -----------------------------------------
+    # Login successful
+    # -----------------------------------------
+
+    if authenticated_user is not None:
+
+        return Response(
+            {
+                "message": "Login successful!",
+
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "name": user.first_name,
+                    "email": user.email
+                }
+            },
+            status=status.HTTP_200_OK
+        )
+
+    # -----------------------------------------
+    # Wrong password
+    # -----------------------------------------
+
+    return Response(
+        {
+            "message": "Invalid email or password."
+        },
+        status=status.HTTP_401_UNAUTHORIZED
+    )
