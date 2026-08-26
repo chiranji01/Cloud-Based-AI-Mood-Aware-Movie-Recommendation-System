@@ -1,12 +1,10 @@
 import json
 import os
-
 import requests
 
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
-
 from moviesapp.models import MovieLink
 
 
@@ -14,12 +12,11 @@ from moviesapp.models import MovieLink
 # TMDB CONFIGURATION
 # =========================================================
 
-# Read the TMDb API key from an environment variable.
-# Do NOT hard-code the real API key into GitHub.
+# Load the TMDb API key securely from the environment
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
+# TMDb API and poster image URLs
 TMDB_API_URL = "https://api.themoviedb.org/3/movie"
-
 TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
 
@@ -27,70 +24,54 @@ TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 # GET MOVIE POSTER FROM TMDB
 # =========================================================
 
+# Retrieve the TMDb poster URL using a MovieLens movie ID
 def get_movie_poster(movie_id):
 
     try:
-        # Find the MovieLens -> TMDb mapping from MySQL
-        movie_link = MovieLink.objects.get(
-            movie_id=movie_id
-        )
+        # Find the corresponding TMDb ID from the MovieLink table
+        movie_link = MovieLink.objects.get(movie_id=movie_id)
 
-        # Movie does not have a TMDb ID
+        # Return no poster if the TMDb ID or API key is unavailable
         if not movie_link.tmdb_id:
             return None
 
-        # If no TMDb API key is configured,
-        # simply return no poster rather than crashing.
         if not TMDB_API_KEY:
             return None
 
         # Request movie information from TMDb
         response = requests.get(
             f"{TMDB_API_URL}/{movie_link.tmdb_id}",
-            params={
-                "api_key": TMDB_API_KEY,
-                "language": "en-US"
-            },
+            params={"api_key": TMDB_API_KEY, "language": "en-US"},
             timeout=5
         )
 
-        # TMDb request failed
+        # Continue without a poster if the request fails
         if response.status_code != 200:
             return None
 
-        # Convert TMDb JSON response
+        # Convert the response to Python data
         tmdb_data = response.json()
 
-        # Get poster path
+        # Extract the poster path
         poster_path = tmdb_data.get("poster_path")
 
         # Some movies may not have a poster
         if not poster_path:
             return None
 
-        # Example:
-        #
-        # poster_path:
-        # /abc123.jpg
-        #
-        # final:
-        # https://image.tmdb.org/t/p/w500/abc123.jpg
-        return (
-            TMDB_IMAGE_BASE_URL
-            + poster_path
-        )
+        # Build and return the complete poster URL
+        return TMDB_IMAGE_BASE_URL + poster_path
 
     except MovieLink.DoesNotExist:
-        # No link exists for this MovieLens movie
+        # No MovieLens-to-TMDb mapping was found
         return None
 
     except requests.RequestException:
-        # Internet/API connection error
+        # Handle TMDb API or network errors
         return None
 
     except Exception:
-        # Poster failure should never break
-        # the recommendation system.
+        # Poster errors should not stop recommendations
         return None
 
 
@@ -98,85 +79,36 @@ def get_movie_poster(movie_id):
 # MOOD RECOMMENDATION API
 # =========================================================
 
+# Receive the selected mood from React and return recommendations
 @csrf_exempt
 def mood_recommendations(request):
 
-    # Only allow POST requests
+    # Only accept POST requests
     if request.method != "POST":
-
-        return JsonResponse(
-            {
-                "error": "Only POST requests are allowed."
-            },
-            status=405
-        )
+        return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
 
     try:
-
-        # =================================================
-        # READ FRONTEND REQUEST
-        # =================================================
-
+        # Convert the JSON request from React into Python data
         data = json.loads(request.body)
 
-        # Example input:
-        #
-        # {
-        #     "mood": "Happy"
-        # }
-        mood = (
-            data
-            .get("mood", "")
-            .strip()
-            .title()
-        )
+        # Read and standardise the selected mood
+        mood = data.get("mood", "").strip().title()
 
-
-        # =================================================
-        # VALIDATE MOOD INPUT
-        # =================================================
-
+        # Ensure that a mood was provided
         if not mood:
+            return JsonResponse({"error": "Mood is required."}, status=400)
 
-            return JsonResponse(
-                {
-                    "error": "Mood is required."
-                },
-                status=400
-            )
+        # Import the recommendation function
+        from recommendation.recommendation_engine import get_mood_recommendations
 
+        # Generate the Top 10 recommendations
+        recommendations = get_mood_recommendations(mood)
 
-        # =================================================
-        # LOAD AI RECOMMENDATION ENGINE
-        # =================================================
-
-        # Import only when the endpoint is called.
-        from recommendation.recommendation_engine import (
-            get_mood_recommendations
-        )
-
-
-        # =================================================
-        # GENERATE TOP 10
-        # =================================================
-
-        recommendations = (
-            get_mood_recommendations(
-                mood
-            )
-        )
-
-
-        # =================================================
-        # VALIDATE SELECTED MOOD
-        # =================================================
-
+        # Return an error if the mood is unsupported
         if not recommendations:
-
             return JsonResponse(
                 {
                     "error": "Invalid mood.",
-
                     "available_moods": [
                         "Happy",
                         "Sad",
@@ -189,75 +121,34 @@ def mood_recommendations(request):
                 status=400
             )
 
-
-        # =================================================
-        # ADD TMDB POSTER INFORMATION
-        # =================================================
-
+        # Add a TMDb poster URL to each recommended movie
         for movie in recommendations:
-
-            # Get poster using MovieLens movieId
-            poster_url = get_movie_poster(
-                movie["movieId"]
-            )
-
-            # Add poster_url to the existing AI result
+            poster_url = get_movie_poster(movie["movieId"])
             movie["poster_url"] = poster_url
 
-
-        # =================================================
-        # RETURN JSON TO REACT
-        # =================================================
-
+        # Return the final recommendation results to React
         return JsonResponse(
             {
                 "mood": mood,
-
-                "recommendation_count":
-                    len(recommendations),
-
-                "recommendations":
-                    recommendations
+                "recommendation_count": len(recommendations),
+                "recommendations": recommendations
             },
             status=200
         )
 
-
-    # =====================================================
-    # INVALID JSON
-    # =====================================================
-
+    # Handle incorrectly formatted JSON requests
     except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON data."}, status=400)
 
-        return JsonResponse(
-            {
-                "error": "Invalid JSON data."
-            },
-            status=400
-        )
-
-
-    # =====================================================
-    # UNEXPECTED ERROR
-    # =====================================================
-
+    # Handle unexpected backend errors
     except Exception as error:
-
-        return JsonResponse(
-            {
-                "error": str(error)
-            },
-            status=500
-        )
+        return JsonResponse({"error": str(error)}, status=500)
 
 
 # =========================================================
 # TEMPORARY AI DEMO PAGE
 # =========================================================
 
+# Render the temporary recommendation testing page
 def recommendation_demo(request):
-
-    return render(
-        request,
-        "recommendation_api/demo.html"
-    )
+    return render(request, "recommendation_api/demo.html")
