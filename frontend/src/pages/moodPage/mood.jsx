@@ -1,0 +1,380 @@
+import React, { useState } from "react";
+import "./mood.css";
+
+const moods = [
+  {
+    name: "Happy",
+    emoji: "😀",
+    description: "Feel good and uplifting movies",
+    className: "happy",
+  },
+  {
+    name: "Sad",
+    emoji: "😢",
+    description: "Emotional and heart-touching movies",
+    className: "sad",
+  },
+  {
+    name: "Relaxed",
+    emoji: "😌",
+    description: "Calm and relaxing movies",
+    className: "relaxed",
+  },
+  {
+    name: "Excited",
+    emoji: "🤩",
+    description: "High energy and thrilling movies",
+    className: "excited",
+  },
+  {
+    name: "Romantic",
+    emoji: "💗",
+    description: "Love and romance movies",
+    className: "romantic",
+  },
+  {
+    name: "Stressed",
+    emoji: "😰",
+    description: "Movies to help you unwind",
+    className: "stressed",
+  },
+];
+
+function App() {
+
+  // Recommendation API integration state
+  const [selectedMood, setSelectedMood] = useState("");
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Send the selected mood to the Django recommendation API
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch("http://127.0.0.1:8000/api/recommendations/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood: selectedMood }),
+      });
+
+      // Handle unsuccessful API responses
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unable to get movie recommendations.");
+      }
+
+      // Store recommendations returned by Django
+      const data = await response.json();
+      console.log("Recommendation API response:", data);
+      setMovies(data.recommendations || []);
+
+    } catch (err) {
+      console.error("Recommendation API error:", err);
+      setMovies([]);
+      setError(err.message || "Could not load recommendations. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+const handleMoodSelect = async (moodName) => {
+  setSelectedMood(moodName);
+  setMovies([]);
+  setError("");
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/recommendations/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mood: moodName }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "Unable to get movie recommendations."
+      );
+    }
+
+    const data = await response.json();
+    setMovies(data.recommendations || []);
+
+  } catch (err) {
+    console.error("Recommendation API error:", err);
+    setMovies([]);
+    setError(
+      err.message || "Could not load recommendations. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+  return (
+    <div className="app">
+
+      <aside className="sidebar">
+
+        <div className="logo">
+          <div className="logo-icon">✣</div>
+          <span>MoodFlix</span>
+        </div>
+
+        <nav className="navigation">
+          <a className="nav-item">
+            <span className="nav-icon">⌂</span>
+            <span>Home</span>
+          </a>
+
+          <a className="nav-item active">
+            <span className="nav-icon">☻</span>
+            <span>Mood</span>
+          </a>
+
+          <a className="nav-item">
+            <span className="nav-icon">♡</span>
+            <span>My Ratings</span>
+          </a>
+
+          <a className="nav-item">
+            <span className="nav-icon">♙</span>
+            <span>Profile</span>
+          </a>
+        </nav>
+
+        <div className="sidebar-decoration">
+          <div className="director-chair">
+            <div className="chair-back"></div>
+            <div className="chair-seat"></div>
+            <div className="chair-leg left"></div>
+            <div className="chair-leg right"></div>
+          </div>
+
+          <div className="popcorn">🍿</div>
+
+          <div className="clapper">
+            <div className="clapper-top"></div>
+            <div className="clapper-body">🎬</div>
+          </div>
+        </div>
+
+        <div className="help-card">
+          <div className="help-icon">?</div>
+          <div>
+            <strong>Need help?</strong>
+            <small>We're here to help</small>
+          </div>
+          <span className="help-arrow">›</span>
+        </div>
+
+        <div className="logout">
+          <span>⇥</span>
+          <span>Logout</span>
+        </div>
+
+      </aside>
+
+      <main className="main">
+
+        <header className="topbar">
+
+          <div className="search-container">
+            <span className="search-icon">⌕</span>
+            <input type="text" placeholder="Search movies by title, genre, actor..." />
+
+            <button className="filter-button">
+              <span>☷</span>
+              Filters
+            </button>
+          </div>
+
+          <div className="profile-area">
+            <div className="notification">♧<span>3</span></div>
+
+            <div className="avatar">
+              <img src="https://i.pravatar.cc/100?img=12" alt="Profile" />
+            </div>
+
+            <span className="username">User</span>
+            <span className="dropdown">⌄</span>
+          </div>
+
+        </header>
+
+        <section className="hero">
+
+          <div className="hero-text">
+            <h1>How are you <span>feeling</span> today? 😊</h1>
+            <p>Choose your current mood and we'll<br />find movies that match it.</p>
+          </div>
+
+          <div className="hero-decoration">
+            <div className="popcorn-large">🍿</div>
+            <div className="film-reel">◉</div>
+            <div className="straw">╱</div>
+          </div>
+
+        </section>
+
+        <section className="mood-section">
+
+          <div className="mood-grid">
+
+            {moods.map((mood) => (
+              <button
+                key={mood.name}
+                className={`mood-card ${mood.className} ${selectedMood === mood.name ? "selected" : ""}`}
+                onClick={() => handleMoodSelect(mood.name)}
+              >
+                <div className="mood-emoji">{mood.emoji}</div>
+                <h3>{mood.name}</h3>
+                <p>{mood.description}</p>
+              </button>
+            ))}
+
+          </div>
+
+        
+        </section>
+
+        {/* Display recommendation API errors */}
+        {error && <div className="recommendation-error">{error}</div>}
+
+        <section className="recommendations">
+
+          <div className="section-header">
+            <h2>Recommended for {selectedMood}</h2>
+
+            {movies.length > 0 && (
+              <button className="view-all">
+                View all <span>›</span>
+              </button>
+            )}
+          </div>
+
+          {!loading && movies.length === 0 && !error && (
+            <div className="empty-recommendations">
+              <p>
+                Select your mood and click <strong>Show Recommendations</strong> to discover movies.
+              </p>
+            </div>
+          )}
+
+          {loading && (
+            <div className="loading-recommendations">
+              Finding the best movies for your mood...
+            </div>
+          )}
+
+          {/* Display recommendations returned by Django */}
+          {!loading && movies.length > 0 && (
+
+            <div className="movie-wrapper">
+
+              <div className="movie-grid">
+
+                {movies.map((movie) => (
+
+                  <div className="movie-card" key={movie.movieId}>
+
+                    <div className="poster">
+
+                      {/* Display the TMDb poster returned by the backend */}
+                      {movie.poster_url ? (
+                        <img
+                          src={movie.poster_url}
+                          alt={`${movie.title} poster`}
+                          loading="lazy"
+                          onError={(event) => { event.currentTarget.style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="poster-placeholder">
+                          <span className="poster-icon">🎬</span>
+                          <span className="poster-title">{movie.title}</span>
+                        </div>
+                      )}
+
+                    </div>
+
+                    <div className="movie-info">
+
+<h3>{movie.title}</h3>
+
+<div className="genre">
+  {movie.genres ? (
+    <>
+      {movie.genres.split("|").map((genre, index) => (
+        <React.Fragment key={index}>
+          {genre}
+
+          {index < movie.genres.split("|").length - 1 &&
+            (index + 1) % 3 !== 0 && (
+              <span> • </span>
+            )}
+
+          {(index + 1) % 3 === 0 &&
+            index < movie.genres.split("|").length - 1 && (
+              <br />
+            )}
+        </React.Fragment>
+      ))}
+    </>
+  ) : (
+    "No genre"
+  )}
+</div>
+
+  <div className="movie-meta">
+    <span className="rating">
+      ⭐ {movie.average_rating != null
+        ? Number(movie.average_rating).toFixed(1)
+        : "N/A"}
+    </span>
+
+    <span className="meta-divider">•</span>
+
+    <span className="rating-count">
+      {movie.rating_count ?? 0} ratings
+    </span>
+  </div>
+
+  <div className="mood-match">
+    {Math.round(
+      Number(movie.mood_similarity || 0) * 100
+    )}% Mood Match
+  </div>
+
+                      {/* IMDb link will be added to the Movie Details page next */}
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+              <button className="next-button">›</button>
+
+            </div>
+
+          )}
+
+        </section>
+
+      </main>
+
+    </div>
+  );
+}
+
+export default App;
