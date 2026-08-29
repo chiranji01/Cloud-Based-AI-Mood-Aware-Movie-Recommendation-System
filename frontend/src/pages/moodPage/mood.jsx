@@ -307,51 +307,49 @@ const handleMoodSelect = async (moodName) => {
 
                     <div className="movie-info">
 
-<h3>{movie.title}</h3>
+                      <h3>{movie.title}</h3>
 
-<div className="genre">
-  {movie.genres ? (
-    <>
-      {movie.genres.split("|").map((genre, index) => (
-        <React.Fragment key={index}>
-          {genre}
+                      <div className="genre">
+                        {movie.genres ? (
+                          <>
+                            {movie.genres.split("|").map((genre, index) => (
+                              <React.Fragment key={index}>
+                                {genre}
 
-          {index < movie.genres.split("|").length - 1 &&
-            (index + 1) % 3 !== 0 && (
-              <span> • </span>
-            )}
+                                {index < movie.genres.split("|").length - 1 &&
+                                  (index + 1) % 3 !== 0 && (
+                                    <span> • </span>
+                                  )}
 
-          {(index + 1) % 3 === 0 &&
-            index < movie.genres.split("|").length - 1 && (
-              <br />
-            )}
-        </React.Fragment>
-      ))}
-    </>
-  ) : (
-    "No genre"
-  )}
-</div>
+                                {(index + 1) % 3 === 0 &&
+                                  index < movie.genres.split("|").length - 1 && (
+                                    <br />
+                                  )}
+                              </React.Fragment>
+                            ))}
+                          </>
+                        ) : (
+                          "No genre"
+                        )}
+                      </div>
 
-  <div className="movie-meta">
-    <span className="rating">
-      ⭐ {movie.average_rating != null
-        ? Number(movie.average_rating).toFixed(1)
-        : "N/A"}
-    </span>
+                      <div className="movie-meta">
+                        <span className="rating">
+                          ⭐ {movie.average_rating != null
+                            ? Number(movie.average_rating).toFixed(1)
+                            : "N/A"}
+                        </span>
 
-    <span className="meta-divider">•</span>
+                        <span className="meta-divider">•</span>
 
-    <span className="rating-count">
-      {movie.rating_count ?? 0} ratings
-    </span>
-  </div>
+                        <span className="rating-count">
+                          {movie.rating_count ?? 0} ratings
+                        </span>
+                      </div>
 
-  <div className="mood-match">
-    {Math.round(
-      Number(movie.mood_similarity || 0) * 100
-    )}% Mood Match
-  </div>
+                      <div className="mood-match">
+                        {Math.round(Number(movie.final_score || 0) * 100)}% Recommendation Match
+                      </div>
 
                       {/* IMDb link will be added to the Movie Details page next */}
 
