@@ -648,13 +648,22 @@ button {
   transition: all 0.2s;
 }
 
-.mood-card:hover,
-.mood-card.selected {
+.mood-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(74, 49, 130, 0.08);
+}
+
+/* Clearly show the mood selected by the user */
+.mood-card.selected {
+  transform: translateY(-4px) scale(1.03);
+
+  border: 3px solid #6b2ce4;
 
   box-shadow:
-    0 5px 15px rgba(74, 49, 130, 0.08);
+    0 0 0 3px rgba(107, 44, 228, 0.12),
+    0 8px 20px rgba(107, 44, 228, 0.22);
 }
+
 
 .mood-card.happy {
   background: #fffaf0;
@@ -953,6 +962,7 @@ button {
       145deg,
       #eee9ff,
       #ded5fb
+      
     );
 }
 
@@ -960,11 +970,11 @@ button {
   width: 100%;
   height: 100%;
 
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 
   display: block;
 }
-
 
 /* =====================================================
    POSTER PLACEHOLDER
@@ -1027,30 +1037,83 @@ button {
 /* =====================================================
    MOVIE INFORMATION
 ===================================================== */
-
 .movie-info {
-  padding: 12px 11px 13px;
+  padding: 12px;
+  min-height: 135px;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .movie-info h3 {
-  min-height: 36px;
-
-  margin-bottom: 8px;
-
   color: #202037;
 
   font-size: 13px;
-
   font-weight: 700;
+  line-height: 1.35;
 
-  line-height: 1.4;
+  min-height: 35px;
+  margin-bottom: 5px;
 
   display: -webkit-box;
-
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-
   overflow: hidden;
+}
+
+/* Genre */
+.genre {
+  color: #77778d;
+
+  font-size: 10px;
+  line-height: 1.5;
+
+  min-height: 30px;
+  margin-bottom: 8px;
+
+  text-align: center;
+}
+
+/* Rating information */
+.movie-meta {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: 10px;
+
+  margin-bottom: 9px;
+}
+
+.rating {
+  color: #e89b00;
+  font-weight: 700;
+}
+
+.meta-divider {
+  color: #c2c2cc;
+}
+
+.rating-count {
+  color: #77778d;
+}
+
+/* AI mood match */
+.mood-match {
+  margin-top: auto;
+
+  padding: 6px 8px;
+
+  background: #f3efff;
+  color: #6730dc;
+
+  border-radius: 6px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-align: center;
 }
 
 
