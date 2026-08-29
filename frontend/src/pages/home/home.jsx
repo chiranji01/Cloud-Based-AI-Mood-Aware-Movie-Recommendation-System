@@ -1,6 +1,6 @@
 import React from "react";
 import "./Home.css";
-
+import Sidebar from "../../components/Sidebar";
 function Home() {
   const recommendedMovies = [
     {
@@ -73,65 +73,7 @@ function Home() {
 
       {/* ================= SIDEBAR ================= */}
 
-      <aside className="sidebar">
-
-        <div className="brand">
-          <div className="brand-icon">✦</div>
-          <span>Mood<span className="brand-purple">Flix</span></span>
-        </div>
-
-        <nav className="sidebar-menu">
-
-          <a href="/home" className="menu-item active">
-            <span className="menu-icon">⌂</span>
-            <span>Home</span>
-          </a>
-
-          <a href="/mood" className="menu-item">
-            <span className="menu-icon">☻</span>
-            <span>Mood</span>
-          </a>
-
-          <a href="/ratings" className="menu-item">
-            <span className="menu-icon">☆</span>
-            <span>My Ratings</span>
-          </a>
-
-          <a href="/profile" className="menu-item">
-            <span className="menu-icon">♙</span>
-            <span>Profile</span>
-          </a>
-
-        </nav>
-
-        {/* Sidebar Card */}
-
-        <div className="sidebar-card">
-
-          <div className="clapper">
-            🎬
-          </div>
-
-          <h3>Can't decide<br />what to watch?</h3>
-
-          <p>
-            Select your mood<br />
-            AI find the perfect movies<br />
-            for you.
-          </p>
-
-          <button>
-            Choose Your Mood
-          </button>
-
-        </div>
-
-        <div className="logout">
-          <span>⇥</span>
-          <span>Logout</span>
-        </div>
-
-      </aside>
+      <Sidebar />
 
 
       {/* ================= MAIN CONTENT ================= */}

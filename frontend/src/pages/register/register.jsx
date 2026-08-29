@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -9,104 +12,381 @@ function Register() {
     confirmPassword: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Handle input changes
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
   };
 
+  // Handle registration
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Check all fields
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    // Check password length
+    if (formData.password.length < 8) {
+      alert("Password must be at least 8 characters long.");
+      return;
+    }
+
+    // Check passwords
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
 
+    // Registration successful
     console.log("Registration Data:", formData);
+
     alert("Registration successful!");
+
+    // Navigate to login page
+    navigate("/login");
   };
 
   return (
     <div className="register-page">
+
       <div className="register-container">
 
+        {/* =====================================================
+            LEFT SIDE
+        ===================================================== */}
+
         <div className="register-left">
-          <h1>Welcome!</h1>
-          <p>
-            Create your account and start discovering
-            movies recommended just for you.
-          </p>
+
+          <div className="left-overlay"></div>
+
+          <div className="left-content">
+
+            {/* LOGO */}
+
+            <div className="logo">
+
+              <span className="logo-icon">
+                ●●●
+              </span>
+
+              <span>
+                Mood<span>Flix</span>
+              </span>
+
+            </div>
+
+            {/* TEXT */}
+
+            <div className="left-text">
+
+              <h1>
+                Find movies
+                <br />
+                that match
+                <br />
+                your <span>mood</span>
+              </h1>
+
+              <p>
+                Select your mood and discover
+                <br />
+                personalized movie
+                <br />
+                recommendations.
+              </p>
+
+            </div>
+
+            {/* MOVIE IMAGE */}
+
+            <div className="movie-image">
+
+              <div className="clapper">
+
+                <div className="clapper-top">
+
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+
+                </div>
+
+                <div className="clapper-body">
+
+                  <div></div>
+                  <div></div>
+                  <div></div>
+
+                </div>
+
+              </div>
+
+              <div className="popcorn">
+                🍿
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
 
-        <div className="register-card">
-          <h2>Create Account</h2>
-          <p className="subtitle">Register to get started</p>
+        {/* =====================================================
+            RIGHT SIDE
+        ===================================================== */}
 
-          <form onSubmit={handleSubmit}>
+        <div className="register-right">
 
-            <div className="input-group">
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="name"
-                placeholder="Enter your name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
+          {/* TOP LOGIN */}
+
+          <div className="top-login">
+
+            <span>
+              Already have an account?
+            </span>
+
+            <Link to="/login">
+              Login
+            </Link>
+
+          </div>
+
+          {/* REGISTER CARD */}
+
+          <div className="register-card">
+
+            <h2>
+              Create your account
+            </h2>
+
+            <p className="subtitle">
+              Join MoodFlix and start your personalized journey.
+            </p>
+
+            {/* =================================================
+                SINGLE FORM
+            ================================================= */}
+
+            <form onSubmit={handleSubmit}>
+
+              {/* NAME */}
+
+              <div className="input-group">
+
+                <label>
+                  Full Name
+                </label>
+
+                <div className="input-wrapper">
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
+
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* EMAIL */}
+
+              <div className="input-group">
+
+                <label>
+                  Email
+                </label>
+
+                <div className="input-wrapper">
+
+                  <span className="input-icon">
+                    ✉
+                  </span>
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* PASSWORD */}
+
+              <div className="input-group">
+
+                <label>
+                  Password
+                </label>
+
+                <div className="input-wrapper">
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
+
+                  <input
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    name="password"
+                    placeholder="Create a password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+
+                  <button
+                    type="button"
+                    className="eye-button"
+                    onClick={() =>
+                      setShowPassword(
+                        !showPassword
+                      )
+                    }
+                  >
+                    {showPassword ? "◉" : "◌"}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* CONFIRM PASSWORD */}
+
+              <div className="input-group">
+
+                <label>
+                  Confirm Password
+                </label>
+
+                <div className="input-wrapper">
+
+                  <span className="input-icon">
+                    ♙
+                  </span>
+
+                  <input
+                    type={
+                      showConfirmPassword
+                        ? "text"
+                        : "password"
+                    }
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+
+                  <button
+                    type="button"
+                    className="eye-button"
+                    onClick={() =>
+                      setShowConfirmPassword(
+                        !showConfirmPassword
+                      )
+                    }
+                  >
+                    {showConfirmPassword
+                      ? "◉"
+                      : "◌"}
+                  </button>
+
+                </div>
+
+              </div>
+
+              {/* PASSWORD INFORMATION */}
+
+              <div className="password-info">
+
+                <span>●</span>
+
+                <span>
+                  Password must be at least 8 characters long
+                </span>
+
+              </div>
+
+              {/* CREATE ACCOUNT */}
+
+              <button
+                type="submit"
+                className="register-button"
+              >
+
+                <span>
+                  ♙
+                </span>
+
+                Create Account
+
+              </button>
+
+            </form>
+
+            {/* OR DIVIDER */}
+
+            <div className="or-divider">
+
+              <span></span>
+
+              <p>
+                OR
+              </p>
+
+              <span></span>
+
             </div>
 
-            <div className="input-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Enter your email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            {/* GOOGLE BUTTON */}
 
-            <div className="input-group">
-              <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <button
+              type="button"
+              className="google-button"
+            >
 
-            <div className="input-group">
-              <label>Confirm Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </div>
+              <span className="google-icon">
+                G
+              </span>
 
-            <button type="submit" className="register-button">
-              Register
+              Sign up with Google
+
             </button>
 
-          </form>
-
-          <p className="login-text">
-            Already have an account?{" "}
-            <a href="/login">Login</a>
-          </p>
+          </div>
 
         </div>
+
       </div>
+
     </div>
   );
 }
