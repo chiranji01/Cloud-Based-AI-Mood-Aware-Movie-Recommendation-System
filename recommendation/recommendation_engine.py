@@ -157,7 +157,7 @@ def get_mood_recommendations(mood, number_of_movies=10):
     for minimum_year in [2022, 2020, 2015, 2010]:
         for index in ranked_indices:
 
-            movie = movies.iloc[index]
+            movie = movies.iloc[index] 
 
             # Skip movies older than the current preferred year
             if movie["year"] < minimum_year:
@@ -177,7 +177,7 @@ def get_mood_recommendations(mood, number_of_movies=10):
                 continue
 
             # QUALITY FILTER - Skip movies with both fewer than 10 ratings and an average below 3.0
-            if movie["rating_count"] < 10 and movie["average_rating"] < 3.0:
+            if movie["rating_count"] < 10 and movie["average_rating"] < 3.0: #OR look into the conditional statement 
                 continue
 
             # Add the suitable movie to the recommendation list
