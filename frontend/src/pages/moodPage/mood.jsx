@@ -43,7 +43,7 @@ const moods = [
 function App() {
 
   // Recommendation API integration state
-  const [selectedMood, setSelectedMood] = useState("Happy");
+  const [selectedMood, setSelectedMood] = useState("");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -80,12 +80,44 @@ function App() {
     }
   };
 
-  // Update selected mood and clear previous recommendations
-  const handleMoodSelect = (moodName) => {
-    setSelectedMood(moodName);
+const handleMoodSelect = async (moodName) => {
+  setSelectedMood(moodName);
+  setMovies([]);
+  setError("");
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      "http://127.0.0.1:8000/api/recommendations/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mood: moodName }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || "Unable to get movie recommendations."
+      );
+    }
+
+    const data = await response.json();
+    setMovies(data.recommendations || []);
+
+  } catch (err) {
+    console.error("Recommendation API error:", err);
     setMovies([]);
-    setError("");
-  };
+    setError(
+      err.message || "Could not load recommendations. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="app">
@@ -211,11 +243,7 @@ function App() {
 
           </div>
 
-          {/* Trigger the Django recommendation API */}
-          <button className="recommend-button" onClick={fetchRecommendations} disabled={loading}>
-            ✨ <span>{loading ? "Loading Recommendations..." : "Show Recommendations"}</span>
-          </button>
-
+        
         </section>
 
         {/* Display recommendation API errors */}
@@ -279,26 +307,51 @@ function App() {
 
                     <div className="movie-info">
 
-                      <h3>{movie.title}</h3>
+<h3>{movie.title}</h3>
 
-                      <div className="movie-bottom">
+<div className="genre">
+  {movie.genres ? (
+    <>
+      {movie.genres.split("|").map((genre, index) => (
+        <React.Fragment key={index}>
+          {genre}
 
-                        <span className="genre">
-                          {movie.genres ? movie.genres.replaceAll("|", " • ") : "No genre"}
-                        </span>
+          {index < movie.genres.split("|").length - 1 &&
+            (index + 1) % 3 !== 0 && (
+              <span> • </span>
+            )}
 
-                        {/* Display the average MovieLens rating */}
-                        <span className="rating">
-                          ★ {movie.average_rating != null ? Number(movie.average_rating).toFixed(1) : "N/A"}
-                        </span>
+          {(index + 1) % 3 === 0 &&
+            index < movie.genres.split("|").length - 1 && (
+              <br />
+            )}
+        </React.Fragment>
+      ))}
+    </>
+  ) : (
+    "No genre"
+  )}
+</div>
 
-                      </div>
+  <div className="movie-meta">
+    <span className="rating">
+      ⭐ {movie.average_rating != null
+        ? Number(movie.average_rating).toFixed(1)
+        : "N/A"}
+    </span>
 
-                      {/* Display rating count and mood similarity */}
-                      <div className="recommendation-details">
-                        <small>Ratings: {movie.rating_count ?? 0}</small>
-                        <small>Match: {Math.round(Number(movie.mood_similarity || 0) * 100)}%</small>
-                      </div>
+    <span className="meta-divider">•</span>
+
+    <span className="rating-count">
+      {movie.rating_count ?? 0} ratings
+    </span>
+  </div>
+
+  <div className="mood-match">
+    {Math.round(
+      Number(movie.mood_similarity || 0) * 100
+    )}% Mood Match
+  </div>
 
                       {/* IMDb link will be added to the Movie Details page next */}
 
