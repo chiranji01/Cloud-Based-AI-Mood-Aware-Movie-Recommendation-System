@@ -1,339 +1,115 @@
-# MoodFlix – Frontend Development
+# MoodFlix
 
-## Cloud-Based AI Mood-Aware Movie Recommendation System
+### Cloud-Based AI Mood-Aware Movie Recommendation System
 
-This repository contains my **frontend development work** for the MoodFlix project. MoodFlix is a cloud-based AI mood-aware movie recommendation system designed to provide personalised movie recommendations based on the user's selected mood and preferences.
+**MoodFlix** is a cloud-based movie recommendation system that provides personalised movie suggestions based on a user's current mood and movie content.
 
-My main responsibility in the project is the **design and development of the React.js frontend**, including user interface design, page navigation, mood selection, movie recommendation interfaces, and reusable frontend components.
+This project is developed for the **NIT6150 Advanced Project** at **Victoria University**.
 
-## My Role
+## Key Features
 
-**Role:** Frontend Developer
+- User registration and login
+- Browse and search movies
+- View movie details and posters
+- Select current mood
+- Generate Top 10 mood-aware movie recommendations
+- Rate movies and view ratings
+- User profile management
+- Admin movie and user management
 
-My main frontend responsibilities include:
+## Recommendation System
 
-* Designing and developing the React.js user interface
-* Creating and styling frontend pages
-* Implementing page-to-page navigation
-* Developing the mood selection interface
-* Creating reusable components such as the Sidebar
-* Designing movie recommendation cards
-* Connecting frontend buttons and navigation to application routes
-* Improving the overall user experience and visual consistency
-* Integrating frontend pages with the team's backend when required
+MoodFlix uses a **Content-Based Recommendation approach** to generate mood-aware movie recommendations.
 
-## Frontend Features Developed
+The recommendation engine uses:
 
-### 1. Login Page
+- Mood-to-Genre and Keyword Mapping
+- Movie genres and tags
+- TF-IDF feature representation
+- Cosine Similarity
+- Genre matching
+- Movie rating quality
+- Popularity based on rating count
+- Movie recency
 
-The login page provides users with an interface to enter their:
+Mood profiles are stored in the MySQL database using genres and descriptive keywords. When a user selects a mood, the system converts the mood profile into a TF-IDF vector and compares it with movie feature vectors using cosine similarity.
 
-* Email
-* Password
+The final recommendation score combines:
 
-The page also provides navigation to the registration page and other relevant parts of the application.
+| Factor | Weight |
+| --- | ---: |
+| Mood Similarity | 55% |
+| Genre Match | 15% |
+| Reliable Rating | 5% |
+| Popularity | 5% |
+| Recency | 20% |
 
-### 2. Registration Page
+Mood similarity remains the main ranking factor, while genre relevance, rating quality, popularity, and recency improve the recommendation results.
 
-The registration page allows new users to create an account by providing the required information.
+The engine also prioritises newer movies and gradually expands the release-year range when there are not enough suitable recent recommendations.
 
-### 3. Home Page
+More details about the recommendation engine are available in the `recommendation` folder.
 
-The Home page provides the main entry point to the MoodFlix application.
+## Movie Information and Posters
 
-It includes:
+Movie information is based on the **MovieLens dataset**. MovieLens link data is used to map movies to external movie identifiers.
 
-* Navigation sidebar
-* Movie browsing interface
-* Search functionality interface
-* Movie information
-* User profile section
-* Navigation to other pages
+**TMDb (The Movie Database)** is used to retrieve movie poster images for the user interface.
 
-### 4. Mood Selection Page
+## Technology Stack
 
-I developed the Mood page where users can select their current emotional state.
+| Component | Technology |
+| --- | --- |
+| Frontend | React.js |
+| Backend | Python / Django |
+| Database | MySQL |
+| Recommendation Engine | Python, Pandas, Scikit-learn |
+| Recommendation Method | Content-Based Filtering |
+| Dataset | MovieLens |
+| Movie Posters | TMDb API |
+| Cloud Platform | Amazon Web Services (AWS) |
+| Version Control | Git & GitHub |
 
-The available moods include:
+## Dataset
 
-* Happy 😀
-* Sad 😢
-* Relaxed 😌
-* Excited 🤩
-* Romantic 💗
-* Stressed 😰
+MoodFlix uses the **MovieLens dataset** provided by GroupLens Research. The dataset provides movie, genre, rating, tag, and movie-link information used by the recommendation system.
 
-The selected mood is stored using React state and can be passed to the movie recommendation page.
+[MovieLens Dataset – GroupLens Research](https://grouplens.org/datasets/movielens/)
 
-### 5. Movie Recommendation Interface
+## Development Methodology
 
-The Mood page displays movie recommendation cards containing:
+The project follows the **Agile Scrum** methodology with regular sprint planning, task allocation, development, testing, integration, and progress reviews.
 
-* Movie title
-* Genre
-* Rating
-* Movie poster
+## System Architecture
 
-The **Show Recommendations** button uses React Router navigation to send the selected mood to the movie recommendation page.
+MoodFlix consists of:
 
-### 6. Sidebar Navigation
+- **Frontend:** React.js user interface
+- **Backend:** Django application and REST API
+- **Database:** MySQL
+- **Recommendation Engine:** Python, Pandas and Scikit-learn
+- **External Movie Service:** TMDb API for movie posters
+- **Cloud Platform:** AWS
 
-I worked with a reusable Sidebar component for consistent navigation across the frontend.
+The React frontend communicates with the Django backend, which connects to the MySQL database and recommendation engine to generate movie recommendations.
 
-The navigation includes:
+## Project Team
 
-* Home
-* Mood
-* My Ratings
-* Profile
-* Logout
+| Team Member | Role |
+| --- | --- |
+| Chiranji Vinodya Ranaweera Jayalathge | Project Manager & AI Developer |
+| Meghan Reddy Podduturi | Frontend Developer |
+| Prapti Pokharel | Backend Developer  |
+| Prashanth | Frontend Support & QA Tester |
 
-React Router is used to navigate between different pages.
+## Project Status
 
-## Frontend Project Structure
+**Current Stage:** Development and Integration
 
-```text
-frontend/
-│
-├── src/
-│   │
-│   ├── assets/
-│   │
-│   ├── components/
-│   │   ├── Sidebar.jsx
-│   │   └── Sidebar.css
-│   │
-│   ├── pages/
-│   │   │
-│   │   ├── home/
-│   │   │   ├── home.jsx
-│   │   │   └── home.css
-│   │   │
-│   │   ├── login/
-│   │   │   ├── Login.jsx
-│   │   │   └── Login.css
-│   │   │
-│   │   ├── moodPage/
-│   │   │   ├── mood.jsx
-│   │   │   └── mood.css
-│   │   │
-│   │   ├── movie details/
-│   │   ├── ratings/
-│   │   └── register/
-│   │
-│   ├── App.jsx
-│   ├── index.css
-│   └── main.jsx
-│
-├── package.json
-└── ...
-```
-
-## Technologies Used
-
-| Technology   | Purpose                                    |
-| ------------ | ------------------------------------------ |
-| React.js     | Frontend development                       |
-| JavaScript   | Application functionality                  |
-| CSS          | Page styling and responsive UI             |
-| React Router | Page navigation                            |
-| Vite         | Frontend development server and build tool |
-| Git          | Version control                            |
-| GitHub       | Source code management                     |
-
-## React Concepts Used
-
-The frontend uses several important React concepts:
-
-### React Components
-
-The application is divided into reusable components and pages such as:
-
-* `Sidebar`
-* `Home`
-* `Login`
-* `Register`
-* `Mood`
-
-### React State
-
-The Mood page uses `useState` to store the currently selected mood.
-
-Example:
-
-```javascript
-const [selectedMood, setSelectedMood] = useState("Happy");
-```
-
-When the user selects another mood, the state is updated.
-
-### React Router
-
-`useNavigate()` is used to navigate users between pages.
-
-For example:
-
-```javascript
-const navigate = useNavigate();
-
-navigate("/home");
-```
-
-The selected mood can also be passed to another page:
-
-```javascript
-navigate("/movies", {
-  state: {
-    mood: selectedMood,
-  },
-});
-```
-
-## Mood Selection Workflow
-
-The frontend mood selection process works as follows:
-
-```text
-User opens Mood page
-        ↓
-User selects a mood
-        ↓
-React stores selected mood
-        ↓
-User clicks "Show Recommendations"
-        ↓
-Selected mood is passed to Movies page
-        ↓
-Movie recommendations can be displayed
-```
-
-## User Interface Design
-
-The frontend follows a movie-themed visual design using:
-
-* Mood-based cards
-* Movie posters
-* Ratings
-* Search interface
-* Navigation sidebar
-* Profile section
-* Recommendation buttons
-* Responsive page layouts
+The recommendation engine, database integration, and mood-based recommendation functionality are currently being developed and tested. Frontend and backend components are being integrated, with cloud deployment planned after system integration and testing.
 
-The aim is to provide a simple and visually engaging interface that allows users to interact with the recommendation system easily.
+## Academic Information
 
-## Navigation
-
-The frontend uses React Router for navigation between pages.
-
-Current navigation structure:
-
-```text
-/login
-   ↓
-/register
-   ↓
-/home
-   ↓
-/mood
-   ↓
-/movies
-   ↓
-/ratings
-   ↓
-/profile
-```
-
-The exact available routes depend on the pages currently implemented in the project.
-
-## Running the Frontend
-
-Open the frontend directory in VS Code:
-
-```bash
-cd frontend
-```
-
-Install the required dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-Vite will provide a local development URL, normally similar to:
-
-```text
-http://localhost:5173
-```
-
-## Version Control
-
-Git and GitHub are used to manage the frontend development work.
-
-Typical workflow:
-
-```bash
-git status
-git add .
-git commit -m "Update frontend"
-git push origin frontendPrashanth
-```
-
-When working with the team's frontend branch, changes can be retrieved using:
-
-```bash
-git pull origin frontendPrashanth
-```
-
-## Current Frontend Status
-
-The frontend is currently under development and integration.
-
-Completed or developed areas include:
-
-* React project structure
-* Login interface
-* Registration interface
-* Home page
-* Mood selection page
-* Sidebar component
-* Frontend navigation
-* Movie recommendation interface
-* Movie cards
-* Profile navigation
-* Ratings navigation
-
-Further integration with the backend and recommendation engine will allow the frontend to display dynamically generated movie recommendations.
-
-## My Contribution Summary
-
-My contribution to MoodFlix focuses on creating the **frontend user experience using React.js**. I developed and structured multiple pages, implemented navigation using React Router, created the mood selection interface, designed movie recommendation cards, and worked on reusable components such as the Sidebar.
-
-The frontend provides the user-facing interface through which users can log in, register, browse the system, select their mood, and access personalised movie recommendations.
-
-## Academic Project
-
-**Unit:** NIT6150 – Advanced Project
-**Institution:** Victoria University
-**Project:** Cloud-Based AI Mood-Aware Movie Recommendation System
-**Role:** Frontend Developer
-
-## Future Frontend Improvements
-
-Planned improvements include:
-
-* Connecting the frontend to the backend APIs
-* Displaying real-time movie recommendations
-* Implementing movie search functionality
-* Improving responsive design for different screen sizes
-* Completing ratings and profile functionality
-* Adding loading and error states
-* Improving accessibility
-* Connecting user authentication with the backend
-* Integrating the final recommendation engine
+**Unit:** NIT6150 – Advanced Project  
+**Institution:** Victoria University  
+**Client:** Dr. Ayesha Ashfaq

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./mood.css";
 
 const moods = [
@@ -41,120 +40,86 @@ const moods = [
   },
 ];
 
-const movies = [
-  {
-    title: "The Grand Budapest Hotel",
-    genre: "Comedy • Drama",
-    rating: "4.4",
-    image:
-      "https://image.tmdb.org/t/p/w500/eWdyYQreja6JGCzqHWXpWHDrrPo.jpg",
-  },
-  {
-    title: "Toy Story 4",
-    genre: "Animation • Family",
-    rating: "4.3",
-    image:
-      "https://image.tmdb.org/t/p/w500/w9kR8qbmQ01HwnvK4alvnQ2ca0L.jpg",
-  },
-  {
-    title: "The Intern",
-    genre: "Comedy • Drama",
-    rating: "4.2",
-    image:
-      "https://image.tmdb.org/t/p/w500/9Q3Ez2C2qjK0Y8M2q9zK7Y9bq5.jpg",
-  },
-  {
-    title: "About Time",
-    genre: "Romance • Drama",
-    rating: "4.3",
-    image:
-      "https://image.tmdb.org/t/p/w500/iR1bVfURbN7r1C46oH1rXxD9R7G.jpg",
-  },
-  {
-    title: "Chef",
-    genre: "Comedy • Drama",
-    rating: "4.1",
-    image:
-      "https://image.tmdb.org/t/p/w500/9a2sK2gYpL1QxQ0J7X2g8fK8gV0.jpg",
-  },
-  {
-    title: "Paddington 2",
-    genre: "Adventure • Family",
-    rating: "4.5",
-    image:
-      "https://image.tmdb.org/t/p/w500/1OJ9VKbS4cQhJ2x1P9W8w6P8m4T.jpg",
-  },
-];
+function App() {
 
-function Mood() {
-  const navigate = useNavigate();
-
+  // Recommendation API integration state
   const [selectedMood, setSelectedMood] = useState("Happy");
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRecommendation = () => {
-    navigate("/movies", {
-      state: {
-        mood: selectedMood,
-      },
-    });
+  // Send the selected mood to the Django recommendation API
+  const fetchRecommendations = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch("http://127.0.0.1:8000/api/recommendations/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mood: selectedMood }),
+      });
+
+      // Handle unsuccessful API responses
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Unable to get movie recommendations.");
+      }
+
+      // Store recommendations returned by Django
+      const data = await response.json();
+      console.log("Recommendation API response:", data);
+      setMovies(data.recommendations || []);
+
+    } catch (err) {
+      console.error("Recommendation API error:", err);
+      setMovies([]);
+      setError(err.message || "Could not load recommendations. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update selected mood and clear previous recommendations
+  const handleMoodSelect = (moodName) => {
+    setSelectedMood(moodName);
+    setMovies([]);
+    setError("");
   };
 
   return (
     <div className="app">
 
-      {/* ================= SIDEBAR ================= */}
       <aside className="sidebar">
 
-        {/* Logo */}
         <div className="logo">
           <div className="logo-icon">✣</div>
           <span>MoodFlix</span>
         </div>
 
-        {/* Navigation */}
         <nav className="navigation">
-
-          <button
-            type="button"
-            className="nav-item"
-            onClick={() => navigate("/home")}
-          >
+          <a className="nav-item">
             <span className="nav-icon">⌂</span>
             <span>Home</span>
-          </button>
+          </a>
 
-          <button
-            type="button"
-            className="nav-item active"
-            onClick={() => navigate("/mood")}
-          >
+          <a className="nav-item active">
             <span className="nav-icon">☻</span>
             <span>Mood</span>
-          </button>
+          </a>
 
-          <button
-            type="button"
-            className="nav-item"
-            onClick={() => navigate("/ratings")}
-          >
+          <a className="nav-item">
             <span className="nav-icon">♡</span>
             <span>My Ratings</span>
-          </button>
+          </a>
 
-          <button
-            type="button"
-            className="nav-item"
-            onClick={() => navigate("/profile")}
-          >
+          <a className="nav-item">
             <span className="nav-icon">♙</span>
             <span>Profile</span>
-          </button>
-
+          </a>
         </nav>
 
-        {/* Decorative movie illustration */}
         <div className="sidebar-decoration">
-
           <div className="director-chair">
             <div className="chair-back"></div>
             <div className="chair-seat"></div>
@@ -162,265 +127,194 @@ function Mood() {
             <div className="chair-leg right"></div>
           </div>
 
-          <div className="popcorn">
-            🍿
-          </div>
+          <div className="popcorn">🍿</div>
 
           <div className="clapper">
             <div className="clapper-top"></div>
-
-            <div className="clapper-body">
-              🎬
-            </div>
+            <div className="clapper-body">🎬</div>
           </div>
-
         </div>
 
-        {/* Help */}
         <div className="help-card">
-
-          <div className="help-icon">
-            ?
-          </div>
-
+          <div className="help-icon">?</div>
           <div>
             <strong>Need help?</strong>
             <small>We're here to help</small>
           </div>
-
-          <span className="help-arrow">
-            ›
-          </span>
-
+          <span className="help-arrow">›</span>
         </div>
 
-        {/* Logout */}
-        <button
-          type="button"
-          className="logout"
-          onClick={() => navigate("/login")}
-        >
+        <div className="logout">
           <span>⇥</span>
           <span>Logout</span>
-        </button>
+        </div>
 
       </aside>
 
-      {/* ================= MAIN CONTENT ================= */}
       <main className="main">
 
-        {/* ================= TOP BAR ================= */}
         <header className="topbar">
 
           <div className="search-container">
+            <span className="search-icon">⌕</span>
+            <input type="text" placeholder="Search movies by title, genre, actor..." />
 
-            <span className="search-icon">
-              ⌕
-            </span>
-
-            <input
-              type="text"
-              placeholder="Search movies by title, genre, actor..."
-            />
-
-            <button
-              type="button"
-              className="filter-button"
-            >
+            <button className="filter-button">
               <span>☷</span>
               Filters
             </button>
-
           </div>
 
-          {/* Profile area */}
           <div className="profile-area">
+            <div className="notification">♧<span>3</span></div>
 
-            <div className="notification">
-              ♧
-              <span>3</span>
+            <div className="avatar">
+              <img src="https://i.pravatar.cc/100?img=12" alt="Profile" />
             </div>
 
-            <button
-              type="button"
-              className="avatar"
-              onClick={() => navigate("/profile")}
-            >
-              <img
-                src="https://i.pravatar.cc/100?img=12"
-                alt="Profile"
-              />
-            </button>
-
-            <span className="username">
-              Chiranjeevi
-            </span>
-
-            <span className="dropdown">
-              ⌄
-            </span>
-
+            <span className="username">User</span>
+            <span className="dropdown">⌄</span>
           </div>
 
         </header>
 
-        {/* ================= HERO ================= */}
         <section className="hero">
 
           <div className="hero-text">
-
-            <h1>
-              How are you <span>feeling</span> today? 😊
-            </h1>
-
-            <p>
-              Choose your current mood and we'll
-              <br />
-              find movies that match it.
-            </p>
-
+            <h1>How are you <span>feeling</span> today? 😊</h1>
+            <p>Choose your current mood and we'll<br />find movies that match it.</p>
           </div>
 
           <div className="hero-decoration">
-
-            <div className="popcorn-large">
-              🍿
-            </div>
-
-            <div className="film-reel">
-              ◉
-            </div>
-
-            <div className="straw">
-              ╱
-            </div>
-
+            <div className="popcorn-large">🍿</div>
+            <div className="film-reel">◉</div>
+            <div className="straw">╱</div>
           </div>
 
         </section>
 
-        {/* ================= MOOD SECTION ================= */}
         <section className="mood-section">
 
           <div className="mood-grid">
 
             {moods.map((mood) => (
-
               <button
                 key={mood.name}
-                type="button"
-                className={`mood-card ${mood.className} ${
-                  selectedMood === mood.name ? "selected" : ""
-                }`}
-                onClick={() => setSelectedMood(mood.name)}
+                className={`mood-card ${mood.className} ${selectedMood === mood.name ? "selected" : ""}`}
+                onClick={() => handleMoodSelect(mood.name)}
               >
-
-                <div className="mood-emoji">
-                  {mood.emoji}
-                </div>
-
-                <h3>
-                  {mood.name}
-                </h3>
-
-                <p>
-                  {mood.description}
-                </p>
-
+                <div className="mood-emoji">{mood.emoji}</div>
+                <h3>{mood.name}</h3>
+                <p>{mood.description}</p>
               </button>
-
             ))}
 
           </div>
 
-          {/* Recommendation button */}
-          <button
-            type="button"
-            className="recommend-button"
-            onClick={handleRecommendation}
-          >
-            ✨
-            <span>
-              Show Recommendations
-            </span>
+          {/* Trigger the Django recommendation API */}
+          <button className="recommend-button" onClick={fetchRecommendations} disabled={loading}>
+            ✨ <span>{loading ? "Loading Recommendations..." : "Show Recommendations"}</span>
           </button>
 
         </section>
 
-        {/* ================= MOVIE RECOMMENDATIONS ================= */}
+        {/* Display recommendation API errors */}
+        {error && <div className="recommendation-error">{error}</div>}
+
         <section className="recommendations">
 
           <div className="section-header">
+            <h2>Recommended for {selectedMood}</h2>
 
-            <h2>
-              Recommended for your mood
-            </h2>
-
-            <button
-              type="button"
-              className="view-all"
-              onClick={() => navigate("/movies")}
-            >
-              View all
-              <span>›</span>
-            </button>
-
+            {movies.length > 0 && (
+              <button className="view-all">
+                View all <span>›</span>
+              </button>
+            )}
           </div>
 
-          <div className="movie-wrapper">
+          {!loading && movies.length === 0 && !error && (
+            <div className="empty-recommendations">
+              <p>
+                Select your mood and click <strong>Show Recommendations</strong> to discover movies.
+              </p>
+            </div>
+          )}
 
-            <div className="movie-grid">
+          {loading && (
+            <div className="loading-recommendations">
+              Finding the best movies for your mood...
+            </div>
+          )}
 
-              {movies.map((movie) => (
+          {/* Display recommendations returned by Django */}
+          {!loading && movies.length > 0 && (
 
-                <div
-                  className="movie-card"
-                  key={movie.title}
-                >
+            <div className="movie-wrapper">
 
-                  <div className="poster">
+              <div className="movie-grid">
 
-                    <img
-                      src={movie.image}
-                      alt={movie.title}
-                    />
+                {movies.map((movie) => (
 
-                  </div>
+                  <div className="movie-card" key={movie.movieId}>
 
-                  <div className="movie-info">
+                    <div className="poster">
 
-                    <h3>
-                      {movie.title}
-                    </h3>
+                      {/* Display the TMDb poster returned by the backend */}
+                      {movie.poster_url ? (
+                        <img
+                          src={movie.poster_url}
+                          alt={`${movie.title} poster`}
+                          loading="lazy"
+                          onError={(event) => { event.currentTarget.style.display = "none"; }}
+                        />
+                      ) : (
+                        <div className="poster-placeholder">
+                          <span className="poster-icon">🎬</span>
+                          <span className="poster-title">{movie.title}</span>
+                        </div>
+                      )}
 
-                    <div className="movie-bottom">
+                    </div>
 
-                      <span className="genre">
-                        {movie.genre}
-                      </span>
+                    <div className="movie-info">
 
-                      <span className="rating">
-                        ★ {movie.rating}
-                      </span>
+                      <h3>{movie.title}</h3>
+
+                      <div className="movie-bottom">
+
+                        <span className="genre">
+                          {movie.genres ? movie.genres.replaceAll("|", " • ") : "No genre"}
+                        </span>
+
+                        {/* Display the average MovieLens rating */}
+                        <span className="rating">
+                          ★ {movie.average_rating != null ? Number(movie.average_rating).toFixed(1) : "N/A"}
+                        </span>
+
+                      </div>
+
+                      {/* Display rating count and mood similarity */}
+                      <div className="recommendation-details">
+                        <small>Ratings: {movie.rating_count ?? 0}</small>
+                        <small>Match: {Math.round(Number(movie.mood_similarity || 0) * 100)}%</small>
+                      </div>
+
+                      {/* IMDb link will be added to the Movie Details page next */}
 
                     </div>
 
                   </div>
 
-                </div>
+                ))}
 
-              ))}
+              </div>
+
+              <button className="next-button">›</button>
 
             </div>
 
-            <button
-              type="button"
-              className="next-button"
-            >
-              ›
-            </button>
-
-          </div>
+          )}
 
         </section>
 
@@ -430,4 +324,4 @@ function Mood() {
   );
 }
 
-export default Mood;
+export default App;
