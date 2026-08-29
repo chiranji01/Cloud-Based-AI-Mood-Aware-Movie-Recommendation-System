@@ -1,7 +1,12 @@
+import React from "react";
 import "./Login.css";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+
   return (
+    
     <div className="login-page">
 
       <div className="login-left">
@@ -53,7 +58,7 @@ function Login() {
             Forgot password?
           </div>
 
-          <button className="login-button">
+          <button className="login-button" onClick={() => navigate("/home")}>
             Login
           </button>
 
@@ -65,9 +70,12 @@ function Login() {
             Don't have an account?
           </p>
 
-          <button className="register-button">
-            Register here
-          </button>
+          <button
+        className="register-button"
+        onClick={() => navigate("/register")}
+      >
+        Register here
+      </button>
 
         </div>
 
