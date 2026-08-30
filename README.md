@@ -1,26 +1,33 @@
 # MoodFlix
 
-### Cloud-Based AI Mood-Aware Movie Recommendation System
+## Cloud-Based AI Mood-Aware Movie Recommendation System
 
-**MoodFlix** is a cloud-based movie recommendation system that provides personalised movie suggestions based on a user's current mood and movie content.
+**MoodFlix** is a cloud-based movie recommendation system that provides personalised movie recommendations based on a user's current mood and movie content.
 
-This project is developed for the **NIT6150 Advanced Project** at **Victoria University**.
+The system combines a React frontend, Django backend, MySQL database, MovieLens dataset, and a content-based recommendation engine to generate mood-aware movie suggestions.
+
+This project is developed as part of the **NIT6150 – Advanced Project** at **Victoria University**.
+
+---
 
 ## Key Features
 
 - User registration and login
 - Browse and search movies
-- View movie details and posters
-- Select current mood
+- View detailed movie information
+- Select a current mood
 - Generate Top 10 mood-aware movie recommendations
+- View movie posters and additional movie information
 - View similar movie recommendations
 - Rate movies and view ratings
 - User profile management
 - Admin movie and user management
 
-## Recommendation System
+---
 
-MoodFlix uses a **Content-Based Recommendation approach** to generate mood-aware movie recommendations.
+## Mood-Aware Recommendation System
+
+MoodFlix uses a **Content-Based Filtering** approach to generate movie recommendations based on the user's selected mood.
 
 The recommendation engine uses:
 
@@ -33,9 +40,13 @@ The recommendation engine uses:
 - Popularity based on rating count
 - Movie recency
 
-Mood profiles are stored in the MySQL database using genres and descriptive keywords. When a user selects a mood, the system converts the mood profile into a TF-IDF vector and compares it with movie feature vectors using cosine similarity.
+Mood profiles are stored in the MySQL database using associated genres and descriptive keywords.
 
-The final recommendation score combines:
+When a user selects a mood, the system creates a mood profile using its genres and keywords. TF-IDF converts the mood profile and movie content into numerical feature vectors. Cosine Similarity is then used to measure how closely each movie matches the selected mood.
+
+### Recommendation Score
+
+The final recommendation score combines several factors:
 
 | Factor | Weight |
 | --- | ---: |
@@ -45,37 +56,56 @@ The final recommendation score combines:
 | Popularity | 5% |
 | Recency | 5% |
 
-Mood similarity and genre relevance are the main ranking factors, ensuring that recommendations remain strongly related to the user's selected mood. Rating quality, popularity, and recency are also considered to improve the overall recommendation quality.
+Mood similarity and genre relevance are given the highest importance so that recommendations remain strongly related to the user's selected mood.
 
-The recommendation engine also applies quality filters to remove movies with very low ratings or insufficient rating data.
+Rating quality, popularity, and recency are also considered to improve the overall quality of the recommendations.
 
-More details about the recommendation engine are available in the `recommendation` folder.
+The system applies additional quality and relevance filters before returning the **Top 10 recommendations**.
 
-## Mood-Aware Recommendation Process
+---
 
-The mood-aware recommendation process works as follows:
+## Supported Moods
 
-1. The user selects a mood such as Happy, Sad, Relaxed, Excited, Romantic, or Stressed.
-2. The selected mood is mapped to related genres and descriptive keywords stored in the MySQL database.
-3. Movie genres and tags are combined to create movie content features.
-4. TF-IDF converts the movie features and mood profile into numerical vectors.
-5. Cosine Similarity measures how closely each movie matches the selected mood.
-6. Genre relevance is calculated based on how well the movie genres match the mood genres.
-7. Rating quality, popularity, and recency are also calculated.
-8. These factors are combined into a final recommendation score.
+MoodFlix currently supports six mood categories:
+
+- 😀 Happy
+- 😢 Sad
+- 😌 Relaxed
+- 🤩 Excited
+- 💗 Romantic
+- 😰 Stressed
+
+Each mood is mapped to relevant movie genres and descriptive keywords used by the recommendation engine.
+
+---
+
+## Recommendation Process
+
+The main recommendation process is:
+
+1. The user selects a mood.
+2. The frontend sends the selected mood to the Django API.
+3. The backend retrieves the mood profile from MySQL.
+4. Movie genres and tags are used as content features.
+5. TF-IDF converts movie features and the mood profile into numerical vectors.
+6. Cosine Similarity calculates the similarity between the mood and each movie.
+7. Genre relevance, rating quality, popularity, and recency are calculated.
+8. The factors are combined into a final recommendation score.
 9. Quality and relevance filters are applied.
-10. The Top 10 highest-ranked movies are returned to the user.
+10. The Top 10 ranked movies are returned to the React frontend.
 
-This approach allows MoodFlix to provide recommendations based on both the user's mood and the content of each movie.
+---
 
-## Movie Information and Posters
+## Movie Details
 
-Core movie information is based on the **MovieLens dataset**. MovieLens link data is used to map movies to external movie identifiers.
+Users can select a recommended movie to open its **Movie Details** page.
 
-**TMDb (The Movie Database)** is used to retrieve additional movie information for the user interface, including:
+Core movie information is based on the **MovieLens dataset**, while MovieLens link data is used to connect movies with external movie identifiers.
 
-- Movie posters
-- Movie overview
+The backend uses the **TMDb API** to retrieve additional movie information, including:
+
+- Movie poster
+- Overview
 - Runtime
 - Release date
 - Director
@@ -84,28 +114,29 @@ Core movie information is based on the **MovieLens dataset**. MovieLens link dat
 - Certification
 - IMDb link
 
-When a user selects a recommended movie, the MovieLens movie ID is passed to the Django backend. The backend retrieves the movie information from the database and uses the MovieLens link information to request additional details from TMDb.
+This allows the application to combine MovieLens recommendation data with additional movie information for the user interface.
+
+---
 
 ## Similar Movie Recommendations
 
-The Movie Details page includes a **"You might also like"** feature that provides similar movie recommendations.
+The Movie Details page also includes a **You Might Also Like** recommendation feature.
 
-The backend compares the genres of the selected movie with other movies in the database.
+This feature recommends up to **6 similar movies** based on the genres of the currently selected movie.
 
-The similar movie recommendation process includes:
+The process includes:
 
-- Extracting genres from the selected movie
-- Comparing the selected movie with other movies
-- Calculating genre similarity
-- Applying minimum rating quality requirements
-- Applying minimum rating-count requirements
-- Ranking movies by genre similarity and rating information
-- Returning the Top 6 similar movies
-- Retrieving movie posters from TMDb
+1. Retrieving the genres of the selected movie.
+2. Comparing them with other movies in the database.
+3. Calculating genre similarity.
+4. Applying minimum rating and rating-count quality filters.
+5. Ranking the candidate movies by similarity and rating information.
+6. Returning the Top 6 similar movies.
+7. Retrieving their poster images from TMDb.
 
-Genre similarity is calculated using the common genres between the selected movie and candidate movies compared with their total unique genres.
+Users can select a similar movie to open its Movie Details page and receive another set of related movie recommendations.
 
-Users can select one of the similar movies to open its Movie Details page. The system then loads the selected movie information and generates a new set of similar movie recommendations.
+---
 
 ## Technology Stack
 
@@ -123,98 +154,93 @@ Users can select one of the similar movies to open its Movie Details page. The s
 | Cloud Platform | Amazon Web Services (AWS) |
 | Version Control | Git & GitHub |
 
+---
+
 ## Dataset
 
-MoodFlix uses the **MovieLens dataset** provided by GroupLens Research.
+MoodFlix uses the **MovieLens dataset** provided by **GroupLens Research**.
 
-The dataset provides information used by the recommendation system, including:
+The dataset provides:
 
-- Movies
+- Movie titles
 - Genres
-- Ratings
-- Tags
+- User ratings
+- Movie tags
 - Movie links
 
-Movie genres and tags are used by the recommendation engine to understand movie content.
+Movie genres and tags are used as content features by the recommendation engine.
 
-Rating information is used to calculate movie quality and popularity.
-
-Movie link information is used to connect MovieLens movies with external movie services such as TMDb and IMDb.
+Rating data is used to evaluate movie quality and popularity, while movie-link data is used to connect MovieLens movies with external services such as TMDb and IMDb.
 
 [MovieLens Dataset – GroupLens Research](https://grouplens.org/datasets/movielens/)
 
-## Development Methodology
-
-The project follows the **Agile Scrum** methodology.
-
-Development is organised into regular development and evaluation cycles that include:
-
-- Sprint planning
-- Task allocation
-- System development
-- Frontend development
-- Backend development
-- Recommendation engine development
-- Integration
-- Testing
-- Progress reviews
-- GitHub version control
-
-Git and GitHub are used by the project team for source code management, collaboration, integration, and tracking development progress.
+---
 
 ## System Architecture
 
 MoodFlix consists of the following main components:
 
-- **Frontend:** React.js user interface
-- **Backend:** Django application and REST API
-- **Database:** MySQL
-- **Recommendation Engine:** Python, Pandas and Scikit-learn
-- **Dataset:** MovieLens
-- **External Movie Service:** TMDb API
-- **Cloud Platform:** Amazon Web Services (AWS)
+### Frontend
+**React.js** provides the user interface and communicates with the backend through API requests.
 
-The React frontend communicates with the Django backend through API requests.
+### Backend
+**Django** provides the backend application and API endpoints used by the frontend.
 
-The Django backend connects to the MySQL database to retrieve movie, rating, tag, mood, and movie-link information.
+### Database
+**MySQL** stores movie information, ratings, tags, mood mappings, movie links, and other application data.
 
-The recommendation engine processes the movie information and generates mood-aware movie recommendations.
+### Recommendation Engine
+The recommendation engine is developed using **Python, Pandas, and Scikit-learn** and performs the mood-aware recommendation calculations.
 
-TMDb is used by the backend to retrieve additional movie information and poster images for the user interface.
+### External Movie Service
+**TMDb API** provides additional movie metadata and poster images.
 
-The completed system is planned to be deployed using AWS cloud services.
+### Cloud Platform
+**Amazon Web Services (AWS)** is planned for cloud deployment of the completed application.
+
+---
 
 ## System Flow
 
-The main MoodFlix recommendation flow is:
-
-User  
-↓  
-React Frontend  
-↓  
-Mood Selection  
-↓  
-Django REST API  
-↓  
-Mood-Aware Recommendation Engine  
-↓  
-MySQL Database / MovieLens Data  
-↓  
-TF-IDF + Cosine Similarity  
-↓  
-Final Recommendation Score  
-↓  
-Top 10 Movie Recommendations  
-↓  
-React User Interface  
-↓  
-Movie Details  
-↓  
+```text
+User
+  │
+  ▼
+React Frontend
+  │
+  ▼
+Django API
+  │
+  ├──────────────► MySQL Database
+  │
+  ▼
+Mood-Aware Recommendation Engine
+  │
+  ├── TF-IDF
+  ├── Cosine Similarity
+  ├── Genre Matching
+  ├── Rating Quality
+  ├── Popularity
+  └── Recency
+  │
+  ▼
+Top 10 Movie Recommendations
+  │
+  ▼
+React User Interface
+  │
+  ▼
+Movie Details
+  │
+  ├──────────────► TMDb API
+  │
+  ▼
 Similar Movie Recommendations
+```
+
+---
 
 ## Project Structure
-
-The main project folders include:
 
 ```text
 Cloud-Based-AI-Mood-Aware-Movie-Recommendation-System/
@@ -237,3 +263,91 @@ Cloud-Based-AI-Mood-Aware-Movie-Recommendation-System/
 │   └── recommendation_engine.py
 │
 └── README.md
+```
+
+---
+
+## Development Methodology
+
+The project follows the **Agile Scrum** development methodology.
+
+Development activities include:
+
+- Sprint planning
+- Task allocation
+- Frontend development
+- Backend development
+- Recommendation engine development
+- Database integration
+- System integration
+- Testing
+- Progress evaluation
+- Version control
+
+**Git and GitHub** are used for source code management, collaboration, integration, and tracking development progress.
+
+---
+
+## Project Team
+
+| Team Member | Role |
+| --- | --- |
+| Chiranji Vinodya Ranaweera Jayalathge | Project Manager & AI Developer |
+| Meghan Reddy Podduturi | Frontend Developer |
+| Prapti Pokharel | Backend Developer |
+| Prashanth | Frontend Support & QA Tester |
+
+---
+
+## Project Status
+
+**Current Stage: Development and System Integration**
+
+The following core components have been developed and integrated:
+
+- Mood-aware recommendation engine
+- TF-IDF and Cosine Similarity implementation
+- Mood-to-Genre and Keyword Mapping
+- MySQL database integration
+- Django recommendation API
+- React mood selection interface
+- Top 10 mood-based movie recommendations
+- TMDb poster integration
+- Dynamic Movie Details page
+- Additional TMDb movie information
+- Similar movie recommendation API
+- You Might Also Like recommendations
+
+Current development is focused on:
+
+- Completing frontend and backend integration
+- Maintaining a consistent user interface across the application
+- Completing remaining user functionality
+- Testing recommendation quality
+- System and integration testing
+- Performance improvements
+- Preparing the application for AWS deployment
+
+---
+
+## Future Development
+
+Planned development includes:
+
+- Complete user authentication integration
+- Complete movie rating functionality
+- Complete user profile functionality
+- Complete admin functionality
+- Improve recommendation accuracy
+- Improve API performance
+- Cache external movie information where appropriate
+- Complete system testing
+- Deploy the application using AWS cloud services
+- Monitor application performance after deployment
+
+---
+
+## Academic Information
+
+**Unit:** NIT6150 – Advanced Project  
+**Institution:** Victoria University
