@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./mood.css";
 
 const moods = [
@@ -41,6 +42,8 @@ const moods = [
 ];
 
 function App() {
+
+  const navigate = useNavigate();
 
   // Recommendation API integration state
   const [selectedMood, setSelectedMood] = useState("");
@@ -284,7 +287,11 @@ const handleMoodSelect = async (moodName) => {
 
                 {movies.map((movie) => (
 
-                  <div className="movie-card" key={movie.movieId}>
+                  <div
+                      className="movie-card"
+                      key={movie.movieId}
+                      onClick={() => navigate(`/movie/${movie.movieId}`)}
+                  >
 
                     <div className="poster">
 
