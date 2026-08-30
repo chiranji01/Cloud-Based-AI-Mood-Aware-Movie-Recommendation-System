@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./mood.css";
+import Sidebar from "../../components/Sidebar";
 
 const moods = [
   {
@@ -125,66 +126,7 @@ const handleMoodSelect = async (moodName) => {
   return (
     <div className="app">
 
-      <aside className="sidebar">
-
-        <div className="logo">
-          <div className="logo-icon">✣</div>
-          <span>MoodFlix</span>
-        </div>
-
-        <nav className="navigation">
-          <a className="nav-item">
-            <span className="nav-icon">⌂</span>
-            <span>Home</span>
-          </a>
-
-          <a className="nav-item active">
-            <span className="nav-icon">☻</span>
-            <span>Mood</span>
-          </a>
-
-          <a className="nav-item">
-            <span className="nav-icon">♡</span>
-            <span>My Ratings</span>
-          </a>
-
-          <a className="nav-item">
-            <span className="nav-icon">♙</span>
-            <span>Profile</span>
-          </a>
-        </nav>
-
-        <div className="sidebar-decoration">
-          <div className="director-chair">
-            <div className="chair-back"></div>
-            <div className="chair-seat"></div>
-            <div className="chair-leg left"></div>
-            <div className="chair-leg right"></div>
-          </div>
-
-          <div className="popcorn">🍿</div>
-
-          <div className="clapper">
-            <div className="clapper-top"></div>
-            <div className="clapper-body">🎬</div>
-          </div>
-        </div>
-
-        <div className="help-card">
-          <div className="help-icon">?</div>
-          <div>
-            <strong>Need help?</strong>
-            <small>We're here to help</small>
-          </div>
-          <span className="help-arrow">›</span>
-        </div>
-
-        <div className="logout">
-          <span>⇥</span>
-          <span>Logout</span>
-        </div>
-
-      </aside>
+    <Sidebar />
 
       <main className="main">
 
