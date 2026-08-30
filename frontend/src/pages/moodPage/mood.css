@@ -916,6 +916,8 @@ button {
 ===================================================== */
 
 .movie-card {
+  cursor: pointer;
+  
   min-width: 0;
 
   background: white;
