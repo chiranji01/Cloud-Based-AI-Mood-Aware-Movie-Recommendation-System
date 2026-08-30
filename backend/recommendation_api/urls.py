@@ -19,19 +19,30 @@ urlpatterns = [
 
 
     # =====================================================
-    # UPDATED: MOVIE DETAILS API
+    # MOVIE DETAILS API
     # =====================================================
 
     # Example:
     # /api/movies/115617/
-    #
-    # movie_id is the MovieLens movie ID selected
-    # from the Mood recommendation page.
 
     path(
         "movies/<int:movie_id>/",
         views.movie_details,
         name="movie_details"
+    ),
+
+
+    # =====================================================
+    # NEW: SIMILAR MOVIES API
+    # =====================================================
+
+    # Example:
+    # /api/movies/115617/similar/
+
+    path(
+        "movies/<int:movie_id>/similar/",
+        views.similar_movies,
+        name="similar_movies"
     ),
 
 
