@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./mood.css";
+import Sidebar from "../../components/Sidebar";
 
 const moods = [
   {
@@ -41,6 +43,8 @@ const moods = [
 ];
 
 function App() {
+
+  const navigate = useNavigate();
 
   // Recommendation API integration state
   const [selectedMood, setSelectedMood] = useState("");
@@ -122,66 +126,7 @@ const handleMoodSelect = async (moodName) => {
   return (
     <div className="app">
 
-      <aside className="sidebar">
-
-        <div className="logo">
-          <div className="logo-icon">✣</div>
-          <span>MoodFlix</span>
-        </div>
-
-        <nav className="navigation">
-          <a className="nav-item">
-            <span className="nav-icon">⌂</span>
-            <span>Home</span>
-          </a>
-
-          <a className="nav-item active">
-            <span className="nav-icon">☻</span>
-            <span>Mood</span>
-          </a>
-
-          <a className="nav-item">
-            <span className="nav-icon">♡</span>
-            <span>My Ratings</span>
-          </a>
-
-          <a className="nav-item">
-            <span className="nav-icon">♙</span>
-            <span>Profile</span>
-          </a>
-        </nav>
-
-        <div className="sidebar-decoration">
-          <div className="director-chair">
-            <div className="chair-back"></div>
-            <div className="chair-seat"></div>
-            <div className="chair-leg left"></div>
-            <div className="chair-leg right"></div>
-          </div>
-
-          <div className="popcorn">🍿</div>
-
-          <div className="clapper">
-            <div className="clapper-top"></div>
-            <div className="clapper-body">🎬</div>
-          </div>
-        </div>
-
-        <div className="help-card">
-          <div className="help-icon">?</div>
-          <div>
-            <strong>Need help?</strong>
-            <small>We're here to help</small>
-          </div>
-          <span className="help-arrow">›</span>
-        </div>
-
-        <div className="logout">
-          <span>⇥</span>
-          <span>Logout</span>
-        </div>
-
-      </aside>
+    <Sidebar />
 
       <main className="main">
 
@@ -284,7 +229,11 @@ const handleMoodSelect = async (moodName) => {
 
                 {movies.map((movie) => (
 
-                  <div className="movie-card" key={movie.movieId}>
+                  <div
+                      className="movie-card"
+                      key={movie.movieId}
+                      onClick={() => navigate(`/movie/${movie.movieId}`)}
+                  >
 
                     <div className="poster">
 
@@ -307,51 +256,49 @@ const handleMoodSelect = async (moodName) => {
 
                     <div className="movie-info">
 
-<h3>{movie.title}</h3>
+                      <h3>{movie.title}</h3>
 
-<div className="genre">
-  {movie.genres ? (
-    <>
-      {movie.genres.split("|").map((genre, index) => (
-        <React.Fragment key={index}>
-          {genre}
+                      <div className="genre">
+                        {movie.genres ? (
+                          <>
+                            {movie.genres.split("|").map((genre, index) => (
+                              <React.Fragment key={index}>
+                                {genre}
 
-          {index < movie.genres.split("|").length - 1 &&
-            (index + 1) % 3 !== 0 && (
-              <span> • </span>
-            )}
+                                {index < movie.genres.split("|").length - 1 &&
+                                  (index + 1) % 3 !== 0 && (
+                                    <span> • </span>
+                                  )}
 
-          {(index + 1) % 3 === 0 &&
-            index < movie.genres.split("|").length - 1 && (
-              <br />
-            )}
-        </React.Fragment>
-      ))}
-    </>
-  ) : (
-    "No genre"
-  )}
-</div>
+                                {(index + 1) % 3 === 0 &&
+                                  index < movie.genres.split("|").length - 1 && (
+                                    <br />
+                                  )}
+                              </React.Fragment>
+                            ))}
+                          </>
+                        ) : (
+                          "No genre"
+                        )}
+                      </div>
 
-  <div className="movie-meta">
-    <span className="rating">
-      ⭐ {movie.average_rating != null
-        ? Number(movie.average_rating).toFixed(1)
-        : "N/A"}
-    </span>
+                      <div className="movie-meta">
+                        <span className="rating">
+                          ⭐ {movie.average_rating != null
+                            ? Number(movie.average_rating).toFixed(1)
+                            : "N/A"}
+                        </span>
 
-    <span className="meta-divider">•</span>
+                        <span className="meta-divider">•</span>
 
-    <span className="rating-count">
-      {movie.rating_count ?? 0} ratings
-    </span>
-  </div>
+                        <span className="rating-count">
+                          {movie.rating_count ?? 0} ratings
+                        </span>
+                      </div>
 
-  <div className="mood-match">
-    {Math.round(
-      Number(movie.mood_similarity || 0) * 100
-    )}% Mood Match
-  </div>
+                      <div className="mood-match">
+                        {Math.round(Number(movie.final_score || 0) * 100)}% Recommendation Match
+                      </div>
 
                       {/* IMDb link will be added to the Movie Details page next */}
 

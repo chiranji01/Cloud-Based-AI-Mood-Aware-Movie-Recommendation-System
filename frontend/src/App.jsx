@@ -4,9 +4,9 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Home from "./pages/home/Home";
 import Ratings from "./pages/ratings/Rating";
-import MovieDetails from "./pages/movie details/movie details.jsx";
-import Mood from "./pages/moodPage/mood.jsx";
-import Profile from "./pages/profile";
+import MovieDetails from "./pages/movie details/movie details";
+import Mood from "./pages/moodPage/mood";
+import Profile from "./pages/profile/profile";
 import Dashboard from "./pages/Dashboard";
 
 function App() {
