@@ -234,7 +234,7 @@ def get_mood_recommendations(
 
     selected_genres = [
         x.strip()
-        for x in mood_profile.genres.split(",")
+        for x in mood_profile.genres.split("|")
         if x.strip()
     ]
 

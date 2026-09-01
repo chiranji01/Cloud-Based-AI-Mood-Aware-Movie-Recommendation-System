@@ -1,88 +1,190 @@
-import React from "react";
-import "./Login.css";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./login.css";
 
 function Login() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
-  return (
-    
-    <div className="login-page">
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
 
-      <div className="login-left">
-        <h1>
-          <span>●</span> MoodFlix
-        </h1>
+const [error, setError] = useState("");
+const [loading, setLoading] = useState(false);
 
-        <div className="login-content">
-          <h2>
-            Find movies<br />
-            that match<br />
-            your <span>mood</span>
-          </h2>
+const handleLogin = async (e) => {
+e.preventDefault();
 
-          <p>
-            Select your mood and discover personalized
-            movie recommendations.
-          </p>
+setError("");
+setLoading(true);
 
-          <div className="popcorn">
-            🍿
-          </div>
-        </div>
-      </div>
+try {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/login/`,
+    {
+      method: "POST",
 
-      <div className="login-right">
+      headers: {
+        "Content-Type": "application/json",
+      },
 
-        <div className="login-form">
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    }
+  );
 
-          <h2>Welcome back!</h2>
+  const data = await response.json();
 
-          <p>Login to your account</p>
+  console.log("Login response:", data);
 
-          <label>Email</label>
+  if (response.ok) {
+    localStorage.setItem(
+      "user",
+      JSON.stringify(data.user)
+    );
 
-          <input
-            type="email"
-            placeholder="Enter your email"
-          />
+    alert("Login successful!");
 
-          <label>Password</label>
+    navigate("/home");
+  } else {
+    setError(
+      data.message ||
+      "Invalid email or password."
+    );
+  }
+} catch (error) {
+  console.error("Login error:", error);
 
-          <input
-            type="password"
-            placeholder="Enter your password"
-          />
+  setError(
+    "Could not connect to Django server. " +
+    "Please make sure Django is running."
+  );
+} finally {
+  setLoading(false);
+}
 
-          <div className="forgot">
-            Forgot password?
-          </div>
+};
 
-          <button className="login-button" onClick={() => navigate("/home")}>
-            Login
-          </button>
+return (
+<div className="login-page">
 
-          <div className="or">
-            OR
-          </div>
+  <div className="login-left">
 
-          <p>
-            Don't have an account?
-          </p>
+    <h1>
+      <span>●</span> MoodFlix
+    </h1>
 
-          <button
-        className="register-button"
-        onClick={() => navigate("/register")}
-      >
-        Register here
-      </button>
+    <div className="login-content">
 
-        </div>
+      <h2>
+        Find movies
+        <br />
+        that match
+        <br />
+        your <span>mood</span>
+      </h2>
 
+      <p>
+        Select your mood and discover movies
+        that are perfect for you.
+      </p>
+
+      <div className="popcorn">
+        🍿
       </div>
 
     </div>
-  );
+
+  </div>
+
+  <div className="login-right">
+
+    <div className="login-form">
+
+      <h2>Welcome Back</h2>
+
+      <p>
+        Login to your MoodFlix account
+      </p>
+
+      <form onSubmit={handleLogin}>
+
+        <label>Email</label>
+
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          required
+        />
+
+        <label>Password</label>
+
+        <input
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          required
+        />
+
+        <div
+          className="forgot"
+          onClick={() =>
+            navigate("/forgot-password")
+          }
+        >
+          Forgot password?
+        </div>
+
+        {error && (
+          <p
+            style={{
+              color: "red",
+              marginTop: "10px",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="login-button"
+          disabled={loading}
+        >
+          {loading
+            ? "Logging in..."
+            : "Login"}
+        </button>
+
+      </form>
+
+      <div className="or">
+        OR
+      </div>
+
+      <button
+        type="button"
+        className="register-button"
+        onClick={() => navigate("/register")}
+      >
+        Create an account
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+);
 }
 
 export default Login;

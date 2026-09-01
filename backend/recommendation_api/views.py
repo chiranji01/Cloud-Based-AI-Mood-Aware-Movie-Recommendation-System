@@ -385,8 +385,10 @@ def mood_recommendations(request):
                     "Sad",
                     "Relaxed",
                     "Excited",
+                    "Scared",
                     "Romantic",
                     "Stressed"
+
                 ]
             }, status=400)
 

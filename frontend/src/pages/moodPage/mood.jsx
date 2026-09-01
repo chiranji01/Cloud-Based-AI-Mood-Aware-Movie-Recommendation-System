@@ -58,7 +58,7 @@ function App() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://127.0.0.1:8000/api/recommendations/", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recommendations/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mood: selectedMood }),
@@ -92,7 +92,7 @@ const handleMoodSelect = async (moodName) => {
 
   try {
     const response = await fetch(
-      "http://127.0.0.1:8000/api/recommendations/",
+      `${import.meta.env.VITE_API_URL}/api/recommendations/`,
       {
         method: "POST",
         headers: {
