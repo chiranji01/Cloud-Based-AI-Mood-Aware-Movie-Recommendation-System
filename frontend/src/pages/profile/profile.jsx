@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import "./profile.css";
+import Sidebar from "../../components/Sidebar";
 
 function Profile() {
   const [selectedGenres, setSelectedGenres] = useState([
@@ -13,6 +15,12 @@ function Profile() {
     fullName: "Chiranjeevi Jayalathge",
     email: "chiranjii@example.com",
     username: "chiranjii01",
+  });
+
+  const [passwords, setPasswords] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   const genres = [
@@ -45,963 +53,1346 @@ function Profile() {
     }));
   };
 
+  const updatePasswordField = (field, value) => {
+    setPasswords((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  };
+
   const saveChanges = () => {
     alert("Profile changes saved successfully!");
   };
 
   const updatePassword = () => {
+    if (
+      !passwords.currentPassword ||
+      !passwords.newPassword ||
+      !passwords.confirmPassword
+    ) {
+      alert("Please fill in all password fields.");
+      return;
+    }
+
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      alert("New passwords do not match.");
+      return;
+    }
+
     alert("Password updated successfully!");
+
+    setPasswords({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
   };
 
   return (
-    <div style={styles.page}>
+    <div className="profile-page">
       <style>{`
+
         * {
           box-sizing: border-box;
         }
 
-        .profile-input:focus {
+        html,
+        body,
+        #root {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          min-height: 100%;
+        }
+
+        body {
+          overflow-x: hidden;
+        }
+
+        /* =========================
+           MAIN APPLICATION
+        ========================= */
+
+        .profile-app {
+          min-height: 100vh;
+          width: 100%;
+          background: #f4f5fb;
+          display: flex;
+        }
+
+        /*
+          IMPORTANT:
+          Your Sidebar is approximately 220px wide.
+          The content therefore starts after 220px.
+        */
+
+        .profile-main {
+          margin-left: 220px;
+          width: calc(100% - 220px);
+          min-width: 0;
+          min-height: 100vh;
+          padding: 24px 30px 45px;
+          overflow-x: hidden;
+        }
+
+        /* =========================
+           TOP BAR
+        ========================= */
+
+        .profile-topbar {
+          width: 100%;
+          min-height: 45px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 25px;
+          margin-bottom: 28px;
+        }
+
+        .profile-search {
+          width: min(720px, 65%);
+          height: 42px;
+          background: #ffffff;
+          border: 1px solid #e1e3ef;
+          border-radius: 9px;
+          display: flex;
+          align-items: center;
+          padding: 0 14px;
+          box-shadow: 0 2px 8px rgba(35, 34, 72, 0.03);
+        }
+
+        .profile-search-icon {
+          width: 24px;
+          color: #8790a9;
+          font-size: 21px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 8px;
+        }
+
+        .profile-search-text {
+          flex: 1;
+          min-width: 0;
+          color: #8c93a8;
+          font-size: 12px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .profile-filter {
+          border: none;
+          background: transparent;
+          color: #6030e3;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+
+        .profile-user-area {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0;
+        }
+
+        .profile-notification {
+          position: relative;
+          width: 30px;
+          height: 35px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #69718b;
+          font-size: 21px;
+        }
+
+        .profile-notification-badge {
+          position: absolute;
+          top: 1px;
+          right: 0;
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          background: #6730e5;
+          color: white;
+          font-size: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+        }
+
+        .profile-user-avatar {
+          width: 35px;
+          height: 35px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #f1c9a8, #8c4d34);
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+          margin-left: 5px;
+        }
+
+        .profile-user-name {
+          color: #252d47;
+          font-size: 12px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .profile-down-arrow {
+          color: #747b91;
+          font-size: 15px;
+          margin-left: 2px;
+        }
+
+        /* =========================
+           PAGE HEADER
+        ========================= */
+
+        .profile-header {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          gap: 13px;
+          margin-bottom: 22px;
+        }
+
+        .profile-title-icon {
+          width: 42px;
+          height: 42px;
+          flex-shrink: 0;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #5b22df, #7735ec);
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          box-shadow: 0 5px 14px rgba(96, 44, 224, 0.22);
+        }
+
+        .profile-title {
+          margin: 0;
+          color: #18203a;
+          font-size: 23px;
+          line-height: 1.2;
+          font-weight: 700;
+        }
+
+        .profile-subtitle {
+          margin: 5px 0 0;
+          color: #737b91;
+          font-size: 11px;
+          line-height: 1.4;
+        }
+
+        /* =========================
+           MAIN GRID
+        ========================= */
+
+        .profile-grid {
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
+          gap: 20px;
+          align-items: start;
+        }
+
+        .profile-column {
+          min-width: 0;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .profile-card {
+          width: 100%;
+          background: #ffffff;
+          border: 1px solid #e8e9f1;
+          border-radius: 10px;
+          padding: 20px;
+          margin-bottom: 18px;
+          box-shadow: 0 2px 10px rgba(31, 34, 69, 0.025);
+        }
+
+        .profile-card-title {
+          margin: 0 0 5px;
+          color: #1d2540;
+          font-size: 14px;
+          line-height: 1.3;
+          font-weight: 700;
+        }
+
+        .profile-card-description {
+          margin: 0 0 17px;
+          color: #7c8399;
+          font-size: 10px;
+          line-height: 1.45;
+        }
+
+        /* =========================
+           PROFILE INFORMATION
+        ========================= */
+
+        .profile-info-layout {
+          width: 100%;
+          display: grid;
+          grid-template-columns: 120px minmax(0, 1fr);
+          gap: 22px;
+          align-items: start;
+        }
+
+        .profile-avatar-section {
+          position: relative;
+          text-align: center;
+          min-width: 0;
+        }
+
+        .profile-large-avatar {
+          width: 98px;
+          height: 98px;
+          border-radius: 50%;
+          margin: 3px auto 10px;
+          background: linear-gradient(145deg, #f0f0f2, #ffffff);
+          border: 1px solid #e0e1e8;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .profile-avatar-head {
+          position: absolute;
+          width: 31px;
+          height: 36px;
+          border-radius: 50%;
+          background: linear-gradient(145deg, #3b2b27, #171514);
+          left: 33px;
+          top: 17px;
+        }
+
+        .profile-avatar-body {
+          position: absolute;
+          width: 63px;
+          height: 45px;
+          border-radius: 45px 45px 0 0;
+          background: linear-gradient(145deg, #171b25, #30384b);
+          left: 17px;
+          top: 52px;
+        }
+
+        .profile-camera-button {
+          position: absolute;
+          right: 0;
+          top: 75px;
+          width: 29px;
+          height: 29px;
+          border-radius: 50%;
+          border: 3px solid #ffffff;
+          background: #6330e6;
+          color: #ffffff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+        }
+
+        .profile-image-text {
+          max-width: 115px;
+          margin: 0 auto;
+          color: #8a90a1;
+          font-size: 8px;
+          line-height: 1.45;
+        }
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .profile-form {
+          width: 100%;
+          min-width: 0;
+        }
+
+        .profile-form-group {
+          width: 100%;
+          margin-bottom: 12px;
+        }
+
+        .profile-label {
+          display: block;
+          margin: 0 0 6px;
+          color: #39415a;
+          font-size: 9px;
+          line-height: 1.2;
+          font-weight: 600;
+        }
+
+        .profile-input {
+          width: 100%;
+          height: 34px;
+          display: block;
+          border: 1px solid #dfe2ec;
+          border-radius: 6px;
+          padding: 0 11px;
+          color: #3f465b;
+          background: #ffffff;
+          font-size: 10px;
           outline: none;
-          border-color: #6331e8 !important;
-          box-shadow: 0 0 0 3px rgba(99, 49, 232, 0.10);
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .profile-input::placeholder {
+          color: #a0a6b6;
+        }
+
+        .profile-input:focus {
+          border-color: #6331e8;
+          box-shadow: 0 0 0 3px rgba(99, 49, 232, 0.1);
+        }
+
+        .profile-button-row {
+          width: 100%;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          margin-top: 8px;
+        }
+
+        .profile-save-button {
+          height: 34px;
+          border: none;
+          border-radius: 6px;
+          padding: 0 15px;
+          background: #5c28df;
+          color: #ffffff;
+          font-size: 9px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .profile-save-button:hover {
+          background: #5420d4;
+          transform: translateY(-1px);
+        }
+
+        /* =========================
+           PASSWORD
+        ========================= */
+
+        .password-group {
+          margin-bottom: 12px;
+        }
+
+        .password-wrapper {
+          position: relative;
+          width: 100%;
+        }
+
+        .password-wrapper .profile-input {
+          padding-right: 38px;
+        }
+
+        .password-eye {
+          position: absolute;
+          right: 11px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #8b91a5;
+          font-size: 12px;
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .profile-full-button {
+          width: 100%;
+          height: 34px;
+          margin-top: 5px;
+          border: none;
+          border-radius: 6px;
+          background: #5c28df;
+          color: #ffffff;
+          font-size: 9px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .profile-full-button:hover {
+          background: #5420d4;
+          transform: translateY(-1px);
+        }
+
+        /* =========================
+           GENRES
+        ========================= */
+
+        .genre-grid {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 9px;
+        }
+
+        .genre-card {
+          width: 100%;
+          min-width: 0;
+          height: 48px;
+          border: 1px solid #e4e5ed;
+          border-radius: 7px;
+          background: #ffffff;
+          display: flex;
+          align-items: center;
+          padding: 0 10px;
+          gap: 8px;
+          position: relative;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.2s;
+          overflow: hidden;
         }
 
         .genre-card:hover {
-          border-color: #7545ee !important;
+          border-color: #7545ee;
           transform: translateY(-1px);
         }
 
-        .purple-button:hover {
-          background: #5420d4 !important;
-          transform: translateY(-1px);
+        .genre-card.selected {
+          border-color: #a88aff;
+          background: #faf8ff;
+          box-shadow: 0 0 0 1px rgba(108, 48, 228, 0.05);
         }
 
-        .sidebar-action:hover {
-          background: rgba(99, 49, 232, 0.12) !important;
+        .genre-icon {
+          width: 23px;
+          min-width: 23px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 17px;
         }
 
-        @media (max-width: 1000px) {
+        .genre-name {
+          min-width: 0;
+          padding-right: 15px;
+          color: #4e566d;
+          font-size: 9px;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .genre-check {
+          position: absolute;
+          right: 5px;
+          top: 5px;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #6130e6;
+          color: #ffffff;
+          font-size: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+        }
+
+        .genre-hint {
+          margin: 12px 0 0;
+          color: #9aa0b0;
+          font-size: 8px;
+        }
+
+        /* =========================
+           ACCOUNT INFORMATION
+        ========================= */
+
+        .account-list {
+          width: 100%;
+        }
+
+        .account-row {
+          width: 100%;
+          min-height: 44px;
+          display: grid;
+          grid-template-columns: 24px minmax(0, 1fr) auto;
+          align-items: center;
+          column-gap: 8px;
+          border-bottom: 1px solid #eeeeF3;
+        }
+
+        .account-row:last-child {
+          border-bottom: none;
+        }
+
+        .account-icon {
+          color: #777f98;
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .account-label {
+          color: #717991;
+          font-size: 9px;
+          min-width: 0;
+        }
+
+        .account-value {
+          color: #697188;
+          font-size: 9px;
+          font-weight: 600;
+          text-align: right;
+          white-space: nowrap;
+        }
+
+        /* =========================
+           DESKTOP LARGE SCREENS
+        ========================= */
+
+        @media (min-width: 1400px) {
+          .profile-main {
+            padding-left: 40px;
+            padding-right: 40px;
+          }
+
           .profile-grid {
-            grid-template-columns: 1fr !important;
+            gap: 24px;
+          }
+
+          .profile-card {
+            padding: 22px;
           }
         }
 
-        @media (max-width: 700px) {
-          .profile-page-content {
-            padding: 20px !important;
+        /* =========================
+           TABLET
+        ========================= */
+
+        @media (max-width: 1100px) {
+          .profile-main {
+            padding: 22px;
           }
 
-          .profile-header-row {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-          }
-
-          .profile-info-layout {
-            grid-template-columns: 1fr !important;
+          .profile-grid {
+            grid-template-columns: 1fr;
           }
 
           .genre-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
           }
         }
+
+        /* =========================
+           SMALL TABLET
+        ========================= */
+
+        @media (max-width: 850px) {
+          .profile-main {
+            margin-left: 0;
+            width: 100%;
+            padding: 20px;
+          }
+
+          .profile-topbar {
+            gap: 15px;
+          }
+
+          .profile-search {
+            width: 100%;
+            max-width: none;
+          }
+
+          .profile-info-layout {
+            grid-template-columns: 110px minmax(0, 1fr);
+            gap: 18px;
+          }
+
+          .genre-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 650px) {
+          .profile-main {
+            padding: 16px;
+          }
+
+          .profile-topbar {
+            min-height: auto;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+          }
+
+          .profile-search {
+            order: 1;
+            width: 100%;
+          }
+
+          .profile-user-area {
+            order: 2;
+            margin-left: auto;
+          }
+
+          .profile-header {
+            align-items: flex-start;
+          }
+
+          .profile-title-icon {
+            width: 38px;
+            height: 38px;
+          }
+
+          .profile-title {
+            font-size: 20px;
+          }
+
+          .profile-subtitle {
+            font-size: 10px;
+          }
+
+          .profile-card {
+            padding: 16px;
+          }
+
+          .profile-info-layout {
+            grid-template-columns: 1fr;
+          }
+
+          .profile-avatar-section {
+            margin-bottom: 10px;
+          }
+
+          .profile-form-group {
+            margin-bottom: 13px;
+          }
+
+          .genre-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .account-row {
+            grid-template-columns: 22px minmax(0, 1fr) auto;
+          }
+
+          .account-value {
+            font-size: 8px;
+          }
+        }
+
+        /* =========================
+           VERY SMALL MOBILE
+        ========================= */
+
+        @media (max-width: 420px) {
+          .profile-main {
+            padding: 12px;
+          }
+
+          .profile-card {
+            padding: 14px;
+          }
+
+          .genre-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 7px;
+          }
+
+          .genre-card {
+            height: 44px;
+            padding: 0 7px;
+          }
+
+          .genre-icon {
+            font-size: 15px;
+          }
+
+          .genre-name {
+            font-size: 8px;
+          }
+
+          .account-value {
+            max-width: 110px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+
       `}</style>
 
-      {/* Main application area */}
-      <div style={styles.appContainer}>
+      <div className="profile-app">
 
-        {/* Sidebar */}
-        <aside style={styles.sidebar}>
+        {/* =========================
+            SIDEBAR
+        ========================= */}
 
-          <div style={styles.logo}>
-            <div style={styles.logoCircle}>✣</div>
-            <span>MoodFlix</span>
-          </div>
+        <Sidebar />
 
-          <div style={styles.navigation}>
-            <a href="/home" style={styles.navItem}>
-              <span style={styles.navIcon}>⌂</span>
-              Home
-            </a>
+        {/* =========================
+            MAIN CONTENT
+        ========================= */}
 
-            <a href="/mood" style={styles.navItem}>
-              <span style={styles.navIcon}>☺</span>
-              Mood
-            </a>
+        <main className="profile-main">
 
-            <a href="/ratings" style={styles.navItem}>
-              <span style={styles.navIcon}>☆</span>
-              My Ratings
-            </a>
+          {/* =========================
+              TOP BAR
+          ========================= */}
 
-            <a
-              href="/profile"
-              style={{
-                ...styles.navItem,
-                ...styles.activeNavItem,
-              }}
-            >
-              <span style={styles.navIcon}>♙</span>
-              Profile
-            </a>
-          </div>
+          <div className="profile-topbar">
 
-          <div style={styles.discoverCard}>
-            <div style={styles.movieIllustration}>
-              🎬
-              <span>🍿</span>
-            </div>
+            <div className="profile-search">
 
-            <div style={styles.discoverTitle}>
-              Discover more
-              <br />
-              movies for every mood!
-            </div>
+              <span className="profile-search-icon">
+                ⌕
+              </span>
 
-            <button
-              className="purple-button"
-              style={styles.moodButton}
-              onClick={() => (window.location.href = "/mood")}
-            >
-              ☺ &nbsp; Choose Your Mood
-            </button>
-          </div>
-
-          <div className="sidebar-action" style={styles.helpCard}>
-            <div style={styles.helpIcon}>?</div>
-            <div>
-              <strong style={styles.helpTitle}>Need help?</strong>
-              <span style={styles.helpText}>We're here to help</span>
-            </div>
-            <span style={styles.arrow}>›</span>
-          </div>
-
-          <div style={styles.logout}>
-            <span style={styles.logoutIcon}>⇥</span>
-            Logout
-          </div>
-        </aside>
-
-        {/* Content */}
-        <main className="profile-page-content" style={styles.content}>
-
-          {/* Top bar */}
-          <div style={styles.topBar}>
-            <div style={styles.searchBox}>
-              <span style={styles.searchIcon}>⌕</span>
-              <span style={styles.searchText}>
+              <span className="profile-search-text">
                 Search movies by title, genre, actor...
               </span>
-              <button style={styles.filterButton}>
+
+              <button
+                type="button"
+                className="profile-filter"
+              >
                 ⚙ &nbsp; Filters
               </button>
+
             </div>
 
-            <div style={styles.userArea}>
-              <span style={styles.notification}>♧</span>
-              <span style={styles.notificationBadge}>3</span>
+            <div className="profile-user-area">
 
-              <div style={styles.userAvatar}>
+              <div className="profile-notification">
+
+                ♧
+
+                <span className="profile-notification-badge">
+                  3
+                </span>
+
+              </div>
+
+              <div className="profile-user-avatar">
                 C
               </div>
 
-              <span style={styles.userName}>Chiranjeevi</span>
-              <span style={styles.downArrow}>⌄</span>
+              <span className="profile-user-name">
+                Chiranjeevi
+              </span>
+
+              <span className="profile-down-arrow">
+                ⌄
+              </span>
+
             </div>
+
           </div>
 
-          {/* Page heading */}
-          <div className="profile-header-row" style={styles.profileHeader}>
-            <div style={styles.profileTitleIcon}>♙</div>
+          {/* =========================
+              PAGE HEADER
+          ========================= */}
+
+          <div className="profile-header">
+
+            <div className="profile-title-icon">
+              ♙
+            </div>
 
             <div>
-              <h1 style={styles.title}>Profile</h1>
-              <p style={styles.subtitle}>
+
+              <h1 className="profile-title">
+                Profile
+              </h1>
+
+              <p className="profile-subtitle">
                 Manage your personal information and preferences.
               </p>
+
             </div>
+
           </div>
 
-          {/* Main grid */}
-          <div className="profile-grid" style={styles.profileGrid}>
+          {/* =========================
+              MAIN CONTENT GRID
+          ========================= */}
 
-            {/* LEFT COLUMN */}
-            <div>
+          <div className="profile-grid">
 
-              {/* Profile Information */}
-              <section style={styles.card}>
-                <h2 style={styles.cardTitle}>Profile Information</h2>
+            {/* ===================================
+                LEFT COLUMN
+            =================================== */}
 
-                <div className="profile-info-layout" style={styles.profileInfoLayout}>
+            <div className="profile-column">
 
-                  {/* Avatar */}
-                  <div style={styles.avatarSection}>
-                    <div style={styles.largeAvatar}>
-                      <div style={styles.avatarHead}></div>
-                      <div style={styles.avatarBody}></div>
+              {/* =========================
+                  PROFILE INFORMATION
+              ========================= */}
+
+              <section className="profile-card">
+
+                <h2 className="profile-card-title">
+                  Profile Information
+                </h2>
+
+                <p className="profile-card-description">
+                  Update your personal information and profile details.
+                </p>
+
+                <div className="profile-info-layout">
+
+                  {/* AVATAR */}
+
+                  <div className="profile-avatar-section">
+
+                    <div className="profile-large-avatar">
+
+                      <div className="profile-avatar-head"></div>
+
+                      <div className="profile-avatar-body"></div>
+
                     </div>
 
-                    <button style={styles.cameraButton}>▣</button>
+                    <button
+                      type="button"
+                      className="profile-camera-button"
+                      aria-label="Change profile picture"
+                    >
+                      ▣
+                    </button>
 
-                    <p style={styles.imageText}>
+                    <p className="profile-image-text">
                       JPG, PNG or GIF, Max size 2MB.
                     </p>
+
                   </div>
 
-                  {/* Form */}
-                  <div style={styles.formSection}>
+                  {/* FORM */}
 
-                    <label style={styles.label}>Full Name</label>
-                    <input
-                      className="profile-input"
-                      value={profile.fullName}
-                      onChange={(e) =>
-                        updateProfile("fullName", e.target.value)
-                      }
-                      style={styles.input}
-                    />
+                  <div className="profile-form">
 
-                    <label style={styles.label}>Email Address</label>
-                    <input
-                      className="profile-input"
-                      value={profile.email}
-                      onChange={(e) =>
-                        updateProfile("email", e.target.value)
-                      }
-                      style={styles.input}
-                    />
+                    {/* FULL NAME */}
 
-                    <label style={styles.label}>Username</label>
-                    <input
-                      className="profile-input"
-                      value={profile.username}
-                      onChange={(e) =>
-                        updateProfile("username", e.target.value)
-                      }
-                      style={styles.input}
-                    />
+                    <div className="profile-form-group">
 
-                    <div style={styles.buttonRow}>
+                      <label className="profile-label">
+                        Full Name
+                      </label>
+
+                      <input
+                        className="profile-input"
+                        type="text"
+                        value={profile.fullName}
+                        onChange={(e) =>
+                          updateProfile(
+                            "fullName",
+                            e.target.value
+                          )
+                        }
+                      />
+
+                    </div>
+
+                    {/* EMAIL */}
+
+                    <div className="profile-form-group">
+
+                      <label className="profile-label">
+                        Email Address
+                      </label>
+
+                      <input
+                        className="profile-input"
+                        type="email"
+                        value={profile.email}
+                        onChange={(e) =>
+                          updateProfile(
+                            "email",
+                            e.target.value
+                          )
+                        }
+                      />
+
+                    </div>
+
+                    {/* USERNAME */}
+
+                    <div className="profile-form-group">
+
+                      <label className="profile-label">
+                        Username
+                      </label>
+
+                      <input
+                        className="profile-input"
+                        type="text"
+                        value={profile.username}
+                        onChange={(e) =>
+                          updateProfile(
+                            "username",
+                            e.target.value
+                          )
+                        }
+                      />
+
+                    </div>
+
+                    {/* SAVE BUTTON */}
+
+                    <div className="profile-button-row">
+
                       <button
-                        className="purple-button"
+                        type="button"
+                        className="profile-save-button"
                         onClick={saveChanges}
-                        style={styles.saveButton}
                       >
                         ▣ &nbsp; Save Changes
                       </button>
+
                     </div>
 
                   </div>
+
                 </div>
+
               </section>
 
-              {/* Preferred Genres */}
-              <section style={styles.card}>
-                <h2 style={styles.cardTitle}>Preferred Genres</h2>
+              {/* =========================
+                  PREFERRED GENRES
+              ========================= */}
 
-                <p style={styles.cardDescription}>
-                  Select your favorite genres to get better movie recommendations.
+              <section className="profile-card">
+
+                <h2 className="profile-card-title">
+                  Preferred Genres
+                </h2>
+
+                <p className="profile-card-description">
+                  Select your favorite genres to get better movie
+                  recommendations.
                 </p>
 
-                <div className="genre-grid" style={styles.genreGrid}>
+                <div className="genre-grid">
+
                   {genres.map((genre) => {
-                    const selected = selectedGenres.includes(genre.name);
+
+                    const selected =
+                      selectedGenres.includes(genre.name);
 
                     return (
+
                       <button
+                        type="button"
                         key={genre.name}
-                        className="genre-card"
-                        onClick={() => toggleGenre(genre.name)}
-                        style={{
-                          ...styles.genreCard,
-                          ...(selected ? styles.selectedGenre : {}),
-                        }}
+                        className={`genre-card ${
+                          selected ? "selected" : ""
+                        }`}
+                        onClick={() =>
+                          toggleGenre(genre.name)
+                        }
                       >
-                        <span style={styles.genreIcon}>
+
+                        <span className="genre-icon">
                           {genre.icon}
                         </span>
 
-                        <span style={styles.genreName}>
+                        <span className="genre-name">
                           {genre.name}
                         </span>
 
                         {selected && (
-                          <span style={styles.checkMark}>✓</span>
+                          <span className="genre-check">
+                            ✓
+                          </span>
                         )}
+
                       </button>
+
                     );
                   })}
+
                 </div>
 
-                <p style={styles.genreHint}>
+                <p className="genre-hint">
                   You can choose multiple genres
                 </p>
 
-                <div style={styles.buttonRow}>
+                <div className="profile-button-row">
+
                   <button
-                    className="purple-button"
+                    type="button"
+                    className="profile-save-button"
                     onClick={saveChanges}
-                    style={styles.saveButton}
                   >
                     ▣ &nbsp; Save Changes
                   </button>
+
                 </div>
+
               </section>
 
             </div>
 
-            {/* RIGHT COLUMN */}
-            <div>
+            {/* ===================================
+                RIGHT COLUMN
+            =================================== */}
 
-              {/* Change Password */}
-              <section style={styles.card}>
-                <h2 style={styles.cardTitle}>Change Password</h2>
+            <div className="profile-column">
 
-                <p style={styles.cardDescription}>
+              {/* =========================
+                  CHANGE PASSWORD
+              ========================= */}
+
+              <section className="profile-card">
+
+                <h2 className="profile-card-title">
+                  Change Password
+                </h2>
+
+                <p className="profile-card-description">
                   Update your password to keep your account secure.
                 </p>
 
-                <label style={styles.label}>Current Password</label>
-                <div style={styles.passwordWrapper}>
-                  <input
-                    className="profile-input"
-                    type="password"
-                    placeholder="Enter your current password"
-                    style={styles.input}
-                  />
-                  <span style={styles.eye}>◉</span>
+                {/* CURRENT PASSWORD */}
+
+                <div className="password-group">
+
+                  <label className="profile-label">
+                    Current Password
+                  </label>
+
+                  <div className="password-wrapper">
+
+                    <input
+                      className="profile-input"
+                      type="password"
+                      placeholder="Enter your current password"
+                      value={passwords.currentPassword}
+                      onChange={(e) =>
+                        updatePasswordField(
+                          "currentPassword",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <span className="password-eye">
+                      ◉
+                    </span>
+
+                  </div>
+
                 </div>
 
-                <label style={styles.label}>New Password</label>
-                <div style={styles.passwordWrapper}>
-                  <input
-                    className="profile-input"
-                    type="password"
-                    placeholder="Enter your new password"
-                    style={styles.input}
-                  />
-                  <span style={styles.eye}>◉</span>
+                {/* NEW PASSWORD */}
+
+                <div className="password-group">
+
+                  <label className="profile-label">
+                    New Password
+                  </label>
+
+                  <div className="password-wrapper">
+
+                    <input
+                      className="profile-input"
+                      type="password"
+                      placeholder="Enter your new password"
+                      value={passwords.newPassword}
+                      onChange={(e) =>
+                        updatePasswordField(
+                          "newPassword",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <span className="password-eye">
+                      ◉
+                    </span>
+
+                  </div>
+
                 </div>
 
-                <label style={styles.label}>Confirm New Password</label>
-                <div style={styles.passwordWrapper}>
-                  <input
-                    className="profile-input"
-                    type="password"
-                    placeholder="Confirm your new password"
-                    style={styles.input}
-                  />
-                  <span style={styles.eye}>◉</span>
+                {/* CONFIRM PASSWORD */}
+
+                <div className="password-group">
+
+                  <label className="profile-label">
+                    Confirm New Password
+                  </label>
+
+                  <div className="password-wrapper">
+
+                    <input
+                      className="profile-input"
+                      type="password"
+                      placeholder="Confirm your new password"
+                      value={passwords.confirmPassword}
+                      onChange={(e) =>
+                        updatePasswordField(
+                          "confirmPassword",
+                          e.target.value
+                        )
+                      }
+                    />
+
+                    <span className="password-eye">
+                      ◉
+                    </span>
+
+                  </div>
+
                 </div>
+
+                {/* UPDATE PASSWORD */}
 
                 <button
-                  className="purple-button"
+                  type="button"
+                  className="profile-full-button"
                   onClick={updatePassword}
-                  style={styles.fullButton}
                 >
                   ♙ &nbsp; Update Password
                 </button>
+
               </section>
 
-              {/* Account Information */}
-              <section style={styles.card}>
-                <h2 style={styles.cardTitle}>Account Information</h2>
+              {/* =========================
+                  ACCOUNT INFORMATION
+              ========================= */}
 
-                <p style={styles.cardDescription}>
+              <section className="profile-card">
+
+                <h2 className="profile-card-title">
+                  Account Information
+                </h2>
+
+                <p className="profile-card-description">
                   View your account details and activity.
                 </p>
 
-                <div style={styles.accountRow}>
-                  <span style={styles.accountIcon}>▣</span>
-                  <span style={styles.accountLabel}>Member Since</span>
-                  <strong style={styles.accountValue}>10 April 2024</strong>
+                <div className="account-list">
+
+                  {/* MEMBER SINCE */}
+
+                  <div className="account-row">
+
+                    <span className="account-icon">
+                      ▣
+                    </span>
+
+                    <span className="account-label">
+                      Member Since
+                    </span>
+
+                    <strong className="account-value">
+                      10 April 2024
+                    </strong>
+
+                  </div>
+
+                  {/* ACCOUNT TYPE */}
+
+                  <div className="account-row">
+
+                    <span className="account-icon">
+                      ♔
+                    </span>
+
+                    <span className="account-label">
+                      Account Type
+                    </span>
+
+                    <strong className="account-value">
+                      Standard
+                    </strong>
+
+                  </div>
+
+                  {/* TOTAL RATINGS */}
+
+                  <div className="account-row">
+
+                    <span className="account-icon">
+                      ☆
+                    </span>
+
+                    <span className="account-label">
+                      Total Ratings
+                    </span>
+
+                    <strong className="account-value">
+                      18 Movies
+                    </strong>
+
+                  </div>
+
+                  {/* AVERAGE RATING */}
+
+                  <div className="account-row">
+
+                    <span className="account-icon">
+                      ▥
+                    </span>
+
+                    <span className="account-label">
+                      Average Rating
+                    </span>
+
+                    <strong className="account-value">
+                      4.3 / 5
+                    </strong>
+
+                  </div>
+
+                  {/* LAST LOGIN */}
+
+                  <div className="account-row">
+
+                    <span className="account-icon">
+                      ◷
+                    </span>
+
+                    <span className="account-label">
+                      Last Login
+                    </span>
+
+                    <strong className="account-value">
+                      06 May 2024, 10:30 AM
+                    </strong>
+
+                  </div>
+
                 </div>
 
-                <div style={styles.accountRow}>
-                  <span style={styles.accountIcon}>♔</span>
-                  <span style={styles.accountLabel}>Account Type</span>
-                  <strong style={styles.accountValue}>Standard</strong>
-                </div>
-
-                <div style={styles.accountRow}>
-                  <span style={styles.accountIcon}>☆</span>
-                  <span style={styles.accountLabel}>Total Ratings</span>
-                  <strong style={styles.accountValue}>18 Movies</strong>
-                </div>
-
-                <div style={styles.accountRow}>
-                  <span style={styles.accountIcon}>▥</span>
-                  <span style={styles.accountLabel}>Average Rating</span>
-                  <strong style={styles.accountValue}>4.3 / 5</strong>
-                </div>
-
-                <div
-                  style={{
-                    ...styles.accountRow,
-                    borderBottom: "none",
-                  }}
-                >
-                  <span style={styles.accountIcon}>◷</span>
-                  <span style={styles.accountLabel}>Last Login</span>
-                  <strong style={styles.accountValue}>
-                    06 May 2024, 10:30 AM
-                  </strong>
-                </div>
               </section>
 
             </div>
+
           </div>
+
         </main>
+
       </div>
+
     </div>
   );
 }
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    width: "100%",
-    background: "#f4f5fb",
-    fontFamily:
-      "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
-    color: "#17203a",
-  },
-
-  appContainer: {
-    minHeight: "100vh",
-    display: "flex",
-  },
-
-  sidebar: {
-    width: "220px",
-    minHeight: "100vh",
-    background:
-      "linear-gradient(180deg, #080d25 0%, #090d23 55%, #070b1d 100%)",
-    color: "white",
-    padding: "24px 14px",
-    position: "relative",
-    flexShrink: 0,
-  },
-
-  logo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "9px",
-    fontSize: "20px",
-    fontWeight: "700",
-    padding: "0 10px 30px",
-  },
-
-  logoCircle: {
-    width: "27px",
-    height: "27px",
-    borderRadius: "50%",
-    background: "#6732e8",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "19px",
-  },
-
-  navigation: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "5px",
-  },
-
-  navItem: {
-    height: "42px",
-    borderRadius: "7px",
-    display: "flex",
-    alignItems: "center",
-    gap: "13px",
-    padding: "0 12px",
-    color: "#d9dced",
-    textDecoration: "none",
-    fontSize: "13px",
-    fontWeight: "500",
-  },
-
-  activeNavItem: {
-    background: "linear-gradient(90deg, #5521d9, #7131ec)",
-    color: "#ffffff",
-    boxShadow: "0 5px 16px rgba(91, 39, 224, 0.35)",
-  },
-
-  navIcon: {
-    width: "19px",
-    textAlign: "center",
-    fontSize: "18px",
-  },
-
-  discoverCard: {
-    margin: "45px 2px 16px",
-    padding: "14px 11px 15px",
-    borderRadius: "9px",
-    background:
-      "linear-gradient(145deg, rgba(65, 43, 139, .30), rgba(24, 24, 64, .55))",
-    border: "1px solid rgba(117, 74, 231, .18)",
-  },
-
-  movieIllustration: {
-    height: "105px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "72px",
-    position: "relative",
-  },
-
-  discoverTitle: {
-    fontSize: "11px",
-    lineHeight: "1.45",
-    color: "#f4f4ff",
-    marginBottom: "12px",
-  },
-
-  moodButton: {
-    width: "100%",
-    border: "none",
-    borderRadius: "6px",
-    padding: "9px 5px",
-    color: "white",
-    background: "#5a24df",
-    fontSize: "10px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-
-  helpCard: {
-    margin: "12px 2px",
-    padding: "12px 9px",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    gap: "9px",
-    background: "rgba(46, 46, 91, .45)",
-    cursor: "pointer",
-  },
-
-  helpIcon: {
-    width: "25px",
-    height: "25px",
-    borderRadius: "50%",
-    background: "#6531e7",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-  },
-
-  helpTitle: {
-    display: "block",
-    fontSize: "10px",
-  },
-
-  helpText: {
-    display: "block",
-    fontSize: "8px",
-    color: "#a9abc1",
-    marginTop: "2px",
-  },
-
-  arrow: {
-    marginLeft: "auto",
-    color: "#a9abc1",
-  },
-
-  logout: {
-    position: "absolute",
-    bottom: "25px",
-    left: "25px",
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    color: "#dddfee",
-    fontSize: "12px",
-    cursor: "pointer",
-  },
-
-  logoutIcon: {
-    fontSize: "20px",
-  },
-
-  content: {
-    flex: 1,
-    padding: "24px 30px 40px",
-    overflow: "auto",
-  },
-
-  topBar: {
-    height: "45px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: "25px",
-  },
-
-  searchBox: {
-    width: "52%",
-    height: "40px",
-    background: "#ffffff",
-    border: "1px solid #e1e3ef",
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 12px",
-    boxShadow: "0 2px 8px rgba(35, 34, 72, .03)",
-  },
-
-  searchIcon: {
-    fontSize: "23px",
-    color: "#8790a9",
-    marginRight: "9px",
-  },
-
-  searchText: {
-    fontSize: "11px",
-    color: "#8c93a8",
-    flex: 1,
-  },
-
-  filterButton: {
-    border: "none",
-    background: "#ffffff",
-    color: "#6030e3",
-    fontSize: "10px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-
-  userArea: {
-    display: "flex",
-    alignItems: "center",
-    gap: "9px",
-  },
-
-  notification: {
-    fontSize: "22px",
-    color: "#69718b",
-    position: "relative",
-  },
-
-  notificationBadge: {
-    width: "14px",
-    height: "14px",
-    borderRadius: "50%",
-    background: "#6730e5",
-    color: "white",
-    fontSize: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: "-15px",
-    marginTop: "-15px",
-  },
-
-  userAvatar: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #f1c9a8, #8c4d34)",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "14px",
-    marginLeft: "7px",
-  },
-
-  userName: {
-    fontSize: "11px",
-    fontWeight: "600",
-  },
-
-  downArrow: {
-    color: "#747b91",
-    fontSize: "15px",
-  },
-
-  profileHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    marginBottom: "18px",
-  },
-
-  profileTitleIcon: {
-    width: "39px",
-    height: "39px",
-    borderRadius: "7px",
-    background: "linear-gradient(135deg, #5b22df, #7735ec)",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "23px",
-    boxShadow: "0 5px 14px rgba(96, 44, 224, .22)",
-  },
-
-  title: {
-    margin: 0,
-    fontSize: "22px",
-    lineHeight: "1.1",
-    color: "#18203a",
-  },
-
-  subtitle: {
-    margin: "4px 0 0",
-    fontSize: "10px",
-    color: "#737b91",
-  },
-
-  profileGrid: {
-    display: "grid",
-    gridTemplateColumns: "1.25fr .75fr",
-    gap: "12px",
-    maxWidth: "100%",
-  },
-
-  card: {
-    background: "#ffffff",
-    borderRadius: "8px",
-    padding: "16px",
-    marginBottom: "12px",
-    border: "1px solid #e8e9f1",
-    boxShadow: "0 2px 10px rgba(31, 34, 69, .025)",
-  },
-
-  cardTitle: {
-    margin: "0 0 4px",
-    fontSize: "12px",
-    color: "#1d2540",
-  },
-
-  cardDescription: {
-    margin: "0 0 14px",
-    fontSize: "8px",
-    color: "#7c8399",
-  },
-
-  profileInfoLayout: {
-    display: "grid",
-    gridTemplateColumns: "115px 1fr",
-    gap: "15px",
-  },
-
-  avatarSection: {
-    position: "relative",
-    textAlign: "center",
-  },
-
-  largeAvatar: {
-    width: "98px",
-    height: "98px",
-    borderRadius: "50%",
-    margin: "3px auto 9px",
-    background:
-      "linear-gradient(145deg, #f0f0f2, #ffffff)",
-    border: "1px solid #e0e1e8",
-    position: "relative",
-    overflow: "hidden",
-  },
-
-  avatarHead: {
-    position: "absolute",
-    width: "31px",
-    height: "36px",
-    borderRadius: "50%",
-    background: "linear-gradient(145deg, #3b2b27, #171514)",
-    left: "34px",
-    top: "17px",
-  },
-
-  avatarBody: {
-    position: "absolute",
-    width: "63px",
-    height: "45px",
-    borderRadius: "45px 45px 0 0",
-    background: "linear-gradient(145deg, #171b25, #30384b)",
-    left: "17px",
-    top: "52px",
-  },
-
-  cameraButton: {
-    position: "absolute",
-    right: "0px",
-    top: "75px",
-    width: "29px",
-    height: "29px",
-    borderRadius: "50%",
-    border: "3px solid white",
-    background: "#6330e6",
-    color: "white",
-    cursor: "pointer",
-  },
-
-  imageText: {
-    fontSize: "7px",
-    color: "#8a90a1",
-    lineHeight: "1.4",
-    margin: 0,
-  },
-
-  formSection: {
-    display: "flex",
-    flexDirection: "column",
-  },
-
-  label: {
-    display: "block",
-    fontSize: "8px",
-    fontWeight: "600",
-    color: "#39415a",
-    marginBottom: "5px",
-    marginTop: "5px",
-  },
-
-  input: {
-    width: "100%",
-    height: "28px",
-    border: "1px solid #dfe2ec",
-    borderRadius: "5px",
-    padding: "0 9px",
-    fontSize: "9px",
-    color: "#3f465b",
-    background: "#ffffff",
-    transition: "all .2s",
-  },
-
-  buttonRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginTop: "9px",
-  },
-
-  saveButton: {
-    border: "none",
-    borderRadius: "5px",
-    background: "#5c28df",
-    color: "white",
-    padding: "7px 12px",
-    fontSize: "8px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "all .2s",
-  },
-
-  passwordWrapper: {
-    position: "relative",
-    marginBottom: "7px",
-  },
-
-  eye: {
-    position: "absolute",
-    right: "9px",
-    top: "7px",
-    color: "#8b91a5",
-    fontSize: "11px",
-  },
-
-  fullButton: {
-    width: "100%",
-    height: "27px",
-    border: "none",
-    borderRadius: "5px",
-    background: "#5c28df",
-    color: "white",
-    fontSize: "8px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "8px",
-    transition: "all .2s",
-  },
-
-  genreGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "7px",
-  },
-
-  genreCard: {
-    height: "44px",
-    border: "1px solid #e4e5ed",
-    borderRadius: "6px",
-    background: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    gap: "7px",
-    position: "relative",
-    cursor: "pointer",
-    textAlign: "left",
-    transition: "all .2s",
-  },
-
-  selectedGenre: {
-    borderColor: "#a88aff",
-    background: "#faf8ff",
-    boxShadow: "0 0 0 1px rgba(108, 48, 228, .05)",
-  },
-
-  genreIcon: {
-    fontSize: "16px",
-    width: "22px",
-    textAlign: "center",
-  },
-
-  genreName: {
-    fontSize: "8px",
-    color: "#4e566d",
-    fontWeight: "500",
-  },
-
-  checkMark: {
-    position: "absolute",
-    right: "5px",
-    top: "4px",
-    width: "13px",
-    height: "13px",
-    borderRadius: "50%",
-    background: "#6130e6",
-    color: "white",
-    fontSize: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  genreHint: {
-    margin: "11px 0 0",
-    fontSize: "7px",
-    color: "#9aa0b0",
-  },
-
-  accountRow: {
-    display: "grid",
-    gridTemplateColumns: "20px 1fr auto",
-    alignItems: "center",
-    gap: "5px",
-    minHeight: "36px",
-    borderBottom: "1px solid #eeeeF3",
-  },
-
-  accountIcon: {
-    color: "#777f98",
-    fontSize: "14px",
-  },
-
-  accountLabel: {
-    fontSize: "8px",
-    color: "#717991",
-  },
-
-  accountValue: {
-    fontSize: "8px",
-    color: "#697188",
-    fontWeight: "600",
-    textAlign: "right",
-  },
-};
 
 export default Profile;
