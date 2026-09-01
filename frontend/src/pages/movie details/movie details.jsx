@@ -37,7 +37,7 @@ function MovieDetail() {
         setMovieError("");
 
         // Fetch selected movie details from Django
-        const response = await fetch(`http://127.0.0.1:8000/api/movies/${id}/`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/movies/${id}/`);
 
         if (!response.ok) {
           throw new Error("Unable to load movie details.");
@@ -67,7 +67,7 @@ function MovieDetail() {
       try {
         setLoadingSimilarMovies(true);
 
-        const response = await fetch(`http://127.0.0.1:8000/api/movies/${id}/similar/`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/movies/${id}/similar/`);
 
         if (!response.ok) {
           throw new Error("Unable to load similar movies.");

@@ -12,6 +12,8 @@ urlpatterns = [
 
     # MovieLens database/API
     path("api/", include("moviesapp.urls")),
+
+    
 ]
 
 
