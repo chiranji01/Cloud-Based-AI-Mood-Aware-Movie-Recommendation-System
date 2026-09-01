@@ -7,7 +7,7 @@ import Ratings from "./pages/ratings/Rating";
 import MovieDetails from "./pages/movie details/movie details";
 import Mood from "./pages/moodPage/mood";
 import Profile from "./pages/profile/profile";
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/dashboard/Dashboard";
 
 function App() {
   return (
