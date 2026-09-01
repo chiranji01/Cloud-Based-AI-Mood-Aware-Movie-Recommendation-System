@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./dashboard.css";
+import Sidebar from "../../components/Sidebar";
 
 const movies = [
   {
@@ -139,33 +140,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <nav className="sidebar-nav">
-
-          <a href="/dashboard" className="nav-item active">
-            <span className="nav-icon">⌂</span>
-            <span>Dashboard</span>
-          </a>
-
-          <div className="nav-section-title">MANAGE</div>
-
-          <a href="/home" className="nav-item">
-            <span className="nav-icon">▣</span>
-            <span>Movies</span>
-          </a>
-
-          <a href="/profile" className="nav-item">
-            <span className="nav-icon">♙</span>
-            <span>Users</span>
-          </a>
-
-          <div className="nav-section-title system-title">SYSTEM</div>
-
-          <a href="/login" className="nav-item">
-            <span className="nav-icon">↪</span>
-            <span>Logout</span>
-          </a>
-
-        </nav>
+        <Sidebar />   
 
         <div className="sidebar-decoration">
           <div className="director-chair">
