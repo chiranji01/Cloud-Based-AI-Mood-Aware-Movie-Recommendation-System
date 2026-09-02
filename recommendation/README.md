@@ -1,74 +1,76 @@
 # MoodFlix AI Recommendation Engine
 
-This folder contains the **mood-aware movie recommendation engine** developed for the MoodFlix project.
+The **MoodFlix AI Recommendation Engine** is the mood-aware recommendation component of the MoodFlix movie recommendation system.
 
-The recommendation engine generates movie suggestions based on the user's selected mood using movie genres, tags and rating information from the **MovieLens dataset**.
+It uses **Content-Based Filtering**, **TF-IDF**, and **Cosine Similarity** to generate personalised movie recommendations based on the user's selected mood. Movie genres, tags, ratings, popularity, and release information are used to improve recommendation relevance and quality.
 
 ## Recommendation Approach
 
-The recommendation engine uses a **Content-Based Filtering** approach with:
+The recommendation engine uses:
 
-- MovieLens movie, rating and tag data
+- MovieLens movies, ratings, and tags
 - Mood-to-Genre and Keyword Mapping
 - TF-IDF Vectorization
 - Cosine Similarity
-- Movie average ratings
+- Genre relevance
 - Rating reliability
-- Weighted recommendation ranking
+- Movie popularity
+- Movie recency
+- Quality and relevance filtering
 
-TF-IDF is used to represent movie genres, tags and mood keywords as numerical features. Cosine Similarity is then used to measure how closely each movie matches the selected mood profile.
+Movie genres and tags are combined as content features. The selected mood is represented using associated genres and keywords, allowing Cosine Similarity to measure how closely each movie matches the user's mood.
 
 ## Supported Moods
 
 | Mood | Main Genres |
 | --- | --- |
 | Happy | Comedy, Animation, Adventure |
-| Sad | Drama, Romance |
-| Relaxed | Comedy, Romance, Fantasy |
+| Sad | Drama |
+| Relaxed | Comedy, Animation |
 | Excited | Action, Adventure, Thriller |
-| Romantic | Romance, Drama |
-| Stressed | Comedy, Animation, Fantasy |
+| Romantic | Romance |
+| Stressed | Animation, Children, Comedy |
 
-Each mood also contains related keywords to provide additional information when calculating the mood match.
+## Recommendation Ranking
 
-## How It Works
+The final recommendation score combines five factors:
 
-1. The user selects their current mood.
-2. The selected mood is mapped to suitable genres and keywords.
-3. Movie genres and tags are combined as movie features.
-4. TF-IDF converts the movie features into numerical vectors.
-5. The mood profile is converted using the same TF-IDF model.
-6. Cosine Similarity calculates how closely each movie matches the selected mood.
-7. Movie average ratings and rating counts are considered.
-8. Rating reliability is calculated to reduce the influence of movies with very few ratings.
-9. A final weighted ranking score is calculated.
-10. The Top 10 ranked movies are returned.
-
-## Ranking Method
-
-Mood similarity is the main factor used when ranking movies.
-
-The final score is calculated as:
+| Factor | Weight |
+| --- | ---: |
+| Mood Similarity | 60% |
+| Genre Match | 20% |
+| Reliable Rating | 10% |
+| Popularity | 5% |
+| Recency | 5% |
 
 ```text
 Final Score =
-(0.8 × Mood Similarity)
-+
-(0.2 × Reliable Rating Score)
+(0.60 × Mood Similarity)
++ (0.20 × Genre Match)
++ (0.10 × Reliable Rating)
++ (0.05 × Popularity)
++ (0.05 × Recency)
 ```
 
-This gives:
+Mood similarity and genre relevance contribute **80% of the final score**, keeping recommendations focused primarily on the user's selected mood.
 
-- **80% weight** to mood similarity
-- **20% weight** to reliable movie rating information
+Quality and relevance filters are applied before returning the **Top 10 recommendations**.
 
-The rating reliability calculation helps prevent movies with only a small number of ratings from being ranked too highly because of an unreliable average rating.
+## How It Works
 
-## Django Integration
+1. The user selects a mood.
+2. Django retrieves the associated mood profile from MySQL.
+3. Movie genres and tags are prepared as content features.
+4. TF-IDF converts the movie and mood features into numerical vectors.
+5. Cosine Similarity calculates the mood-to-movie similarity.
+6. Genre relevance, rating reliability, popularity, and recency are calculated.
+7. A weighted final recommendation score is generated.
+8. Quality and relevance filters are applied.
+9. The Top 10 ranked movies are returned.
 
-The recommendation engine is connected to the Django backend through a recommendation API.
+## Django API Integration
 
-The API receives the selected mood using a **POST request**, passes it to the recommendation engine and returns the ranked recommendations.
+The recommendation engine is integrated with the **Django backend** through a recommendation API.
 
 Example request:
 
@@ -78,62 +80,58 @@ Example request:
 }
 ```
 
-The API response includes information such as:
+The API returns recommendation information including the movie ID, title, genres, ratings, recommendation score, and poster information.
 
-- Movie title
-- Genres
-- Mood similarity
-- Average rating
-- Rating count
-- Final ranking score
+## Movie Details & Similar Recommendations
 
-The API also includes validation and error handling for invalid requests and unsupported moods.
+Users can open a recommended movie on the **Movie Details** page, where additional information such as posters, overview, runtime, cast, director, and certification is retrieved using the **TMDb API**.
+
+The **You Might Also Like** feature also recommends up to six related movies using genre-based **Jaccard Similarity** with rating-quality filtering.
+
+## AWS Integration
+
+The recommendation-engine environment has been deployed and tested using:
+
+- **Amazon EC2** – Django and recommendation-engine environment
+- **Amazon RDS MySQL** – Cloud database
+
+The Django environment on EC2 has been successfully connected to the RDS database, and the recommendation engine has successfully generated mood-based recommendations using the cloud environment.
 
 ## Testing
 
-The recommendation engine has been tested with all six supported moods:
+The recommendation engine has been tested across all six supported moods:
 
-- Happy
-- Sad
-- Relaxed
-- Excited
-- Romantic
-- Stressed
+**Happy · Sad · Relaxed · Excited · Romantic · Stressed**
 
-Django API testing has also been implemented to test recommendation requests, validation and error handling.
-
-An interactive MoodFlix demo has been created to test and demonstrate the complete recommendation flow through the Django API.
+Testing also covers recommendation ranking, Django API requests, validation, database connectivity, and AWS execution.
 
 ## Main Files
 
-- `recommendation_engine.py` – Contains the mood profiles, MovieLens processing, TF-IDF, Cosine Similarity and ranking logic.
-- `test_recommendation.py` – Tests individual recommendation results.
-- `test_all_moods.py` – Tests recommendations across all supported moods.
-- `recommendation_api/views.py` – Connects the recommendation engine with the Django API.
-- `recommendation_api/tests.py` – Contains Django recommendation API tests.
-- `templates/recommendation_api/demo.html` – Provides the interactive MoodFlix recommendation demo.
+- `recommendation_engine.py` – Main recommendation algorithm
+- `test_recommendation.py` – Individual recommendation testing
+- `test_all_moods.py` – Testing across all supported moods
+- `recommendation_api/views.py` – Django recommendation API
+- `recommendation_api/tests.py` – API tests
 
 ## Current Status
 
 ### Completed
 
-- MovieLens movies, tags and ratings integration
+- MovieLens data integration
 - Mood-to-Genre and Keyword Mapping
-- TF-IDF feature extraction
-- Cosine Similarity mood matching
-- Average rating calculation
-- Rating reliability calculation
-- Weighted final ranking
-- Top 10 recommendation generation
-- Testing across all supported moods
+- TF-IDF and Cosine Similarity
+- Multi-factor recommendation ranking
+- Quality and relevance filtering
+- MySQL database integration
 - Django recommendation API
-- API validation and error handling
-- Django API testing
-- Interactive recommendation demo
+- Top 10 mood recommendations
+- TMDb integration
+- Similar movie recommendations
+- Amazon EC2 and RDS integration
+- Cloud recommendation testing
 
 ### In Progress
 
-- MySQL database integration
-- Integration with the main Django backend
-- Integration with the final React frontend
+- Recommendation quality improvements
+- Performance optimisation
 - Full system integration and testing
