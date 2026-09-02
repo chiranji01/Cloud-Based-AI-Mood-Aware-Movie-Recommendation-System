@@ -12,4 +12,14 @@ I was responsible for the database and backend API component of the project. My 
 - Configured and integrated the Django backend with MySQL.
 - Tested API endpoints for successful data storage and retrieval.
 
-for this sprint I created an AWS EC2 instance and configured an Elastic IP for the project backend. The React Login and Register pages were also connected to Django authentication, allowing user registration and login details to be managed through Django’s AuthUser system.
+  #AWS PART
+-Created and configured an AWS EC2 instance for the movie recommendation system.
+-Connected to the EC2 instance using SSH/EC2 Instance Connect.
+-Cloned the project repository onto the EC2 server.
+-Set up the Django backend environment and virtual environment.
+-Configured the MySQL database on the EC2 instance.
+-Fixed Django database/migration issues and verified the backend is running.
+-Configured the EC2 Security Group to allow the required traffic.
+-Configured ALLOWED_HOSTS for the EC2 public IP.
+-Imported the movies.csv dataset into the EC2 database.
+-Tested the /api/movies/ API through the EC2 public IP
