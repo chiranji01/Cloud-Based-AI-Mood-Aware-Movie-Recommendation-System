@@ -214,9 +214,22 @@ const handleMoodSelect = async (moodName) => {
             </div>
           )}
 
-          {loading && (
+         {loading && (
             <div className="loading-recommendations">
-              Finding the best movies for your mood...
+
+                  <div className="cinema-loader">
+      <div className="reel">🎞️</div>
+      <div className="film-line"></div>
+    </div>
+
+              <p>Finding the best movies for your mood...</p>
+
+              <div className="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
             </div>
           )}
 
