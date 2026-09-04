@@ -1,6 +1,8 @@
 import json
 import os
 import requests
+import time
+from concurrent.futures import ThreadPoolExecutor
 
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -27,12 +29,20 @@ def get_movie_poster(movie_id):
     try:
         movie_link = MovieLink.objects.get(movie_id=movie_id)
 
+        # Use cached poster URL if already saved
+        if movie_link.poster_url:
+            return movie_link.poster_url
+
         if not movie_link.tmdb_id or not TMDB_API_KEY:
             return None
 
+        # Only call TMDb when poster is not already cached
         response = requests.get(
             f"{TMDB_API_URL}/{movie_link.tmdb_id}",
-            params={"api_key": TMDB_API_KEY, "language": "en-US"},
+            params={
+                "api_key": TMDB_API_KEY,
+                "language": "en-US"
+            },
             timeout=5
         )
 
@@ -44,12 +54,20 @@ def get_movie_poster(movie_id):
         if not poster_path:
             return None
 
-        return TMDB_IMAGE_BASE_URL + poster_path
+        poster_url = TMDB_IMAGE_BASE_URL + poster_path
+
+        # Save poster URL so future requests do not call TMDb again
+        movie_link.poster_url = poster_url
+        movie_link.save(update_fields=["poster_url"])
+
+        return poster_url
 
     except MovieLink.DoesNotExist:
         return None
+
     except requests.RequestException:
         return None
+
     except Exception:
         return None
 
@@ -303,6 +321,7 @@ def similar_movies(request, movie_id):
                 if genre.strip()
             }
 
+            # Find common genres between both movies (movie_genre = Another candidate movie)
             common_genres = selected_genres.intersection(movie_genres)
 
             # Skip movies with no matching genres
@@ -316,8 +335,11 @@ def similar_movies(request, movie_id):
             if average_rating is None or average_rating < 3.0 or rating_count < 10:
                 continue
 
-            # Jaccard genre similarity
+            # Jaccard genre similarity 
+            # Find all unique genres from both movies
             all_genres = selected_genres.union(movie_genres)
+
+            # Calculate Jaccard Similarity: common genres / total unique genres (Dividing the number of common genres by the total number of unique genre)
             genre_similarity = len(common_genres) / len(all_genres) if all_genres else 0
 
             recommendations.append({
@@ -363,19 +385,41 @@ def similar_movies(request, movie_id):
 @csrf_exempt
 def mood_recommendations(request):
     if request.method != "POST":
-        return JsonResponse({"error": "Only POST requests are allowed."}, status=405)
+        return JsonResponse(
+            {"error": "Only POST requests are allowed."},
+            status=405
+        )
 
     try:
+        # Measure total API processing time
+        total_start = time.time()
+
         data = json.loads(request.body)
         mood = data.get("mood", "").strip().title()
 
         if not mood:
-            return JsonResponse({"error": "Mood is required."}, status=400)
+            return JsonResponse(
+                {"error": "Mood is required."},
+                status=400
+            )
 
         # Import recommendation engine
         from recommendation.recommendation_engine import get_mood_recommendations
 
+        # -------------------------------------------------
+        # 1. Measure recommendation engine time
+        # -------------------------------------------------
+
+        recommendation_start = time.time()
+
         recommendations = get_mood_recommendations(mood)
+
+        recommendation_time = time.time() - recommendation_start
+
+        print(
+            f"Recommendation engine: "
+            f"{recommendation_time:.2f} seconds"
+        )
 
         if not recommendations:
             return JsonResponse({
@@ -385,16 +429,53 @@ def mood_recommendations(request):
                     "Sad",
                     "Relaxed",
                     "Excited",
-                    "Scared",
                     "Romantic",
                     "Stressed"
-
                 ]
             }, status=400)
 
-        # Add TMDb posters
-        for movie in recommendations:
-            movie["poster_url"] = get_movie_poster(movie["movieId"])
+        # -------------------------------------------------
+        # 2. Measure TMDb poster loading time
+        # -------------------------------------------------
+
+        poster_start = time.time()
+
+        # Fetch poster URLs concurrently
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            poster_urls = list(
+                executor.map(
+                    get_movie_poster,
+                    [
+                        movie["movieId"]
+                        for movie in recommendations
+                    ]
+                )
+            )
+
+        poster_time = time.time() - poster_start
+
+        print(
+            f"TMDb posters: "
+            f"{poster_time:.2f} seconds"
+        )
+
+        # Add poster URLs to recommendation results
+        for movie, poster_url in zip(
+            recommendations,
+            poster_urls
+        ):
+            movie["poster_url"] = poster_url
+
+        # -------------------------------------------------
+        # 3. Measure total backend API time
+        # -------------------------------------------------
+
+        total_time = time.time() - total_start
+
+        print(
+            f"Total mood API time: "
+            f"{total_time:.2f} seconds"
+        )
 
         return JsonResponse({
             "mood": mood,
@@ -403,12 +484,16 @@ def mood_recommendations(request):
         }, status=200)
 
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON data."}, status=400)
+        return JsonResponse(
+            {"error": "Invalid JSON data."},
+            status=400
+        )
 
     except Exception as error:
-        return JsonResponse({"error": str(error)}, status=500)
-
-
+        return JsonResponse(
+            {"error": str(error)},
+            status=500
+        )
 # =========================================================
 # TEMPORARY AI DEMO PAGE
 # =========================================================
