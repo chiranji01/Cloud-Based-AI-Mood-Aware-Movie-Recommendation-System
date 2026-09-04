@@ -174,10 +174,17 @@ class MovieLink(models.Model):
         blank=True
     )
 
+    # Cache TMDb poster URL to improve loading speed
     tmdb_id = models.IntegerField(
         null=True,
         blank=True
     )
+
+    poster_url = models.URLField(
+    max_length=500,
+    null=True,
+    blank=True
+)
 
     def __str__(self):
         return (
