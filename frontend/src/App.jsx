@@ -2,12 +2,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/login/Login";
 import Register from "./pages/register/register";
-import Home from "./pages/home/Home";
+import Home from "./pages/home/home";
 import Ratings from "./pages/ratings/Rating";
 import MovieDetails from "./pages/movie details/movie details";
 import Mood from "./pages/moodPage/mood";
 import Profile from "./pages/profile/profile";
 import Dashboard from "./pages/dashboard/Dashboard";
+import Search from "./pages/search/Search";
 
 function ProtectedRoute({ children }) {
 const user = localStorage.getItem("user");
@@ -80,6 +81,15 @@ return (
       element={
         <ProtectedRoute>
           <Profile />
+        </ProtectedRoute>
+      }
+    />
+    
+    <Route
+      path="/search"
+      element={
+        <ProtectedRoute>
+          <Search />
         </ProtectedRoute>
       }
     />

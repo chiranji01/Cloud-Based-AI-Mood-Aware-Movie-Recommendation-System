@@ -28,15 +28,38 @@ from .models import (
 @api_view(["GET"])
 def movie_list(request):
 
+    # Get search text
+    search_query = request.GET.get("search", "").strip()
+
     movies = Movie.objects.all()
+
+    # Search by movie title or genre
+    if search_query:
+        from django.db.models import Q
+
+        movies = movies.filter(
+            Q(title__icontains=search_query) |
+            Q(genres__icontains=search_query)
+        )
+
+    # Return maximum 10 movies
+    movies = movies[:10]
 
     data = []
 
     for movie in movies:
+
+        # Get cached TMDb poster URL
+        try:
+            poster_url = movie.link.poster_url
+        except MovieLink.DoesNotExist:
+            poster_url = None
+
         data.append({
             "movie_id": movie.movie_id,
             "title": movie.title,
-            "genres": movie.genres
+            "genres": movie.genres,
+            "poster_url": poster_url
         })
 
     return Response(data)
