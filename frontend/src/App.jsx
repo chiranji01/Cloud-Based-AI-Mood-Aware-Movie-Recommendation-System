@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/login/Login";
 import Register from "./pages/register/register";
-import Home from "./pages/home/Home";
+import Home from "./pages/home/home";
 import Ratings from "./pages/ratings/Rating";
 import MovieDetails from "./pages/movie details/movie details";
 import Mood from "./pages/moodPage/mood";
@@ -65,9 +65,17 @@ return (
         </ProtectedRoute>
       }
     />
+    <Route
+    path="/mood"
+    element={
+    <ProtectedRoute>
+      <Mood />
+    </ProtectedRoute>
+    }
+   />
 
     <Route
-      path="/mood"
+      path="/mood/:mood"
       element={
         <ProtectedRoute>
           <Mood />

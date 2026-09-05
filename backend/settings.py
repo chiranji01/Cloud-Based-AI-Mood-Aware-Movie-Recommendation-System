@@ -3,6 +3,9 @@ Django settings for the MoodFlix backend project.
 """
 
 from pathlib import Path
+
+from dotenv import load_dotenv
+import os
 import sys
 
 import django.db.backends.mysql.base
@@ -34,6 +37,8 @@ django.db.backends.mysql.base.DatabaseWrapper.check_database_version_supported =
 # settings.py is now directly inside:
 # Cloud-Based-AI-Recommendation-System/backend/
 BASE_DIR = Path(__file__).resolve().parent
+
+load_dotenv(BASE_DIR / ".env")
 
 # Main GitHub project folder:
 # Cloud-Based-AI-Recommendation-System/
@@ -149,9 +154,9 @@ DATABASES = {
 
         'PASSWORD': '',
 
-        'HOST': 'localhost',
+        'HOST': '127.0.0.1',
 
-        'PORT': '3306',
+        'PORT': '3307',
 
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",

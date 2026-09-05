@@ -1,9 +1,13 @@
-﻿import csv
+﻿
+import csv
 import io
+import os
+import time
+import requests
 
 from django.db import transaction
-
 from django.contrib.auth import authenticate, get_user_model
+
 User = get_user_model()
 
 from rest_framework.decorators import api_view, parser_classes
@@ -22,6 +26,80 @@ from .models import (
 
 
 # =========================================================
+# TMDB CONFIGURATION
+# =========================================================
+
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+
+TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
+
+TMDB_MOVIE_URL = "https://api.themoviedb.org/3/movie"
+
+
+# =========================================================
+# HELPER - GET MOVIE POSTER
+# =========================================================
+
+def get_movie_poster(movie):
+    """
+    Get poster URL using the MovieLink TMDB ID.
+
+    Returns:
+        poster URL string or None
+    """
+
+    try:
+
+        link = MovieLink.objects.filter(
+            movie=movie
+        ).first()
+
+        if not link:
+            return None
+
+        if not link.tmdb_id:
+            return None
+
+        # -------------------------------------------------
+        # If TMDB API key exists, ask TMDB for poster path
+        # -------------------------------------------------
+
+        if TMDB_API_KEY:
+
+            response = requests.get(
+                f"{TMDB_MOVIE_URL}/{link.tmdb_id}",
+                params={
+                    "api_key": TMDB_API_KEY
+                },
+                timeout=5
+            )
+
+            if response.ok:
+
+                movie_data = response.json()
+
+                poster_path = movie_data.get(
+                    "poster_path"
+                )
+
+                if poster_path:
+
+                    return (
+                        f"{TMDB_IMAGE_BASE_URL}"
+                        f"{poster_path}"
+                    )
+
+    except Exception as e:
+
+        print(
+            "Poster error:",
+            e
+        )
+
+    return None
+
+
+# =========================================================
 # 1. GET MOVIES
 # =========================================================
 
@@ -33,10 +111,19 @@ def movie_list(request):
     data = []
 
     for movie in movies:
+
+        poster_url = get_movie_poster(movie)
+
         data.append({
+
             "movie_id": movie.movie_id,
+
             "title": movie.title,
-            "genres": movie.genres
+
+            "genres": movie.genres,
+
+            "poster_url": poster_url
+
         })
 
     return Response(data)
@@ -50,19 +137,34 @@ def movie_list(request):
 def movie_detail(request, movie_id):
 
     try:
-        movie = Movie.objects.get(movie_id=movie_id)
+
+        movie = Movie.objects.get(
+            movie_id=movie_id
+        )
 
     except Movie.DoesNotExist:
 
         return Response(
-            {"error": "Movie not found"},
+
+            {
+                "error": "Movie not found"
+            },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
+    poster_url = get_movie_poster(movie)
+
     return Response({
+
         "movie_id": movie.movie_id,
+
         "title": movie.title,
-        "genres": movie.genres
+
+        "genres": movie.genres,
+
+        "poster_url": poster_url
+
     })
 
 
@@ -79,13 +181,19 @@ def import_movies(request):
     if not file:
 
         return Response(
-            {"error": "Please upload movies.csv"},
+
+            {
+                "error": "Please upload movies.csv"
+            },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
 
-        decoded_file = file.read().decode("utf-8-sig")
+        decoded_file = file.read().decode(
+            "utf-8-sig"
+        )
 
         reader = csv.DictReader(
             io.StringIO(decoded_file)
@@ -98,30 +206,43 @@ def import_movies(request):
 
             for row in reader:
 
-                movie_id = int(row["movieId"])
+                movie_id = int(
+                    row["movieId"]
+                )
 
-                movie, created = Movie.objects.update_or_create(
+                movie, created = (
+                    Movie.objects.update_or_create(
 
-                    movie_id=movie_id,
+                        movie_id=movie_id,
 
-                    defaults={
-                        "title": row["title"],
-                        "genres": row["genres"]
-                    }
+                        defaults={
+
+                            "title": row["title"],
+
+                            "genres": row["genres"]
+
+                        }
+                    )
                 )
 
                 if created:
+
                     created_count += 1
+
                 else:
+
                     updated_count += 1
 
         return Response({
 
-            "message": "Movies imported successfully",
+            "message":
+                "Movies imported successfully",
 
-            "created": created_count,
+            "created":
+                created_count,
 
-            "updated": updated_count
+            "updated":
+                updated_count
 
         })
 
@@ -129,7 +250,9 @@ def import_movies(request):
 
         return Response(
 
-            {"error": str(e)},
+            {
+                "error": str(e)
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -137,22 +260,6 @@ def import_movies(request):
 
 # =========================================================
 # 4. IMPORT TAGS.CSV
-# =========================================================
-#
-# tags.csv:
-#
-# userId,movieId,tag,timestamp
-#
-# Example:
-#
-# 1,1,"funny",1260759144
-#
-# We:
-#
-# 1. Find Movie
-# 2. Find/Create Tag
-# 3. Create MovieTag relationship
-#
 # =========================================================
 
 @api_view(["POST"])
@@ -164,33 +271,41 @@ def import_tags(request):
     if not file:
 
         return Response(
-            {"error": "Please upload tags.csv"},
+
+            {
+                "error": "Please upload tags.csv"
+            },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
 
-        decoded_file = file.read().decode("utf-8-sig")
+        decoded_file = file.read().decode(
+            "utf-8-sig"
+        )
 
         reader = csv.DictReader(
             io.StringIO(decoded_file)
         )
 
         tags_created = 0
+
         movie_tags_created = 0
+
         skipped = 0
 
         with transaction.atomic():
 
             for row in reader:
 
-                movie_id = int(row["movieId"])
+                movie_id = int(
+                    row["movieId"]
+                )
 
-                tag_name = row["tag"].strip()
-
-                # -----------------------------------------
-                # Find movie
-                # -----------------------------------------
+                tag_name = row[
+                    "tag"
+                ].strip()
 
                 try:
 
@@ -201,29 +316,27 @@ def import_tags(request):
                 except Movie.DoesNotExist:
 
                     skipped += 1
+
                     continue
 
-                # -----------------------------------------
-                # Find or create tag
-                # -----------------------------------------
-
-                tag, created = Tag.objects.get_or_create(
-                    tag=tag_name
+                tag, created = (
+                    Tag.objects.get_or_create(
+                        tag=tag_name
+                    )
                 )
 
                 if created:
 
                     tags_created += 1
 
-                # -----------------------------------------
-                # Create MovieTag relationship
-                # -----------------------------------------
+                movie_tag, created = (
+                    MovieTag.objects.get_or_create(
 
-                movie_tag, created = MovieTag.objects.get_or_create(
+                        movie=movie,
 
-                    movie=movie,
+                        tag=tag
 
-                    tag=tag
+                    )
                 )
 
                 if created:
@@ -232,13 +345,17 @@ def import_tags(request):
 
         return Response({
 
-            "message": "Tags imported successfully",
+            "message":
+                "Tags imported successfully",
 
-            "tags_created": tags_created,
+            "tags_created":
+                tags_created,
 
-            "movie_tags_created": movie_tags_created,
+            "movie_tags_created":
+                movie_tags_created,
 
-            "skipped": skipped
+            "skipped":
+                skipped
 
         })
 
@@ -246,7 +363,9 @@ def import_tags(request):
 
         return Response(
 
-            {"error": str(e)},
+            {
+                "error": str(e)
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -254,12 +373,6 @@ def import_tags(request):
 
 # =========================================================
 # 5. IMPORT RATINGS.CSV
-# =========================================================
-#
-# ratings.csv:
-#
-# userId,movieId,rating,timestamp
-#
 # =========================================================
 
 @api_view(["POST"])
@@ -272,31 +385,35 @@ def import_ratings(request):
 
         return Response(
 
-            {"error": "Please upload ratings.csv"},
+            {
+                "error":
+                    "Please upload ratings.csv"
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
 
-        decoded_file = file.read().decode("utf-8-sig")
+        decoded_file = file.read().decode(
+            "utf-8-sig"
+        )
 
         reader = csv.DictReader(
             io.StringIO(decoded_file)
         )
 
         created_count = 0
+
         skipped = 0
 
         with transaction.atomic():
 
             for row in reader:
 
-                movie_id = int(row["movieId"])
-
-                # -----------------------------------------
-                # Find movie
-                # -----------------------------------------
+                movie_id = int(
+                    row["movieId"]
+                )
 
                 try:
 
@@ -307,32 +424,40 @@ def import_ratings(request):
                 except Movie.DoesNotExist:
 
                     skipped += 1
-                    continue
 
-                # -----------------------------------------
-                # Create rating
-                # -----------------------------------------
+                    continue
 
                 Rating.objects.create(
 
-                    user_id=int(row["userId"]),
+                    user_id=int(
+                        row["userId"]
+                    ),
 
                     movie=movie,
 
-                    rating=float(row["rating"]),
+                    rating=float(
+                        row["rating"]
+                    ),
 
-                    timestamp=int(row["timestamp"])
+                    timestamp=int(
+                        row["timestamp"]
+                    ),
+
+                    is_dataset_rating=True
                 )
 
                 created_count += 1
 
         return Response({
 
-            "message": "Ratings imported successfully",
+            "message":
+                "Ratings imported successfully",
 
-            "created": created_count,
+            "created":
+                created_count,
 
-            "skipped": skipped
+            "skipped":
+                skipped
 
         })
 
@@ -340,7 +465,9 @@ def import_ratings(request):
 
         return Response(
 
-            {"error": str(e)},
+            {
+                "error": str(e)
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
@@ -348,12 +475,6 @@ def import_ratings(request):
 
 # =========================================================
 # 6. IMPORT LINKS.CSV
-# =========================================================
-#
-# links.csv:
-#
-# movieId,imdbId,tmdbId
-#
 # =========================================================
 
 @api_view(["POST"])
@@ -366,32 +487,37 @@ def import_links(request):
 
         return Response(
 
-            {"error": "Please upload links.csv"},
+            {
+                "error":
+                    "Please upload links.csv"
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
 
-        decoded_file = file.read().decode("utf-8-sig")
+        decoded_file = file.read().decode(
+            "utf-8-sig"
+        )
 
         reader = csv.DictReader(
             io.StringIO(decoded_file)
         )
 
         created_count = 0
+
         updated_count = 0
+
         skipped = 0
 
         with transaction.atomic():
 
             for row in reader:
 
-                movie_id = int(row["movieId"])
-
-                # -----------------------------------------
-                # Find movie
-                # -----------------------------------------
+                movie_id = int(
+                    row["movieId"]
+                )
 
                 try:
 
@@ -402,59 +528,75 @@ def import_links(request):
                 except Movie.DoesNotExist:
 
                     skipped += 1
+
                     continue
 
-                # -----------------------------------------
-                # Convert IDs
-                # -----------------------------------------
+                imdb_id = row.get(
+                    "imdbId"
+                )
 
-                imdb_id = row.get("imdbId")
-
-                tmdb_id = row.get("tmdbId")
+                tmdb_id = row.get(
+                    "tmdbId"
+                )
 
                 if imdb_id:
-                    imdb_id = int(imdb_id)
+
+                    imdb_id = int(
+                        imdb_id
+                    )
 
                 else:
+
                     imdb_id = None
 
                 if tmdb_id:
-                    tmdb_id = int(float(tmdb_id))
+
+                    tmdb_id = int(
+                        float(tmdb_id)
+                    )
 
                 else:
+
                     tmdb_id = None
 
-                # -----------------------------------------
-                # Create or update link
-                # -----------------------------------------
+                link, created = (
+                    MovieLink.objects.update_or_create(
 
-                link, created = MovieLink.objects.update_or_create(
+                        movie=movie,
 
-                    movie=movie,
+                        defaults={
 
-                    defaults={
+                            "imdb_id":
+                                imdb_id,
 
-                        "imdb_id": imdb_id,
+                            "tmdb_id":
+                                tmdb_id
 
-                        "tmdb_id": tmdb_id
-                    }
+                        }
+                    )
                 )
 
                 if created:
+
                     created_count += 1
 
                 else:
+
                     updated_count += 1
 
         return Response({
 
-            "message": "Links imported successfully",
+            "message":
+                "Links imported successfully",
 
-            "created": created_count,
+            "created":
+                created_count,
 
-            "updated": updated_count,
+            "updated":
+                updated_count,
 
-            "skipped": skipped
+            "skipped":
+                skipped
 
         })
 
@@ -462,60 +604,100 @@ def import_links(request):
 
         return Response(
 
-            {"error": str(e)},
+            {
+                "error": str(e)
+            },
 
             status=status.HTTP_400_BAD_REQUEST
         )
 
 
+# =========================================================
+# 7. GET MOVIE LINKS
+# =========================================================
 
 @api_view(["GET"])
 def link_list(request):
 
-    links = MovieLink.objects.select_related("movie").all()
+    links = (
+        MovieLink.objects
+        .select_related("movie")
+        .all()
+    )
 
     data = []
 
     for link in links:
+
         data.append({
-            "movie_id": link.movie.movie_id,
-            "movie_title": link.movie.title,
-            "imdb_id": link.imdb_id,
-            "tmdb_id": link.tmdb_id
+
+            "movie_id":
+                link.movie.movie_id,
+
+            "movie_title":
+                link.movie.title,
+
+            "imdb_id":
+                link.imdb_id,
+
+            "tmdb_id":
+                link.tmdb_id
+
         })
 
     return Response(data)
 
+
+# =========================================================
+# 8. MOOD RECOMMENDATIONS
+# =========================================================
+
 @api_view(["GET"])
 def mood_recommendations(request):
 
-    mood = request.GET.get("mood")
+    mood = request.GET.get(
+        "mood"
+    )
 
     if not mood:
+
         return Response(
-            {"error": "Please provide a mood"},
+
+            {
+                "error":
+                    "Please provide a mood"
+            },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
     try:
-        mood_mapping = MoodGenreMapping.objects.get(
-            mood_name__iexact=mood
+
+        mood_mapping = (
+            MoodGenreMapping.objects.get(
+                mood_name__iexact=mood
+            )
         )
 
     except MoodGenreMapping.DoesNotExist:
+
         return Response(
-            {"error": "Mood not found"},
+
+            {
+                "error":
+                    "Mood not found"
+            },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # Convert:
-    # "Comedy,Adventure,Romance"
-    # into:
-    # ["comedy", "adventure", "romance"]
-
     recommended_genres = [
+
         genre.strip().lower()
-        for genre in mood_mapping.genres.split(",")
+
+        for genre in
+        mood_mapping.genres.split(",")
+
     ]
 
     movies = Movie.objects.all()
@@ -524,140 +706,175 @@ def mood_recommendations(request):
 
     for movie in movies:
 
-        # MovieLens stores genres like:
-        # "Comedy|Drama"
-
         movie_genres = [
+
             genre.strip().lower()
-            for genre in movie.genres.split("|")
+
+            for genre in
+            movie.genres.split("|")
+
         ]
 
-        # Check whether at least one genre matches
         if any(
+
             genre in recommended_genres
+
             for genre in movie_genres
+
         ):
 
             recommended_movies.append({
-                "movie_id": movie.movie_id,
-                "title": movie.title,
-                "genres": movie.genres
+
+                "movie_id":
+                    movie.movie_id,
+
+                "title":
+                    movie.title,
+
+                "genres":
+                    movie.genres,
+
+                "poster_url":
+                    get_movie_poster(movie)
+
             })
 
     return Response({
-        "mood": mood,
-        "movies": recommended_movies[:20]
+
+        "mood":
+            mood,
+
+        "movies":
+            recommended_movies[:20]
+
     })
 
 
-
-
 # =========================================================
-# USER REGISTRATION
+# 9. USER REGISTRATION
 # =========================================================
 
 @api_view(["POST"])
 def register_user(request):
 
-    User = get_user_model()
+    name = request.data.get(
+        "name"
+    )
 
-    name = request.data.get("name")
-    email = request.data.get("email")
-    password = request.data.get("password")
+    email = request.data.get(
+        "email"
+    )
 
-    # -----------------------------------------
-    # Check required fields
-    # -----------------------------------------
+    password = request.data.get(
+        "password"
+    )
 
     if not name or not email or not password:
+
         return Response(
+
             {
-                "error": "Name, email and password are required."
+                "error":
+                    "Name, email and password are required."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Remove unnecessary spaces from email
     email = email.strip().lower()
 
-    # -----------------------------------------
-    # Check password length
-    # -----------------------------------------
-
     if len(password) < 8:
+
         return Response(
+
             {
-                "error": "Password must be at least 8 characters long."
+                "error":
+                    "Password must be at least 8 characters long."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # -----------------------------------------
-    # Check whether email already exists
-    # -----------------------------------------
+    if User.objects.filter(
+        email=email
+    ).exists():
 
-    if User.objects.filter(email=email).exists():
         return Response(
+
             {
-                "error": "An account with this email already exists."
+                "error":
+                    "An account with this email already exists."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
-
-    # -----------------------------------------
-    # Create user
-    # -----------------------------------------
 
     user = User.objects.create_user(
+
         username=email,
+
         email=email,
+
         password=password,
+
         first_name=name
+
     )
 
     return Response(
+
         {
-            "message": "Registration successful!",
+
+            "message":
+                "Registration successful!",
+
             "user": {
-                "id": user.id,
-                "name": user.first_name,
-                "email": user.email
+
+                "id":
+                    user.id,
+
+                "name":
+                    user.first_name,
+
+                "email":
+                    user.email
+
             }
+
         },
+
         status=status.HTTP_201_CREATED
     )
 
 
 # =========================================================
-# USER LOGIN
+# 10. USER LOGIN
 # =========================================================
 
 @api_view(["POST"])
 def login_view(request):
 
-    User = get_user_model()
+    email = request.data.get(
+        "email"
+    )
 
-    email = request.data.get("email")
-    password = request.data.get("password")
-
-    # -----------------------------------------
-    # Check required fields
-    # -----------------------------------------
+    password = request.data.get(
+        "password"
+    )
 
     if not email or not password:
+
         return Response(
+
             {
-                "message": "Email and password are required."
+                "message":
+                    "Email and password are required."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Remove unnecessary spaces from email
     email = email.strip().lower()
-
-    # -----------------------------------------
-    # Find user
-    # -----------------------------------------
 
     try:
 
@@ -668,245 +885,584 @@ def login_view(request):
     except User.DoesNotExist:
 
         return Response(
+
             {
-                "message": "Invalid email or password."
+                "message":
+                    "Invalid email or password."
             },
+
             status=status.HTTP_401_UNAUTHORIZED
         )
 
-    # -----------------------------------------
-    # Verify password
-    # -----------------------------------------
-
     authenticated_user = authenticate(
-        username=user.username,
-        password=password
-    )
 
-    # -----------------------------------------
-    # Login successful
-    # -----------------------------------------
+        username=user.username,
+
+        password=password
+
+    )
 
     if authenticated_user is not None:
 
         return Response(
+
             {
-                "message": "Login successful!",
+
+                "message":
+                    "Login successful!",
 
                 "user": {
-                    "id": user.id,
-                    "username": user.username,
-                    "name": user.first_name,
-                    "email": user.email
+
+                    "id":
+                        user.id,
+
+                    "username":
+                        user.username,
+
+                    "name":
+                        user.first_name,
+
+                    "email":
+                        user.email
+
                 }
+
             },
+
             status=status.HTTP_200_OK
         )
 
-    # -----------------------------------------
-    # Wrong password
-    # -----------------------------------------
-
     return Response(
+
         {
-            "message": "Invalid email or password."
+            "message":
+                "Invalid email or password."
         },
+
         status=status.HTTP_401_UNAUTHORIZED
     )
 
+
 # =========================================================
-# USER RATINGS
+# 11. ADD / UPDATE USER RATING
 # =========================================================
 
 @api_view(["POST"])
 def add_rating(request):
+    print("========== ADD RATING DEBUG ==========")
+    print("REQUEST DATA:", request.data)
+    print("user_id:", request.data.get("user_id"))
+    print("movie_id:", request.data.get("movie_id"))
+    print("rating:", request.data.get("rating"))
+    print("======================================")
 
-    user_id = request.data.get("user_id")
-    movie_id = request.data.get("movie_id")
-    rating_value = request.data.get("rating")
+    user_id = request.data.get(
+        "user_id"
+    )
 
-    # Check required fields
+    movie_id = request.data.get(
+        "movie_id"
+    )
+
+    rating_value = request.data.get(
+        "rating"
+    )
+
+    # -----------------------------------------------------
+    # REQUIRED FIELDS
+    # -----------------------------------------------------
+
     if not user_id or not movie_id or rating_value is None:
+
         return Response(
+
             {
-                "error": "user_id, movie_id and rating are required."
+                "error":
+                    "user_id, movie_id and rating are required."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Check user
+    # -----------------------------------------------------
+    # USER
+    # -----------------------------------------------------
+
     try:
-        user = User.objects.get(id=user_id)
+
+        user = User.objects.get(
+            id=user_id
+        )
+
     except User.DoesNotExist:
+
         return Response(
+
             {
-                "error": "User not found."
+                "error":
+                    "User not found."
             },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # Check movie
+    # -----------------------------------------------------
+    # MOVIE
+    # -----------------------------------------------------
+
     try:
-        movie = Movie.objects.get(movie_id=movie_id)
+
+        movie = Movie.objects.get(
+            movie_id=movie_id
+        )
+
     except Movie.DoesNotExist:
+
         return Response(
+
             {
-                "error": "Movie not found."
+                "error":
+                    "Movie not found."
             },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
-    # Convert rating
+    # -----------------------------------------------------
+    # CONVERT RATING
+    # -----------------------------------------------------
+
     try:
-        rating_value = float(rating_value)
+
+        rating_value = float(
+            rating_value
+        )
+
     except (ValueError, TypeError):
+
         return Response(
+
             {
-                "error": "Rating must be a number."
+                "error":
+                    "Rating must be a number."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Rating must be between 0.5 and 5
-    if rating_value < 0.5 or rating_value > 5:
+    # -----------------------------------------------------
+    # VALIDATE RANGE
+    # -----------------------------------------------------
+
+    if (
+        rating_value < 0.5
+        or
+        rating_value > 5
+    ):
+
         return Response(
+
             {
-                "error": "Rating must be between 0.5 and 5."
+                "error":
+                    "Rating must be between 0.5 and 5."
             },
+
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Check whether this user already rated this movie
+    # -----------------------------------------------------
+    # FIND EXISTING USER RATING
+    #
+    # IMPORTANT:
+    # Dataset ratings are ignored.
+    # -----------------------------------------------------
+
     existing_rating = Rating.objects.filter(
+
         user_id=user.id,
-        movie=movie
+
+        movie=movie,
+
+        is_dataset_rating=False
+
     ).first()
+
+    # -----------------------------------------------------
+    # UPDATE EXISTING RATING
+    # -----------------------------------------------------
 
     if existing_rating:
 
-        existing_rating.rating = rating_value
-        existing_rating.timestamp = int(
-            __import__("time").time()
+        existing_rating.rating = (
+            rating_value
+        )
+
+        existing_rating.timestamp = (
+            int(time.time())
         )
 
         existing_rating.save()
 
         return Response(
+
             {
-                "message": "Rating updated successfully.",
+
+                "message":
+                    "Rating updated successfully.",
+
+                "action":
+                    "updated",
+
                 "rating": {
-                    "movie_id": movie.movie_id,
-                    "movie_title": movie.title,
-                    "rating": existing_rating.rating
+
+                    "id":
+                        existing_rating.id,
+
+                    "movie_id":
+                        movie.movie_id,
+
+                    "movie_title":
+                        movie.title,
+
+                    "genres":
+                        movie.genres,
+
+                    "rating":
+                        existing_rating.rating,
+
+                    "timestamp":
+                        existing_rating.timestamp
+
                 }
+
             },
+
             status=status.HTTP_200_OK
         )
 
-    # Create new rating
+    # -----------------------------------------------------
+    # CREATE NEW USER RATING
+    # -----------------------------------------------------
+
     rating = Rating.objects.create(
+
         user_id=user.id,
+
         movie=movie,
+
         rating=rating_value,
-        timestamp=int(__import__("time").time())
+
+        timestamp=int(
+            time.time()
+        ),
+
+        is_dataset_rating=False
+
     )
 
     return Response(
+
         {
-            "message": "Rating submitted successfully.",
+
+            "message":
+                "Rating submitted successfully.",
+
+            "action":
+                "created",
+
             "rating": {
-                "movie_id": movie.movie_id,
-                "movie_title": movie.title,
-                "rating": rating.rating
+
+                "id":
+                    rating.id,
+
+                "movie_id":
+                    movie.movie_id,
+
+                "movie_title":
+                    movie.title,
+
+                "genres":
+                    movie.genres,
+
+                "rating":
+                    rating.rating,
+
+                "timestamp":
+                    rating.timestamp
+
             }
+
         },
+
         status=status.HTTP_201_CREATED
     )
 
 
 # =========================================================
-# GET USER RATINGS
+# 12. GET USER RATINGS
 # =========================================================
 
 @api_view(["GET"])
 def user_ratings(request, user_id):
 
-    # Check user
+    # -----------------------------------------------------
+    # USER
+    # -----------------------------------------------------
+
     try:
-        user = User.objects.get(id=user_id)
+
+        user = User.objects.get(
+            id=user_id
+        )
+
     except User.DoesNotExist:
+
         return Response(
+
             {
-                "error": "User not found."
+                "error":
+                    "User not found."
             },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
-    ratings = Rating.objects.filter(
-        user_id=user.id
-    ).select_related("movie").order_by("-id")
+    # -----------------------------------------------------
+    # ONLY APPLICATION RATINGS
+    # -----------------------------------------------------
+
+    all_user_ratings = Rating.objects.filter(
+
+        user_id=user.id,
+
+        is_dataset_rating=False
+
+    ).select_related(
+        "movie"
+    )
+
+    # -----------------------------------------------------
+    # LATEST 10 RATINGS
+    # -----------------------------------------------------
+
+    ratings = (
+
+        all_user_ratings
+
+        .order_by(
+            "-timestamp"
+        )[:10]
+
+    )
 
     data = []
 
     for rating in ratings:
 
+        # -------------------------------------------------
+        # GET POSTER
+        # -------------------------------------------------
+
+        poster_url = get_movie_poster(
+            rating.movie
+        )
+
         data.append({
-            "movie_id": rating.movie.movie_id,
-            "movie_title": rating.movie.title,
-            "genres": rating.movie.genres,
-            "rating": rating.rating,
-            "timestamp": rating.timestamp
+
+            "id":
+                rating.id,
+
+            "movie_id":
+                rating.movie.movie_id,
+
+            "movie_title":
+                rating.movie.title,
+
+            "genres":
+                rating.movie.genres,
+
+            "rating":
+                rating.rating,
+
+            "timestamp":
+                rating.timestamp,
+
+            "poster_url":
+                poster_url
+
         })
 
     return Response({
-        "user_id": user.id,
-        "user_name": user.first_name,
-        "rating_count": len(data),
-        "ratings": data
+
+        "user_id":
+            user.id,
+
+        "user_name":
+            user.first_name,
+
+        "rating_count":
+            all_user_ratings.count(),
+
+        "ratings":
+            data
+
     })
 
 
 # =========================================================
-# USER PROFILE
+# 13. DELETE USER RATING
+# =========================================================
+
+@api_view(["DELETE"])
+def delete_rating(request, rating_id):
+
+    # -----------------------------------------------------
+    # FIND ONLY APPLICATION RATING
+    # -----------------------------------------------------
+
+    try:
+
+        rating = Rating.objects.select_related(
+            "movie"
+        ).get(
+
+            id=rating_id,
+
+            is_dataset_rating=False
+
+        )
+
+    except Rating.DoesNotExist:
+
+        return Response(
+
+            {
+                "error":
+                    "Rating not found."
+            },
+
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    # -----------------------------------------------------
+    # SAVE INFORMATION FOR RESPONSE
+    # -----------------------------------------------------
+
+    deleted_rating = {
+
+        "id":
+            rating.id,
+
+        "movie_id":
+            rating.movie.movie_id,
+
+        "movie_title":
+            rating.movie.title,
+
+        "rating":
+            rating.rating
+
+    }
+
+    # -----------------------------------------------------
+    # DELETE
+    # -----------------------------------------------------
+
+    rating.delete()
+
+    # -----------------------------------------------------
+    # RESPONSE
+    # -----------------------------------------------------
+
+    return Response(
+
+        {
+
+            "message":
+                "Rating deleted successfully.",
+
+            "rating":
+                deleted_rating
+
+        },
+
+        status=status.HTTP_200_OK
+    )
+
+
+# =========================================================
+# 14. USER PROFILE
 # =========================================================
 
 @api_view(["GET"])
 def user_profile(request, user_id):
 
-    # Check user
     try:
-        user = User.objects.get(id=user_id)
+
+        user = User.objects.get(
+            id=user_id
+        )
+
     except User.DoesNotExist:
+
         return Response(
+
             {
-                "error": "User not found."
+                "error":
+                    "User not found."
             },
+
             status=status.HTTP_404_NOT_FOUND
         )
 
     ratings = Rating.objects.filter(
-        user_id=user.id
+
+        user_id=user.id,
+
+        is_dataset_rating=False
+
     )
 
     rating_count = ratings.count()
 
     if rating_count > 0:
+
         total_rating = sum(
+
             rating.rating
+
             for rating in ratings
+
         )
 
         average_rating = round(
-            total_rating / rating_count,
+
+            total_rating /
+            rating_count,
+
             2
+
         )
+
     else:
+
         average_rating = 0
 
     return Response({
-        "id": user.id,
-        "name": user.first_name,
-        "email": user.email,
-        "rating_count": rating_count,
-        "average_rating": average_rating
+
+        "id":
+            user.id,
+
+        "name":
+            user.first_name,
+
+        "email":
+            user.email,
+
+        "rating_count":
+            rating_count,
+
+        "average_rating":
+            average_rating
+
     })

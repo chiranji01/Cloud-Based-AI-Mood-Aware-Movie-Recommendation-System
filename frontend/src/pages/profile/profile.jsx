@@ -1,27 +1,96 @@
-import React, { useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import "./profile.css";
 import Sidebar from "../../components/Sidebar";
 
 function Profile() {
-  const [selectedGenres, setSelectedGenres] = useState([
-    "Action",
-    "Animation",
-    "Drama",
-    "Romance",
-    "Sci-Fi",
-  ]);
+  // =========================
+  // LOGGED-IN USER
+  // =========================
+
+  const savedUser = localStorage.getItem("user");
+
+  const loggedInUser = savedUser
+    ? JSON.parse(savedUser)
+    : null;
+
+  const userId = loggedInUser?.id;
+
+  const initialName =
+    loggedInUser?.fullName ||
+    loggedInUser?.name ||
+    loggedInUser?.username ||
+    "";
+
+  const initialEmail =
+    loggedInUser?.email || "";
+
+  const initialUsername =
+    loggedInUser?.username ||
+    loggedInUser?.email ||
+    "";
+
+  // =========================
+  // PROFILE STATE
+  // =========================
 
   const [profile, setProfile] = useState({
-    fullName: "Chiranjeevi Jayalathge",
-    email: "chiranjii@example.com",
-    username: "chiranjii01",
+    fullName: initialName,
+    email: initialEmail,
+    username: initialUsername,
   });
+
+  // =========================
+  // GENRES
+  // =========================
+
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    if (!userId) {
+      return [
+        "Action",
+        "Animation",
+        "Drama",
+        "Romance",
+        "Sci-Fi",
+      ];
+    }
+
+    const savedGenres = localStorage.getItem(
+      `preferredGenres_${userId}`
+    );
+
+    return savedGenres
+      ? JSON.parse(savedGenres)
+      : [
+          "Action",
+          "Animation",
+          "Drama",
+          "Romance",
+          "Sci-Fi",
+        ];
+  });
+
+  // =========================
+  // PASSWORD
+  // =========================
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // =========================
+  // RATING STATISTICS
+  // =========================
+
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const [loadingRatings, setLoadingRatings] = useState(true);
+
+  // =========================
+  // GENRE LIST
+  // =========================
 
   const genres = [
     { name: "Action", icon: "🚀" },
@@ -38,6 +107,66 @@ function Profile() {
     { name: "Documentary", icon: "🎬" },
   ];
 
+  // =========================
+  // LOAD USER RATINGS
+  // =========================
+
+  useEffect(() => {
+    const loadUserRatings = async () => {
+      if (!userId) {
+        setLoadingRatings(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/ratings/?user_id=${userId}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Failed to load ratings."
+          );
+        }
+
+        const ratings = data.ratings || [];
+
+        setTotalRatings(ratings.length);
+
+        if (ratings.length > 0) {
+          const total = ratings.reduce(
+            (sum, item) => sum + Number(item.rating || 0),
+            0
+          );
+
+          const average = total / ratings.length;
+
+          setAverageRating(Number(average.toFixed(1)));
+        } else {
+          setAverageRating(0);
+        }
+      } catch (error) {
+        console.error(
+          "Profile ratings error:",
+          error
+        );
+
+        setTotalRatings(0);
+        setAverageRating(0);
+      } finally {
+        setLoadingRatings(false);
+      }
+    };
+
+    loadUserRatings();
+  }, [userId]);
+
+  // =========================
+  // GENRE TOGGLE
+  // =========================
+
   const toggleGenre = (genre) => {
     setSelectedGenres((current) =>
       current.includes(genre)
@@ -46,12 +175,20 @@ function Profile() {
     );
   };
 
+  // =========================
+  // PROFILE UPDATE
+  // =========================
+
   const updateProfile = (field, value) => {
     setProfile((current) => ({
       ...current,
       [field]: value,
     }));
   };
+
+  // =========================
+  // PASSWORD UPDATE
+  // =========================
 
   const updatePasswordField = (field, value) => {
     setPasswords((current) => ({
@@ -60,9 +197,40 @@ function Profile() {
     }));
   };
 
+  // =========================
+  // SAVE PROFILE
+  // =========================
+
   const saveChanges = () => {
+    if (!userId) {
+      alert("Please login first.");
+      return;
+    }
+
+    const updatedUser = {
+      ...loggedInUser,
+      fullName: profile.fullName,
+      name: profile.fullName,
+      email: profile.email,
+      username: profile.username,
+    };
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(updatedUser)
+    );
+
+    localStorage.setItem(
+      `preferredGenres_${userId}`,
+      JSON.stringify(selectedGenres)
+    );
+
     alert("Profile changes saved successfully!");
   };
+
+  // =========================
+  // UPDATE PASSWORD
+  // =========================
 
   const updatePassword = () => {
     if (
@@ -74,12 +242,25 @@ function Profile() {
       return;
     }
 
-    if (passwords.newPassword !== passwords.confirmPassword) {
+    if (
+      passwords.newPassword !==
+      passwords.confirmPassword
+    ) {
       alert("New passwords do not match.");
       return;
     }
 
-    alert("Password updated successfully!");
+    /*
+      Password is NOT being changed in the database yet.
+
+      Your current project does not have a password-update
+      API endpoint. We should create that backend API separately
+      instead of pretending the password was changed.
+    */
+
+    alert(
+      "Password validation successful. Password update API is not connected yet."
+    );
 
     setPasswords({
       currentPassword: "",
@@ -88,8 +269,25 @@ function Profile() {
     });
   };
 
+  // =========================
+  // USER DISPLAY DATA
+  // =========================
+
+  const userFullName =
+    profile.fullName ||
+    profile.username ||
+    "User";
+
+  const userInitial =
+    userFullName.charAt(0).toUpperCase();
+
+  // =========================
+  // JSX
+  // =========================
+
   return (
     <div className="profile-page">
+
       <style>{`
 
         * {
@@ -109,22 +307,12 @@ function Profile() {
           overflow-x: hidden;
         }
 
-        /* =========================
-           MAIN APPLICATION
-        ========================= */
-
         .profile-app {
           min-height: 100vh;
           width: 100%;
           background: #f4f5fb;
           display: flex;
         }
-
-        /*
-          IMPORTANT:
-          Your Sidebar is approximately 220px wide.
-          The content therefore starts after 220px.
-        */
 
         .profile-main {
           margin-left: 220px;
@@ -134,10 +322,6 @@ function Profile() {
           padding: 24px 30px 45px;
           overflow-x: hidden;
         }
-
-        /* =========================
-           TOP BAR
-        ========================= */
 
         .profile-topbar {
           width: 100%;
@@ -252,10 +436,6 @@ function Profile() {
           margin-left: 2px;
         }
 
-        /* =========================
-           PAGE HEADER
-        ========================= */
-
         .profile-header {
           width: 100%;
           display: flex;
@@ -293,10 +473,6 @@ function Profile() {
           line-height: 1.4;
         }
 
-        /* =========================
-           MAIN GRID
-        ========================= */
-
         .profile-grid {
           width: 100%;
           max-width: 1400px;
@@ -310,10 +486,6 @@ function Profile() {
         .profile-column {
           min-width: 0;
         }
-
-        /* =========================
-           CARDS
-        ========================= */
 
         .profile-card {
           width: 100%;
@@ -339,10 +511,6 @@ function Profile() {
           font-size: 10px;
           line-height: 1.45;
         }
-
-        /* =========================
-           PROFILE INFORMATION
-        ========================= */
 
         .profile-info-layout {
           width: 100%;
@@ -414,10 +582,6 @@ function Profile() {
           line-height: 1.45;
         }
 
-        /* =========================
-           FORM
-        ========================= */
-
         .profile-form {
           width: 100%;
           min-width: 0;
@@ -486,10 +650,6 @@ function Profile() {
           transform: translateY(-1px);
         }
 
-        /* =========================
-           PASSWORD
-        ========================= */
-
         .password-group {
           margin-bottom: 12px;
         }
@@ -532,10 +692,6 @@ function Profile() {
           background: #5420d4;
           transform: translateY(-1px);
         }
-
-        /* =========================
-           GENRES
-        ========================= */
 
         .genre-grid {
           width: 100%;
@@ -615,10 +771,6 @@ function Profile() {
           font-size: 8px;
         }
 
-        /* =========================
-           ACCOUNT INFORMATION
-        ========================= */
-
         .account-list {
           width: 100%;
         }
@@ -659,10 +811,6 @@ function Profile() {
           white-space: nowrap;
         }
 
-        /* =========================
-           DESKTOP LARGE SCREENS
-        ========================= */
-
         @media (min-width: 1400px) {
           .profile-main {
             padding-left: 40px;
@@ -678,10 +826,6 @@ function Profile() {
           }
         }
 
-        /* =========================
-           TABLET
-        ========================= */
-
         @media (max-width: 1100px) {
           .profile-main {
             padding: 22px;
@@ -695,10 +839,6 @@ function Profile() {
             grid-template-columns: repeat(4, minmax(0, 1fr));
           }
         }
-
-        /* =========================
-           SMALL TABLET
-        ========================= */
 
         @media (max-width: 850px) {
           .profile-main {
@@ -725,10 +865,6 @@ function Profile() {
             grid-template-columns: repeat(3, minmax(0, 1fr));
           }
         }
-
-        /* =========================
-           MOBILE
-        ========================= */
 
         @media (max-width: 650px) {
           .profile-main {
@@ -796,10 +932,6 @@ function Profile() {
             font-size: 8px;
           }
         }
-
-        /* =========================
-           VERY SMALL MOBILE
-        ========================= */
 
         @media (max-width: 420px) {
           .profile-main {
@@ -888,12 +1020,16 @@ function Profile() {
 
               </div>
 
+              {/* DYNAMIC USER INITIAL */}
+
               <div className="profile-user-avatar">
-                C
+                {userInitial}
               </div>
 
+              {/* DYNAMIC USER NAME */}
+
               <span className="profile-user-name">
-                Chiranjeevi
+                {userFullName}
               </span>
 
               <span className="profile-down-arrow">
@@ -1302,7 +1438,7 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      10 April 2024
+                      Not available
                     </strong>
 
                   </div>
@@ -1338,7 +1474,11 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      18 Movies
+
+                      {loadingRatings
+                        ? "Loading..."
+                        : `${totalRatings} Movies`}
+
                     </strong>
 
                   </div>
@@ -1356,7 +1496,11 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      4.3 / 5
+
+                      {loadingRatings
+                        ? "Loading..."
+                        : `${averageRating} / 5`}
+
                     </strong>
 
                   </div>
@@ -1374,7 +1518,7 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      06 May 2024, 10:30 AM
+                      Not available
                     </strong>
 
                   </div>

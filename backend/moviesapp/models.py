@@ -1,5 +1,4 @@
-﻿
-from django.db import models
+﻿from django.db import models
 
 
 # =========================================================
@@ -9,7 +8,10 @@ from django.db import models
 # movieId,title,genres
 
 class Movie(models.Model):
-    movie_id = models.IntegerField(primary_key=True)
+
+    movie_id = models.IntegerField(
+        primary_key=True
+    )
 
     title = models.CharField(
         max_length=255
@@ -36,6 +38,7 @@ class Movie(models.Model):
 #   tag
 
 class Tag(models.Model):
+
     tag = models.CharField(
         max_length=255
     )
@@ -49,12 +52,10 @@ class Tag(models.Model):
 # =========================================================
 # Connects Movie and Tag.
 #
-# This is the relationship used by your existing
-# 0001_initial migration and views.py.
-#
 # Movie <----> MovieTag <----> Tag
 
 class MovieTag(models.Model):
+
     movie = models.ForeignKey(
         Movie,
         on_delete=models.CASCADE,
@@ -77,10 +78,21 @@ class MovieTag(models.Model):
 # =========================================================
 # 4. RATING
 # =========================================================
-# From ratings.csv:
-# userId,movieId,rating,timestamp
+# Contains both:
+#
+# 1. MovieLens dataset ratings
+# 2. Ratings created by real application users
+#
+# is_dataset_rating:
+#
+# True  = MovieLens/imported dataset rating
+# False = rating created by a registered application user
+#
+# This prevents MovieLens user IDs from being confused
+# with Django registered-user IDs.
 
 class Rating(models.Model):
+
     user_id = models.IntegerField()
 
     movie = models.ForeignKey(
@@ -93,8 +105,24 @@ class Rating(models.Model):
 
     timestamp = models.BigIntegerField()
 
+    # -----------------------------------------------------
+    # Identify the source of the rating
+    # -----------------------------------------------------
+
+    is_dataset_rating = models.BooleanField(
+        default=True
+    )
+
     def __str__(self):
+
+        source = (
+            "Dataset"
+            if self.is_dataset_rating
+            else "Application User"
+        )
+
         return (
+            f"{source} - "
             f"User {self.user_id} - "
             f"{self.movie.title} - "
             f"{self.rating}"
@@ -114,6 +142,7 @@ class Rating(models.Model):
 # Scared  -> Horror, Thriller
 
 class MoodGenreMapping(models.Model):
+
     mood_name = models.CharField(
         max_length=100
     )
@@ -136,6 +165,7 @@ class MoodGenreMapping(models.Model):
 # Stores the moods selected by users.
 
 class MoodHistory(models.Model):
+
     user_id = models.IntegerField()
 
     mood = models.ForeignKey(
@@ -149,6 +179,7 @@ class MoodHistory(models.Model):
     )
 
     def __str__(self):
+
         return (
             f"User {self.user_id} - "
             f"{self.mood.mood_name}"
@@ -162,6 +193,7 @@ class MoodHistory(models.Model):
 # movieId,imdbId,tmdbId
 
 class MovieLink(models.Model):
+
     movie = models.OneToOneField(
         Movie,
         on_delete=models.CASCADE,
@@ -180,6 +212,7 @@ class MovieLink(models.Model):
     )
 
     def __str__(self):
+
         return (
             f"{self.movie.title} - "
             f"IMDb: {self.imdb_id}"
@@ -230,7 +263,10 @@ class Recommendation(models.Model):
         ordering = ["-final_score"]
 
     def __str__(self):
+
         return (
             f"{self.mood.mood_name} - "
             f"{self.movie.title}"
         )
+
+    
