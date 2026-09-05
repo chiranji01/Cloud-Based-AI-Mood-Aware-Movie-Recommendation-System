@@ -1,3 +1,4 @@
+import time
 from recommendation.recommendation_engine import get_mood_recommendations
 
 mood = input(
@@ -5,7 +6,15 @@ mood = input(
     "(Happy, Sad, Relaxed, Excited, Romantic, Stressed): "
 )
 
+# Start measuring recommendation engine time
+start_time = time.time()
+
 recommendations = get_mood_recommendations(mood)
+
+# Stop measuring after recommendations are generated
+end_time = time.time()
+
+print(f"\nRecommendation engine time: {end_time - start_time:.2f} seconds")
 
 if not recommendations:
     print("\nInvalid mood.")
