@@ -1,6 +1,9 @@
 import React from "react";
-import "./Home.css";
+import "./home.css";
+
 import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
+
 function Home() {
   const recommendedMovies = [
     {
@@ -70,56 +73,13 @@ function Home() {
 
   return (
     <div className="moodflix">
-
-      {/* ================= SIDEBAR ================= */}
-
       <Sidebar />
-
 
       {/* ================= MAIN CONTENT ================= */}
 
       <main className="main-content">
 
-        {/* Top Header */}
-
-        <header className="top-header">
-
-          <div className="search-box">
-            <span className="search-icon">⌕</span>
-
-            <input
-              type="text"
-              placeholder="Search movies by title, genre, actor..."
-            />
-
-            <button className="filter-button">
-              ☷ &nbsp; Filters
-            </button>
-          </div>
-
-          <div className="user-area">
-
-            <div className="notification">
-              ♧
-              <span>3</span>
-            </div>
-
-            <div className="avatar">
-              👨🏻
-            </div>
-
-            <div className="user-name">
-              Chiranjiv
-            </div>
-
-            <div className="arrow">
-             ⌄
-            </div>
-
-          </div>
-
-        </header>
-
+        <Topbar />
 
         {/* ================= HERO ================= */}
 

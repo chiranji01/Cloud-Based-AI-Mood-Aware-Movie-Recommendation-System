@@ -50,7 +50,7 @@ function Sidebar() {
           onClick={() => navigate("/ratings")}
         >
           <Bookmark size={18} />
-          <span>My Ratings</span>
+          <span>Ratings</span>
         </button>
 
         <button

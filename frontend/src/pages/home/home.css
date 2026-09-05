@@ -1,3 +1,7 @@
+/* =====================================================
+   GLOBAL / HOME PAGE
+===================================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -18,276 +22,13 @@ body {
 
 
 /* =====================================================
-   SIDEBAR
-===================================================== */
-
-.sidebar {
-  width: 158px;
-  min-height: 100vh;
-  background: #070c20;
-  color: white;
-  padding: 22px 10px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-
-/* Brand */
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 5px;
-  font-size: 17px;
-  font-weight: bold;
-  margin-bottom: 28px;
-}
-
-.brand-icon {
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background: #6d28d9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-}
-
-.brand-purple {
-  color: #9b5cff;
-}
-
-
-/* Sidebar Menu */
-
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.menu-item {
-  height: 34px;
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #d1d5db;
-  text-decoration: none;
-  font-size: 11px;
-  border-radius: 6px;
-}
-
-.menu-item:hover {
-  background: #24105c;
-  color: white;
-}
-
-.menu-item.active {
-  background: linear-gradient(
-    90deg,
-    #5920c7,
-    #6d2be3
-  );
-  color: white;
-}
-
-.menu-icon {
-  width: 16px;
-  text-align: center;
-  font-size: 16px;
-}
-
-
-/* Sidebar card */
-
-.sidebar-card {
-  margin-top: auto;
-  margin-bottom: 12px;
-  padding: 13px 11px;
-  border-radius: 8px;
-  background: linear-gradient(
-    145deg,
-    #28105e,
-    #160b3d
-  );
-  border: 1px solid #422080;
-}
-
-.clapper {
-  height: 85px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 55px;
-}
-
-.sidebar-card h3 {
-  font-size: 12px;
-  line-height: 1.5;
-  margin-bottom: 5px;
-}
-
-.sidebar-card p {
-  font-size: 9px;
-  color: #b7b7c8;
-  line-height: 1.5;
-  margin-bottom: 10px;
-}
-
-.sidebar-card button {
-  width: 100%;
-  padding: 8px 4px;
-  border: none;
-  border-radius: 5px;
-  background: #5b21d4;
-  color: white;
-  font-size: 9px;
-  cursor: pointer;
-}
-
-.sidebar-card button:hover {
-  background: #7c3aed;
-}
-
-
-/* Logout */
-
-.logout {
-  position: static;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 8px 10px 0;
-  color: #b5b7c7;
-  font-size: 11px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.logout:hover {
-  color: white;
-}
-
-
-/* =====================================================
-   MAIN
+   MAIN CONTENT
 ===================================================== */
 
 .main-content {
   margin-left: 158px;
   width: calc(100% - 158px);
   padding: 0 21px 35px;
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-.top-header {
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-
-/* Search */
-
-.search-box {
-  height: 34px;
-  width: 62%;
-  background: white;
-  border: 1px solid #e4e1eb;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-}
-
-.search-icon {
-  color: #777;
-  font-size: 20px;
-  margin-right: 7px;
-}
-
-.search-box input {
-  flex: 1;
-  height: 100%;
-  border: none;
-  outline: none;
-  font-size: 10px;
-  color: #555;
-}
-
-.filter-button {
-  border: none;
-  background: #f5f2ff;
-  color: #5b21b6;
-  border-radius: 5px;
-  padding: 6px 10px;
-  font-size: 9px;
-  cursor: pointer;
-}
-
-
-/* User */
-
-.user-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.notification {
-  position: relative;
-  font-size: 21px;
-  color: #4b5563;
-  margin-right: 7px;
-}
-
-.notification span {
-  position: absolute;
-  top: -4px;
-  right: -5px;
-  width: 14px;
-  height: 14px;
-  background: #6d28d9;
-  color: white;
-  border-radius: 50%;
-  font-size: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.avatar {
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 19px;
-}
-
-.user-name {
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.arrow {
-  font-size: 13px;
-  color: #666;
 }
 
 
@@ -300,6 +41,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   position: relative;
+
   background:
     linear-gradient(
       90deg,
@@ -382,6 +124,7 @@ body {
   border-radius: 15px;
   font-size: 9px;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
 .mood:hover {
@@ -448,7 +191,9 @@ body {
 }
 
 
-/* Movie row */
+/* =====================================================
+   MOVIE ROW
+===================================================== */
 
 .movie-row {
   display: grid;
@@ -458,7 +203,9 @@ body {
 }
 
 
-/* Movie card */
+/* =====================================================
+   MOVIE CARD
+===================================================== */
 
 .movie-card {
   background: white;
@@ -518,20 +265,28 @@ body {
 }
 
 
-/* Next button */
+/* =====================================================
+   NEXT BUTTON
+===================================================== */
 
 .next-button {
   position: absolute;
   right: -8px;
   top: 55px;
+
   width: 29px;
   height: 29px;
+
   border: none;
   border-radius: 50%;
+
   background: white;
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+
   font-size: 23px;
   color: #444;
+
   cursor: pointer;
   z-index: 5;
 }
@@ -550,6 +305,7 @@ body {
   border-radius: 7px;
   overflow: hidden;
   background: #222;
+  transition: transform 0.2s ease;
 }
 
 .popular-card img {
@@ -577,21 +333,10 @@ body {
   .mood-list {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
 
+
 @media (max-width: 800px) {
-
-  .sidebar {
-    width: 65px;
-  }
-
-  .brand span,
-  .menu-item span:last-child,
-  .sidebar-card,
-  .logout span:last-child {
-    display: none;
-  }
 
   .main-content {
     margin-left: 65px;
@@ -601,17 +346,13 @@ body {
   .movie-row {
     grid-template-columns: repeat(3, 1fr);
   }
-
-  .search-box {
-    width: 55%;
-  }
-
 }
+
 
 @media (max-width: 600px) {
 
   .main-content {
-    padding: 0 10px;
+    padding: 0 10px 30px;
   }
 
   .hero-section {
@@ -629,10 +370,4 @@ body {
   .movie-row {
     grid-template-columns: repeat(2, 1fr);
   }
-
-  .user-name,
-  .arrow {
-    display: none;
-  }
-
 }

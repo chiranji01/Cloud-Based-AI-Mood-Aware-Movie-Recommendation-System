@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./dashboard.css";
 import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 
 const movies = [
   {

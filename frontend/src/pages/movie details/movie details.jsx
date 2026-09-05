@@ -4,6 +4,7 @@ import { Bell, Search, ChevronDown, ChevronRight, Play, Plus, Star, Send, ArrowL
 
 import "./movie details.css";
 import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 
 function MovieDetail() {
   // Get movie ID from URL
@@ -117,25 +118,7 @@ function MovieDetail() {
 
           {/* TOP BAR */}
 
-          <header className="movie-topbar">
-            <div className="movie-search">
-              <Search size={16} />
-              <input type="text" placeholder="Search movies by title, genre, actor..." />
-            </div>
-
-            <div className="movie-user">
-              <div className="movie-notification">
-                <Bell size={19} />
-                <span>3</span>
-              </div>
-
-              <div className="movie-profile">
-                <div className="movie-avatar">C</div>
-                <strong>User</strong>
-                <ChevronDown size={13} />
-              </div>
-            </div>
-          </header>
+          <Topbar />
 
           {/* LOADING CONTENT */}
 
@@ -219,12 +202,7 @@ function MovieDetail() {
 
         <main className="movie-main">
 
-          <header className="movie-topbar">
-            <div className="movie-search">
-              <Search size={16} />
-              <input type="text" placeholder="Search movies by title, genre, actor..." />
-            </div>
-          </header>
+          <Topbar />
 
           <div className="movie-content">
 
@@ -271,29 +249,7 @@ function MovieDetail() {
 
         {/* ================= TOP BAR ================= */}
 
-        <header className="movie-topbar">
-
-          <div className="movie-search">
-            <Search size={16} />
-            <input type="text" placeholder="Search movies by title, genre, actor..." />
-          </div>
-
-          <div className="movie-user">
-
-            <div className="movie-notification">
-              <Bell size={19} />
-              <span>3</span>
-            </div>
-
-            <div className="movie-profile">
-              <div className="movie-avatar">C</div>
-              <strong>User</strong>
-              <ChevronDown size={13} />
-            </div>
-
-          </div>
-
-        </header>
+         <Topbar />
 
         {/* ================= CONTENT ================= */}
 

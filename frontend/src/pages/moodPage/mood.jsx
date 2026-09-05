@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import "./mood.css";
 import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 
 const moods = [
   {
@@ -42,187 +44,214 @@ const moods = [
   },
 ];
 
-function App() {
-
+function Mood() {
   const navigate = useNavigate();
 
-  // Recommendation API integration state
   const [selectedMood, setSelectedMood] = useState("");
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Send the selected mood to the Django recommendation API
-  const fetchRecommendations = async () => {
+  const handleMoodSelect = async (moodName) => {
+    setSelectedMood(moodName);
+    setMovies([]);
+    setError("");
+    setLoading(true);
+
     try {
-      setLoading(true);
-      setError("");
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/recommendations/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mood: moodName,
+          }),
+        }
+      );
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/recommendations/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mood: selectedMood }),
-      });
-
-      // Handle unsuccessful API responses
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Unable to get movie recommendations.");
+
+        throw new Error(
+          errorData.error ||
+            "Unable to get movie recommendations."
+        );
       }
 
-      // Store recommendations returned by Django
       const data = await response.json();
-      console.log("Recommendation API response:", data);
-      setMovies(data.recommendations || []);
 
+      setMovies(data.recommendations || []);
     } catch (err) {
       console.error("Recommendation API error:", err);
+
       setMovies([]);
-      setError(err.message || "Could not load recommendations. Please try again.");
+
+      setError(
+        err.message ||
+          "Could not load recommendations. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-const handleMoodSelect = async (moodName) => {
-  setSelectedMood(moodName);
-  setMovies([]);
-  setError("");
-  setLoading(true);
-
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/recommendations/`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mood: moodName }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error || "Unable to get movie recommendations."
-      );
-    }
-
-    const data = await response.json();
-    setMovies(data.recommendations || []);
-
-  } catch (err) {
-    console.error("Recommendation API error:", err);
-    setMovies([]);
-    setError(
-      err.message || "Could not load recommendations. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
   return (
-    <div className="app">
+    <div className="moodflix">
 
-    <Sidebar />
+      <Sidebar />
 
-      <main className="main">
+      <main className="main-content">
 
-        <header className="topbar">
+        <Topbar />
 
-          <div className="search-container">
-            <span className="search-icon">⌕</span>
-            <input type="text" placeholder="Search movies by title, genre, actor..." />
-
-            <button className="filter-button">
-              <span>☷</span>
-              Filters
-            </button>
-          </div>
-
-          <div className="profile-area">
-            <div className="notification">♧<span>3</span></div>
-
-            <div className="avatar">
-              <img src="https://i.pravatar.cc/100?img=12" alt="Profile" />
-            </div>
-
-            <span className="username">User</span>
-            <span className="dropdown">⌄</span>
-          </div>
-
-        </header>
+        {/* ================= HERO ================= */}
 
         <section className="hero">
 
           <div className="hero-text">
-            <h1>How are you <span>feeling</span> today? 😊</h1>
-            <p>Choose your current mood and we'll<br />find movies that match it.</p>
+
+            <h1>
+              How are you <span>feeling</span> today? 😊
+            </h1>
+
+            <p>
+              Choose your current mood and we'll
+              <br />
+              find movies that match it.
+            </p>
+
           </div>
 
           <div className="hero-decoration">
-            <div className="popcorn-large">🍿</div>
-            <div className="film-reel">◉</div>
-            <div className="straw">╱</div>
+
+            <div className="popcorn-large">
+              🍿
+            </div>
+
+            <div className="film-reel">
+              ◉
+            </div>
+
+            <div className="straw">
+              ╱
+            </div>
+
           </div>
 
         </section>
+
+
+        {/* ================= MOOD SELECTION ================= */}
 
         <section className="mood-section">
 
           <div className="mood-grid">
 
             {moods.map((mood) => (
+
               <button
                 key={mood.name}
-                className={`mood-card ${mood.className} ${selectedMood === mood.name ? "selected" : ""}`}
-                onClick={() => handleMoodSelect(mood.name)}
+                className={`mood-card ${mood.className} ${
+                  selectedMood === mood.name
+                    ? "selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  handleMoodSelect(mood.name)
+                }
               >
-                <div className="mood-emoji">{mood.emoji}</div>
-                <h3>{mood.name}</h3>
-                <p>{mood.description}</p>
+
+                <div className="mood-emoji">
+                  {mood.emoji}
+                </div>
+
+                <h3>
+                  {mood.name}
+                </h3>
+
+                <p>
+                  {mood.description}
+                </p>
+
               </button>
+
             ))}
 
           </div>
 
-        
         </section>
 
-        {/* Display recommendation API errors */}
-        {error && <div className="recommendation-error">{error}</div>}
+
+        {/* ================= ERROR ================= */}
+
+        {error && (
+          <div className="recommendation-error">
+            {error}
+          </div>
+        )}
+
+
+        {/* ================= RECOMMENDATIONS ================= */}
 
         <section className="recommendations">
 
           <div className="section-header">
-            <h2>Recommended for {selectedMood}</h2>
+
+            <h2>
+              {selectedMood
+                ? `Recommended for ${selectedMood}`
+                : "Recommended for"}
+            </h2>
 
             {movies.length > 0 && (
               <button className="view-all">
                 View all <span>›</span>
               </button>
             )}
+
           </div>
 
-          {!loading && movies.length === 0 && !error && (
-            <div className="empty-recommendations">
-              <p>
-                Select your mood and click <strong>Show Recommendations</strong> to discover movies.
-              </p>
-            </div>
-          )}
 
-         {loading && (
+          {/* EMPTY STATE */}
+
+          {!loading &&
+            movies.length === 0 &&
+            !error && (
+
+              <div className="empty-recommendations">
+
+                <p>
+                  Select your mood to discover personalised
+                  movie recommendations.
+                </p>
+
+              </div>
+
+            )}
+
+
+          {/* ================= LOADING ================= */}
+
+          {loading && (
+
             <div className="loading-recommendations">
 
-                  <div className="cinema-loader">
-      <div className="reel">🎞️</div>
-      <div className="film-line"></div>
-    </div>
+              <div className="cinema-loader">
 
-              <p>Finding the best movies for your mood...</p>
+                <div className="reel">
+                  🎞️
+                </div>
+
+                <div className="film-line"></div>
+
+              </div>
+
+              <p>
+                Finding the best movies for your mood...
+              </p>
 
               <div className="loading-dots">
                 <span></span>
@@ -231,103 +260,156 @@ const handleMoodSelect = async (moodName) => {
               </div>
 
             </div>
+
           )}
 
-          {/* Display recommendations returned by Django */}
-          {!loading && movies.length > 0 && (
 
-            <div className="movie-wrapper">
+          {/* ================= MOVIE RESULTS ================= */}
 
-              <div className="movie-grid">
+          {!loading &&
+            movies.length > 0 && (
 
-                {movies.map((movie) => (
+              <div className="movie-wrapper">
 
-                  <div
+                <div className="movie-grid">
+
+                  {movies.map((movie) => (
+
+                    <div
                       className="movie-card"
                       key={movie.movieId}
-                      onClick={() => navigate(`/movie/${movie.movieId}`)}
-                  >
+                      onClick={() =>
+                        navigate(
+                          `/movie/${movie.movieId}`
+                        )
+                      }
+                    >
 
-                    <div className="poster">
+                      {/* POSTER */}
 
-                      {/* Display the TMDb poster returned by the backend */}
-                      {movie.poster_url ? (
-                        <img
-                          src={movie.poster_url}
-                          alt={`${movie.title} poster`}
-                          loading="lazy"
-                          onError={(event) => { event.currentTarget.style.display = "none"; }}
-                        />
-                      ) : (
-                        <div className="poster-placeholder">
-                          <span className="poster-icon">🎬</span>
-                          <span className="poster-title">{movie.title}</span>
-                        </div>
-                      )}
+                      <div className="poster">
 
-                    </div>
+                        {movie.poster_url ? (
 
-                    <div className="movie-info">
+                          <img
+                            src={movie.poster_url}
+                            alt={`${movie.title} poster`}
+                            loading="lazy"
+                            onError={(event) => {
+                              event.currentTarget.style.display =
+                                "none";
+                            }}
+                          />
 
-                      <h3>{movie.title}</h3>
-
-                      <div className="genre">
-                        {movie.genres ? (
-                          <>
-                            {movie.genres.split("|").map((genre, index) => (
-                              <React.Fragment key={index}>
-                                {genre}
-
-                                {index < movie.genres.split("|").length - 1 &&
-                                  (index + 1) % 3 !== 0 && (
-                                    <span> • </span>
-                                  )}
-
-                                {(index + 1) % 3 === 0 &&
-                                  index < movie.genres.split("|").length - 1 && (
-                                    <br />
-                                  )}
-                              </React.Fragment>
-                            ))}
-                          </>
                         ) : (
-                          "No genre"
+
+                          <div className="poster-placeholder">
+
+                            <span className="poster-icon">
+                              🎬
+                            </span>
+
+                            <span className="poster-title">
+                              {movie.title}
+                            </span>
+
+                          </div>
+
                         )}
+
                       </div>
 
-                      <div className="movie-meta">
-                        <span className="rating">
-                          ⭐ {movie.average_rating != null
-                            ? Number(movie.average_rating).toFixed(1)
-                            : "N/A"}
-                        </span>
 
-                        <span className="meta-divider">•</span>
+                      {/* MOVIE INFO */}
 
-                        <span className="rating-count">
-                          {movie.rating_count ?? 0} ratings
-                        </span>
+                      <div className="movie-info">
+
+                        <h3>
+                          {movie.title}
+                        </h3>
+
+                        <div className="genre">
+
+                          {movie.genres ? (
+                            <>
+                              {movie.genres
+                                .split("|")
+                                .map((genre, index) => (
+
+                                  <React.Fragment key={index}>
+
+                                    {genre}
+
+                                    {index <
+                                      movie.genres.split("|").length -
+                                        1 && (
+                                      <span> • </span>
+                                    )}
+
+                                  </React.Fragment>
+
+                                ))}
+                            </>
+                          ) : (
+                            "No genre"
+                          )}
+
+                        </div>
+
+
+                        <div className="movie-meta">
+
+                          <span className="rating">
+
+                            ⭐{" "}
+
+                            {movie.average_rating != null
+                              ? Number(
+                                  movie.average_rating
+                                ).toFixed(1)
+                              : "N/A"}
+
+                          </span>
+
+                          <span className="meta-divider">
+                            •
+                          </span>
+
+                          <span className="rating-count">
+
+                            {movie.rating_count ?? 0} ratings
+
+                          </span>
+
+                        </div>
+
+
+                        <div className="mood-match">
+
+                          {Math.round(
+                            Number(
+                              movie.final_score || 0
+                            ) * 100
+                          )}
+                          % Recommendation Match
+
+                        </div>
+
                       </div>
-
-                      <div className="mood-match">
-                        {Math.round(Number(movie.final_score || 0) * 100)}% Recommendation Match
-                      </div>
-
-                      {/* IMDb link will be added to the Movie Details page next */}
 
                     </div>
 
-                  </div>
+                  ))}
 
-                ))}
+                </div>
+
+                <button className="next-button">
+                  ›
+                </button>
 
               </div>
 
-              <button className="next-button">›</button>
-
-            </div>
-
-          )}
+            )}
 
         </section>
 
@@ -337,4 +419,4 @@ const handleMoodSelect = async (moodName) => {
   );
 }
 
-export default App;
+export default Mood;
