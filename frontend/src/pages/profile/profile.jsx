@@ -1,29 +1,97 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./profile.css";
 
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 
 function Profile() {
-  const [selectedGenres, setSelectedGenres] = useState([
-    "Action",
-    "Animation",
-    "Drama",
-    "Romance",
-    "Sci-Fi",
-  ]);
+  // =========================
+  // LOGGED-IN USER
+  // =========================
+
+  const savedUser = localStorage.getItem("user");
+
+  const loggedInUser = savedUser
+    ? JSON.parse(savedUser)
+    : null;
+
+  const userId = loggedInUser?.id;
+
+  const initialName =
+    loggedInUser?.fullName ||
+    loggedInUser?.name ||
+    loggedInUser?.username ||
+    "";
+
+  const initialEmail =
+    loggedInUser?.email || "";
+
+  const initialUsername =
+    loggedInUser?.username ||
+    loggedInUser?.email ||
+    "";
+
+  // =========================
+  // PROFILE STATE
+  // =========================
 
   const [profile, setProfile] = useState({
-    fullName: "Chiranji Jayalathge",
-    email: "chiranjii@example.com",
-    username: "chiranjii01",
+    fullName: initialName,
+    email: initialEmail,
+    username: initialUsername,
   });
+
+  // =========================
+  // GENRES
+  // =========================
+
+  const [selectedGenres, setSelectedGenres] = useState(() => {
+    if (!userId) {
+      return [
+        "Action",
+        "Animation",
+        "Drama",
+        "Romance",
+        "Sci-Fi",
+      ];
+    }
+
+    const savedGenres = localStorage.getItem(
+      `preferredGenres_${userId}`
+    );
+
+    return savedGenres
+      ? JSON.parse(savedGenres)
+      : [
+          "Action",
+          "Animation",
+          "Drama",
+          "Romance",
+          "Sci-Fi",
+        ];
+  });
+
+  // =========================
+  // PASSWORD
+  // =========================
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // =========================
+  // RATING STATISTICS
+  // =========================
+
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const [loadingRatings, setLoadingRatings] = useState(true);
+
+  // =========================
+  // GENRE LIST
+  // =========================
 
   const genres = [
     { name: "Action", icon: "🚀" },
@@ -40,13 +108,83 @@ function Profile() {
     { name: "Documentary", icon: "🎬" },
   ];
 
+  // =========================
+  // LOAD USER RATINGS
+  // =========================
+
+  useEffect(() => {
+    const loadUserRatings = async () => {
+      if (!userId) {
+        setLoadingRatings(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/ratings/?user_id=${userId}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Failed to load ratings."
+          );
+        }
+
+        const ratings = data.ratings || [];
+
+        setTotalRatings(ratings.length);
+
+        if (ratings.length > 0) {
+          const total = ratings.reduce(
+            (sum, item) =>
+              sum + Number(item.rating || 0),
+            0
+          );
+
+          const average =
+            total / ratings.length;
+
+          setAverageRating(
+            Number(average.toFixed(1))
+          );
+        } else {
+          setAverageRating(0);
+        }
+      } catch (error) {
+        console.error(
+          "Profile ratings error:",
+          error
+        );
+
+        setTotalRatings(0);
+        setAverageRating(0);
+      } finally {
+        setLoadingRatings(false);
+      }
+    };
+
+    loadUserRatings();
+  }, [userId]);
+
+  // =========================
+  // GENRE TOGGLE
+  // =========================
+
   const toggleGenre = (genre) => {
     setSelectedGenres((current) =>
       current.includes(genre)
-        ? current.filter((item) => item !== genre)
+        ? current.filter(
+            (item) => item !== genre
+          )
         : [...current, genre]
     );
   };
+
+  // =========================
+  // PROFILE UPDATE
+  // =========================
 
   const updateProfile = (field, value) => {
     setProfile((current) => ({
@@ -55,16 +193,56 @@ function Profile() {
     }));
   };
 
-  const updatePasswordField = (field, value) => {
+  // =========================
+  // PASSWORD UPDATE
+  // =========================
+
+  const updatePasswordField = (
+    field,
+    value
+  ) => {
     setPasswords((current) => ({
       ...current,
       [field]: value,
     }));
   };
 
+  // =========================
+  // SAVE PROFILE
+  // =========================
+
   const saveChanges = () => {
-    alert("Profile changes saved successfully!");
+    if (!userId) {
+      alert("Please login first.");
+      return;
+    }
+
+    const updatedUser = {
+      ...loggedInUser,
+      fullName: profile.fullName,
+      name: profile.fullName,
+      email: profile.email,
+      username: profile.username,
+    };
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify(updatedUser)
+    );
+
+    localStorage.setItem(
+      `preferredGenres_${userId}`,
+      JSON.stringify(selectedGenres)
+    );
+
+    alert(
+      "Profile changes saved successfully!"
+    );
   };
+
+  // =========================
+  // UPDATE PASSWORD
+  // =========================
 
   const updatePassword = () => {
     if (
@@ -72,16 +250,33 @@ function Profile() {
       !passwords.newPassword ||
       !passwords.confirmPassword
     ) {
-      alert("Please fill in all password fields.");
+      alert(
+        "Please fill in all password fields."
+      );
       return;
     }
 
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      alert("New passwords do not match.");
+    if (
+      passwords.newPassword !==
+      passwords.confirmPassword
+    ) {
+      alert(
+        "New passwords do not match."
+      );
       return;
     }
 
-    alert("Password updated successfully!");
+    /*
+      Password is NOT being changed in the database yet.
+
+      The current project does not have a password-update
+      API endpoint. This should be connected separately
+      when the backend endpoint is available.
+    */
+
+    alert(
+      "Password validation successful. Password update API is not connected yet."
+    );
 
     setPasswords({
       currentPassword: "",
@@ -90,18 +285,34 @@ function Profile() {
     });
   };
 
+  // =========================
+  // JSX
+  // =========================
+
   return (
     <div className="profile-page">
 
+      {/* =========================
+          SIDEBAR
+      ========================= */}
+
       <Sidebar />
 
+      {/* =========================
+          MAIN
+      ========================= */}
+
       <main className="profile-main">
+
+        {/* Shared MoodFlix Topbar */}
 
         <Topbar />
 
         <div className="profile-content">
 
-          {/* ================= PAGE HEADER ================= */}
+          {/* =========================
+              PAGE HEADER
+          ========================= */}
 
           <div className="profile-header">
 
@@ -121,7 +332,9 @@ function Profile() {
 
           </div>
 
-          {/* ================= MAIN GRID ================= */}
+          {/* =========================
+              MAIN GRID
+          ========================= */}
 
           <div className="profile-grid">
 
@@ -131,7 +344,9 @@ function Profile() {
 
             <div className="profile-column">
 
-              {/* ================= PROFILE INFO ================= */}
+              {/* =========================
+                  PROFILE INFORMATION
+              ========================= */}
 
               <section className="profile-card">
 
@@ -261,7 +476,9 @@ function Profile() {
 
               </section>
 
-              {/* ================= PREFERRED GENRES ================= */}
+              {/* =========================
+                  PREFERRED GENRES
+              ========================= */}
 
               <section className="profile-card">
 
@@ -277,17 +494,23 @@ function Profile() {
 
                   {genres.map((genre) => {
                     const selected =
-                      selectedGenres.includes(genre.name);
+                      selectedGenres.includes(
+                        genre.name
+                      );
 
                     return (
                       <button
                         type="button"
                         key={genre.name}
                         className={`genre-card ${
-                          selected ? "selected" : ""
+                          selected
+                            ? "selected"
+                            : ""
                         }`}
                         onClick={() =>
-                          toggleGenre(genre.name)
+                          toggleGenre(
+                            genre.name
+                          )
                         }
                       >
 
@@ -337,7 +560,9 @@ function Profile() {
 
             <div className="profile-column">
 
-              {/* ================= CHANGE PASSWORD ================= */}
+              {/* =========================
+                  CHANGE PASSWORD
+              ========================= */}
 
               <section className="profile-card">
 
@@ -363,7 +588,9 @@ function Profile() {
                       className="profile-input"
                       type="password"
                       placeholder="Enter your current password"
-                      value={passwords.currentPassword}
+                      value={
+                        passwords.currentPassword
+                      }
                       onChange={(event) =>
                         updatePasswordField(
                           "currentPassword",
@@ -394,7 +621,9 @@ function Profile() {
                       className="profile-input"
                       type="password"
                       placeholder="Enter your new password"
-                      value={passwords.newPassword}
+                      value={
+                        passwords.newPassword
+                      }
                       onChange={(event) =>
                         updatePasswordField(
                           "newPassword",
@@ -425,7 +654,9 @@ function Profile() {
                       className="profile-input"
                       type="password"
                       placeholder="Confirm your new password"
-                      value={passwords.confirmPassword}
+                      value={
+                        passwords.confirmPassword
+                      }
                       onChange={(event) =>
                         updatePasswordField(
                           "confirmPassword",
@@ -452,7 +683,9 @@ function Profile() {
 
               </section>
 
-              {/* ================= ACCOUNT INFORMATION ================= */}
+              {/* =========================
+                  ACCOUNT INFORMATION
+              ========================= */}
 
               <section className="profile-card">
 
@@ -466,6 +699,8 @@ function Profile() {
 
                 <div className="account-list">
 
+                  {/* MEMBER SINCE */}
+
                   <div className="account-row">
 
                     <span className="account-icon">
@@ -477,10 +712,12 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      10 April 2024
+                      Not available
                     </strong>
 
                   </div>
+
+                  {/* ACCOUNT TYPE */}
 
                   <div className="account-row">
 
@@ -498,6 +735,8 @@ function Profile() {
 
                   </div>
 
+                  {/* TOTAL RATINGS */}
+
                   <div className="account-row">
 
                     <span className="account-icon">
@@ -509,10 +748,14 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      18 Movies
+                      {loadingRatings
+                        ? "Loading..."
+                        : `${totalRatings} Movies`}
                     </strong>
 
                   </div>
+
+                  {/* AVERAGE RATING */}
 
                   <div className="account-row">
 
@@ -525,10 +768,14 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      4.3 / 5
+                      {loadingRatings
+                        ? "Loading..."
+                        : `${averageRating} / 5`}
                     </strong>
 
                   </div>
+
+                  {/* LAST LOGIN */}
 
                   <div className="account-row">
 
@@ -541,7 +788,7 @@ function Profile() {
                     </span>
 
                     <strong className="account-value">
-                      06 May 2024, 10:30 AM
+                      Not available
                     </strong>
 
                   </div>
