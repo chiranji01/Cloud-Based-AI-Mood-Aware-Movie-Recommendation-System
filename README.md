@@ -4,9 +4,9 @@
 
 **MoodFlix** is a cloud-based movie recommendation system that provides personalised movie recommendations based on a user's current mood and movie content.
 
-The system combines a React frontend, Django backend, MySQL database, MovieLens dataset, TMDb API, and a content-based recommendation engine to generate mood-aware movie suggestions.
+The system combines a **React frontend**, **Django backend**, **MySQL database**, **MovieLens dataset**, **TMDb API**, and a **content-based recommendation engine**. AWS services are used for cloud hosting, database management, and application delivery.
 
-This project is developed as part of the **NIT6150 – Advanced Project** at **Victoria University**.
+This project was developed as part of **NIT6150 – Advanced Project** at **Victoria University**.
 
 ---
 
@@ -14,33 +14,35 @@ This project is developed as part of the **NIT6150 – Advanced Project** at **V
 
 - User registration and login
 - Browse and search movies
-- View detailed movie information
-- Select a current mood
-- Generate Top 10 mood-aware movie recommendations
-- View movie posters and additional movie information
-- View similar movie recommendations
-- Rate movies and view ratings
-- User profile management
+- Mood selection
+- Top 10 mood-aware movie recommendations
+- Detailed movie information
+- TMDb movie posters and metadata
+- IMDb links
+- Similar movie recommendations
+- Movie rating functionality
+- User profile and rating history
 - Admin movie and user management
+- AWS cloud integration and deployment
 
 ---
 
-## Mood-Aware Recommendation System
+## Mood-Aware Recommendation Engine
 
-MoodFlix uses a **Content-Based Filtering** approach to generate recommendations based on the user's selected mood.
+MoodFlix uses a **Content-Based Filtering** approach to recommend movies based on the user's selected mood.
 
-The recommendation engine uses:
+The recommendation engine combines:
 
 - Mood-to-Genre and Keyword Mapping
 - Movie genres and tags
-- TF-IDF
+- TF-IDF feature representation
 - Cosine Similarity
 - Genre relevance
 - Rating quality
 - Popularity
 - Movie recency
 
-When a user selects a mood, the system retrieves the associated genres and keywords from the database. TF-IDF converts the mood profile and movie content into numerical vectors, and Cosine Similarity measures how closely each movie matches the selected mood.
+When a mood is selected, the system retrieves the associated genres and keywords from the database. **TF-IDF** converts the mood profile and movie content into numerical vectors, while **Cosine Similarity** measures how closely each movie matches the selected mood.
 
 ### Recommendation Score
 
@@ -51,16 +53,11 @@ When a user selects a mood, the system retrieves the associated genres and keywo
 | Reliable Rating | 10% |
 | Popularity | 5% |
 | Recency | 5% |
+| **Total** | **100%** |
 
-Mood similarity and genre relevance receive the highest importance so that recommendations remain strongly related to the user's selected mood.
+Quality and relevance filters are applied before returning the **Top 10 ranked recommendations**.
 
-Quality and relevance filters are applied before returning the **Top 10 recommendations**.
-
----
-
-## Supported Moods
-
-MoodFlix currently supports six mood categories:
+### Supported Moods
 
 - 😀 Happy
 - 😢 Sad
@@ -69,32 +66,44 @@ MoodFlix currently supports six mood categories:
 - 💗 Romantic
 - 😰 Stressed
 
-Each mood is mapped to relevant genres and descriptive keywords.
+---
+
+## Recommendation Flow
+
+```text
+User Selects Mood
+        │
+        ▼
+Mood-to-Genre & Keyword Mapping
+        │
+        ▼
+Movie Genres + Tags
+        │
+        ▼
+TF-IDF
+        │
+        ▼
+Cosine Similarity
+        │
+        ▼
+Multi-Factor Ranking
+        │
+        ▼
+Quality & Relevance Filtering
+        │
+        ▼
+Top 10 Recommendations
+```
 
 ---
 
-## Recommendation Process
+## Movie Details & Similar Movies
 
-1. The user selects a mood.
-2. The React frontend sends the mood to the Django API.
-3. The backend retrieves the mood profile from MySQL.
-4. Movie genres and tags are used as content features.
-5. TF-IDF converts the movie and mood features into vectors.
-6. Cosine Similarity calculates mood similarity.
-7. Genre relevance, rating quality, popularity, and recency are calculated.
-8. The factors are combined into a final recommendation score.
-9. Quality and relevance filters are applied.
-10. The Top 10 movies are returned to the frontend.
+Users can select a movie to view its **Movie Details** page.
 
----
+MovieLens provides the core movie information, while the **TMDb API** provides additional metadata where available, including:
 
-## Movie Details
-
-Users can select a recommended movie to open its **Movie Details** page.
-
-Core movie information is based on the **MovieLens dataset**, while the **TMDb API** provides additional information including:
-
-- Movie poster
+- Movie posters
 - Overview
 - Runtime
 - Release date
@@ -102,22 +111,22 @@ Core movie information is based on the **MovieLens dataset**, while the **TMDb A
 - Writers
 - Cast
 - Certification
-- IMDb link
 
----
-
-## Similar Movie Recommendations
+Movie links are also used to provide access to IMDb.
 
 The Movie Details page includes a **You Might Also Like** feature that recommends up to **6 similar movies**.
 
-The system compares movie genres using **Jaccard Similarity** and applies rating-quality filters before ranking the results.
+This feature uses **Jaccard Similarity** to compare movie genres, together with rating-quality filtering.
 
 ```text
 Jaccard Similarity =
 Common Genres / Total Unique Genres
 ```
 
-Users can select a similar movie to open its Movie Details page and receive another set of related recommendations.
+Therefore:
+
+- **TF-IDF + Cosine Similarity** → Mood-to-Movie recommendations
+- **Jaccard Similarity** → Movie-to-Movie recommendations
 
 ---
 
@@ -125,8 +134,8 @@ Users can select a similar movie to open its Movie Details page and receive anot
 
 | Component | Technology |
 | --- | --- |
-| Frontend | React.js |
-| Backend | Python / Django |
+| Frontend | React.js, Vite |
+| Backend | Python, Django |
 | Database | MySQL |
 | Recommendation Engine | Python, Pandas, NumPy, Scikit-learn |
 | Recommendation Method | Content-Based Filtering |
@@ -135,8 +144,11 @@ Users can select a similar movie to open its Movie Details page and receive anot
 | Similar Movie Method | Jaccard Similarity |
 | Dataset | MovieLens |
 | External Movie Data | TMDb API |
-| Cloud Platform | AWS – Amazon EC2 & Amazon RDS |
-| Version Control | Git & GitHub |
+| Backend Hosting | Amazon EC2 |
+| Cloud Database | Amazon RDS MySQL |
+| Frontend Hosting | Amazon S3 |
+| Content Delivery | Amazon CloudFront |
+| Version Control | Git, GitHub |
 
 ---
 
@@ -148,94 +160,149 @@ The dataset provides:
 
 - Movie titles
 - Genres
-- User ratings
-- Movie tags
+- Ratings
+- Tags
 - Movie links
 
-Genres and tags are used by the recommendation engine, ratings support quality and popularity calculations, and movie links connect MovieLens movies with TMDb and IMDb.
+Genres and tags are used by the recommendation engine. Ratings support quality and popularity calculations, while movie links connect MovieLens records with TMDb and IMDb information.
 
-[MovieLens Dataset – GroupLens Research](https://grouplens.org/datasets/movielens/)
+**MovieLens Dataset:**  
+https://grouplens.org/datasets/movielens/
 
 ---
 
 ## System Architecture
 
-MoodFlix consists of the following main components:
-
-### Frontend
-**React.js** provides the user interface and communicates with the backend through API requests.
-
-### Backend
-**Django** provides the backend application and API endpoints.
-
-### Database
-**MySQL** stores movie information, ratings, tags, mood mappings, movie links, and application data.
-
-### Recommendation Engine
-The recommendation engine uses **Python, Pandas, NumPy, and Scikit-learn** to generate mood-aware movie recommendations.
-
-### External Movie Service
-The **TMDb API** provides additional movie metadata and poster images.
-
-### Cloud Platform
-**Amazon Web Services (AWS)** is used for cloud integration and deployment testing.
-
-The Django backend and recommendation-engine environment have been successfully tested on **Amazon EC2** with the project database hosted on **Amazon RDS MySQL**.
-
-Full end-to-end cloud deployment is still in progress.
-
----
-
-## System Flow
-
 ```text
-User
-  │
-  ▼
-React Frontend
-  │
-  ▼
-Django API
-  │
-  ├──────────────► MySQL / Amazon RDS
-  │
-  ▼
-Mood-Aware Recommendation Engine
-  │
-  ├── TF-IDF
-  ├── Cosine Similarity
-  ├── Genre Relevance
-  ├── Rating Quality
-  ├── Popularity
-  └── Recency
-  │
-  ▼
-Top 10 Recommendations
-  │
-  ▼
-Movie Details
-  │
-  ├──────────────► TMDb API
-  │
-  ▼
-You Might Also Like
+                         User
+                           │
+                           ▼
+                  Amazon CloudFront
+                       (HTTPS)
+                     /         \
+                    /           \
+                   ▼             ▼
+           Amazon S3          /api/*
+        React Frontend           │
+                                ▼
+                          Amazon EC2
+                         Django Backend
+                                │
+                    ┌───────────┴───────────┐
+                    ▼                       ▼
+             Amazon RDS              Recommendation
+                MySQL                   Engine
+                                           │
+                                           ▼
+                                  Top 10 Recommendations
+                                           │
+                                           ▼
+                                      React Frontend
+                                           │
+                                           ▼
+                                      Movie Details
+                                           │
+                                           ▼
+                                        TMDb API
 ```
 
 ---
 
-## AWS Cloud Integration
+## AWS Cloud Deployment
 
-The current AWS integration includes:
+MoodFlix uses multiple AWS services for cloud deployment and integration.
 
-- **Amazon EC2** for the Django backend and recommendation-engine environment
-- **Amazon RDS MySQL** for the cloud database
-- EC2-to-RDS database connectivity
-- Environment-variable-based database configuration
-- Cloud-based recommendation-engine testing
+### Amazon EC2
 
-A copy of the project database has been migrated to Amazon RDS. Django running on EC2 has been successfully connected to RDS, and mood-based recommendations have been successfully generated in the AWS environment.
+**Amazon EC2** hosts the Django backend and mood-aware recommendation engine.
 
-The remaining cloud work includes frontend deployment and complete end-to-end system integration.
+### Amazon RDS
+
+**Amazon RDS MySQL** hosts the cloud database used by the Django application and recommendation engine.
+
+EC2-to-RDS database connectivity has been successfully configured and tested.
+
+### Amazon S3
+
+The production build of the React/Vite frontend is hosted using **Amazon S3**.
+
+### Amazon CloudFront
+
+**Amazon CloudFront** provides HTTPS delivery and connects the frontend and backend through a single cloud distribution.
+
+CloudFront uses separate origins for the application:
+
+```text
+Default requests → Amazon S3 → React frontend
+/api/*           → Amazon EC2 → Django backend
+```
+
+The cloud environment has successfully been tested for:
+
+- EC2-to-RDS connectivity
+- Django database migrations
+- Recommendation-engine execution on EC2
+- Top 10 mood recommendation generation
+- TMDb poster integration and caching
+- Django recommendation API
+- CloudFront `/api/*` routing
+- HTTPS recommendation API requests
+- React frontend delivery through S3 and CloudFront
+- Mood recommendations displayed through the deployed frontend
+
+Final end-to-end integration testing will be completed as the remaining team components are finalised.
+
+---
+
+## API Example
+
+### Mood Recommendation
+
+**Endpoint**
+
+```http
+POST /api/recommendations/
+```
+
+**Example Request**
+
+```json
+{
+  "mood": "Happy"
+}
+```
+
+**Example Response**
+
+```json
+{
+  "mood": "Happy",
+  "recommendation_count": 10,
+  "recommendations": [
+    {
+      "movieId": 157296,
+      "title": "Finding Dory (2016)",
+      "genres": "Adventure|Animation|Comedy"
+    }
+  ]
+}
+```
+
+The complete API response contains additional movie and recommendation information used by the frontend.
+
+---
+
+## Performance Optimisation
+
+The system includes several improvements to recommendation quality and application performance:
+
+- Weighted multi-factor recommendation ranking
+- Genre relevance scoring
+- Recommendation quality filtering
+- Reliable-rating calculations
+- Popularity and recency consideration
+- TMDb poster caching
+- Reduced repeated external API requests
 
 ---
 
@@ -276,14 +343,14 @@ Development activities include:
 
 - Sprint planning and task allocation
 - Frontend and backend development
-- Recommendation engine development
+- Recommendation-engine development
 - Database and API integration
 - System integration
-- Testing
-- Cloud integration
-- Progress evaluation
+- Testing and debugging
+- Performance optimisation
+- AWS deployment and testing
 
-**Git and GitHub** are used for version control, collaboration, and code integration.
+**Git and GitHub** are used for version control, team collaboration, branch management, and code integration.
 
 ---
 
@@ -291,7 +358,7 @@ Development activities include:
 
 | Team Member | Role |
 | --- | --- |
-| Chiranji Vinodya Ranaweera Jayalathge | Project Manager & AI Developer |
+| Chiranji Vinodya Ranaweera Jayalathge | Project Manager & Recommendation Engine Developer |
 | Meghan Reddy Podduturi | Frontend Developer |
 | Prapti Pokharel | Backend Developer |
 | Prashanth | Frontend Support & QA Tester |
@@ -300,54 +367,74 @@ Development activities include:
 
 ## Project Status
 
-**Current Stage: System Integration, Cloud Integration and Testing**
+**Current Stage: Final Integration, Cloud Deployment & Testing**
 
-Completed or integrated components include:
+### Completed / Integrated
 
-- React frontend interfaces
+- React frontend
 - Django backend and APIs
 - MySQL database integration
 - MovieLens dataset integration
+- Mood-to-Genre and keyword mapping
 - Mood-aware recommendation engine
 - TF-IDF and Cosine Similarity
-- Multi-factor recommendation scoring
+- Multi-factor recommendation ranking
 - Top 10 mood recommendations
-- TMDb integration
-- Dynamic Movie Details page
-- You Might Also Like recommendations
-- Amazon EC2 environment
-- Amazon RDS MySQL database
-- EC2-to-RDS integration
-- Successful cloud recommendation testing
+- TMDb metadata and poster integration
+- Movie Details functionality
+- Jaccard-based similar movie recommendations
+- Ratings and profile interfaces
+- GitHub team-code integration
+- Amazon EC2 backend deployment
+- Amazon RDS MySQL integration
+- Amazon S3 frontend deployment
+- Amazon CloudFront integration
+- HTTPS recommendation API routing
+- Successful cloud-based recommendation testing
 
-Current development is focused on:
+### Final Integration & Testing
 
-- Completing remaining frontend and backend functionality
-- User authentication, ratings, profile, and admin functionality
-- System and integration testing
+Before final submission, the team will complete:
+
+- Integration of final team components
+- Remaining frontend and backend fixes
+- Full user-flow testing
+- Search, ratings, profile, and admin testing
+- Full end-to-end cloud testing
 - Recommendation quality testing
-- Performance improvements
-- Completing full AWS deployment
+- Performance and security checks
+- Final AWS deployment configuration
+- Final documentation and demonstration
 
 ---
 
-## Future Development
+## Future Enhancements
 
-Planned development includes:
+Future improvements may include:
 
-- Complete remaining user functionality
-- Improve recommendation accuracy
-- Improve API performance
-- Cache external movie information where appropriate
-- Complete system and integration testing
-- Complete frontend cloud deployment
-- Complete end-to-end AWS integration
-- Perform final security and performance testing
-- Explore more advanced recommendation techniques
+- Hybrid content-based and collaborative filtering
+- More advanced user personalisation
+- Additional mood categories
+- Automatic mood detection
+- Machine-learning-based mood classification
+- Improved recommendation diversity
+- Enhanced caching and performance
+- Production-grade backend configuration
+- CI/CD deployment
+- AWS monitoring and scaling
 
 ---
 
 ## Academic Information
 
+**Project:** MoodFlix – Cloud-Based AI Mood-Aware Movie Recommendation System  
 **Unit:** NIT6150 – Advanced Project  
 **Institution:** Victoria University
+
+---
+
+## Acknowledgements
+
+MoodFlix uses the **MovieLens dataset** provided by GroupLens Research and movie metadata provided through **The Movie Database (TMDb) API**.
+
+This system was developed for academic purposes as part of the **NIT6150 Advanced Project at Victoria University**.
