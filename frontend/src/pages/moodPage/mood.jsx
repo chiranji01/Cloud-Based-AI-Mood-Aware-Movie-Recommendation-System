@@ -72,18 +72,20 @@ function Mood() {
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      const data = await response.json();
 
+      if (!response.ok) {
         throw new Error(
-          errorData.error ||
+          data.error ||
             "Unable to get movie recommendations."
         );
       }
 
-      const data = await response.json();
-
-      setMovies(data.recommendations || []);
+      setMovies(
+        Array.isArray(data.recommendations)
+          ? data.recommendations
+          : []
+      );
     } catch (err) {
       console.error("Recommendation API error:", err);
 
@@ -98,21 +100,26 @@ function Mood() {
     }
   };
 
+  const handleMovieClick = (movie) => {
+    if (!movie?.movieId) {
+      console.error("Movie ID is missing:", movie);
+      return;
+    }
+
+    navigate(`/movie/${movie.movieId}`);
+  };
+
   return (
     <div className="moodflix">
-
       <Sidebar />
 
       <main className="main-content">
-
         <Topbar />
 
         {/* ================= HERO ================= */}
 
         <section className="hero">
-
           <div className="hero-text">
-
             <h1>
               How are you <span>feeling</span> today? 😊
             </h1>
@@ -122,36 +129,22 @@ function Mood() {
               <br />
               find movies that match it.
             </p>
-
           </div>
 
           <div className="hero-decoration">
+            <div className="popcorn-large">🍿</div>
 
-            <div className="popcorn-large">
-              🍿
-            </div>
+            <div className="film-reel">◉</div>
 
-            <div className="film-reel">
-              ◉
-            </div>
-
-            <div className="straw">
-              ╱
-            </div>
-
+            <div className="straw">╱</div>
           </div>
-
         </section>
-
 
         {/* ================= MOOD SELECTION ================= */}
 
         <section className="mood-section">
-
           <div className="mood-grid">
-
             {moods.map((mood) => (
-
               <button
                 key={mood.name}
                 className={`mood-card ${mood.className} ${
@@ -163,27 +156,17 @@ function Mood() {
                   handleMoodSelect(mood.name)
                 }
               >
-
                 <div className="mood-emoji">
                   {mood.emoji}
                 </div>
 
-                <h3>
-                  {mood.name}
-                </h3>
+                <h3>{mood.name}</h3>
 
-                <p>
-                  {mood.description}
-                </p>
-
+                <p>{mood.description}</p>
               </button>
-
             ))}
-
           </div>
-
         </section>
-
 
         {/* ================= ERROR ================= */}
 
@@ -193,13 +176,10 @@ function Mood() {
           </div>
         )}
 
-
         {/* ================= RECOMMENDATIONS ================= */}
 
         <section className="recommendations">
-
           <div className="section-header">
-
             <h2>
               {selectedMood
                 ? `Recommended for ${selectedMood}`
@@ -211,42 +191,29 @@ function Mood() {
                 View all <span>›</span>
               </button>
             )}
-
           </div>
 
-
-          {/* EMPTY STATE */}
+          {/* ================= EMPTY STATE ================= */}
 
           {!loading &&
             movies.length === 0 &&
             !error && (
-
               <div className="empty-recommendations">
-
                 <p>
                   Select your mood to discover personalised
                   movie recommendations.
                 </p>
-
               </div>
-
             )}
-
 
           {/* ================= LOADING ================= */}
 
           {loading && (
-
             <div className="loading-recommendations">
-
               <div className="cinema-loader">
-
-                <div className="reel">
-                  🎞️
-                </div>
+                <div className="reel">🎞️</div>
 
                 <div className="film-line"></div>
-
               </div>
 
               <p>
@@ -258,163 +225,118 @@ function Mood() {
                 <span></span>
                 <span></span>
               </div>
-
             </div>
-
           )}
-
 
           {/* ================= MOVIE RESULTS ================= */}
 
-          {!loading &&
-            movies.length > 0 && (
+          {!loading && movies.length > 0 && (
+            <div className="movie-wrapper">
+              <div className="movie-grid">
+                {movies.map((movie) => (
+                  <div
+                    className="movie-card"
+                    key={movie.movieId}
+                    onClick={() =>
+                      handleMovieClick(movie)
+                    }
+                  >
+                    {/* POSTER */}
 
-              <div className="movie-wrapper">
-
-                <div className="movie-grid">
-
-                  {movies.map((movie) => (
-
-                    <div
-                      className="movie-card"
-                      key={movie.movieId}
-                      onClick={() =>
-                        navigate(
-                          `/movie/${movie.movieId}`
-                        )
-                      }
-                    >
-
-                      {/* POSTER */}
-
-                      <div className="poster">
-
-                        {movie.poster_url ? (
-
-                          <img
-                            src={movie.poster_url}
-                            alt={`${movie.title} poster`}
-                            loading="lazy"
-                            onError={(event) => {
-                              event.currentTarget.style.display =
-                                "none";
-                            }}
-                          />
-
-                        ) : (
-
-                          <div className="poster-placeholder">
-
-                            <span className="poster-icon">
-                              🎬
-                            </span>
-
-                            <span className="poster-title">
-                              {movie.title}
-                            </span>
-
-                          </div>
-
-                        )}
-
-                      </div>
-
-
-                      {/* MOVIE INFO */}
-
-                      <div className="movie-info">
-
-                        <h3>
-                          {movie.title}
-                        </h3>
-
-                        <div className="genre">
-
-                          {movie.genres ? (
-                            <>
-                              {movie.genres
-                                .split("|")
-                                .map((genre, index) => (
-
-                                  <React.Fragment key={index}>
-
-                                    {genre}
-
-                                    {index <
-                                      movie.genres.split("|").length -
-                                        1 && (
-                                      <span> • </span>
-                                    )}
-
-                                  </React.Fragment>
-
-                                ))}
-                            </>
-                          ) : (
-                            "No genre"
-                          )}
-
-                        </div>
-
-
-                        <div className="movie-meta">
-
-                          <span className="rating">
-
-                            ⭐{" "}
-
-                            {movie.average_rating != null
-                              ? Number(
-                                  movie.average_rating
-                                ).toFixed(1)
-                              : "N/A"}
-
+                    <div className="poster">
+                      {movie.poster_url ? (
+                        <img
+                          src={movie.poster_url}
+                          alt={`${movie.title} poster`}
+                          loading="lazy"
+                          onError={(event) => {
+                            event.currentTarget.style.display =
+                              "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="poster-placeholder">
+                          <span className="poster-icon">
+                            🎬
                           </span>
 
-                          <span className="meta-divider">
-                            •
+                          <span className="poster-title">
+                            {movie.title}
                           </span>
-
-                          <span className="rating-count">
-
-                            {movie.rating_count ?? 0} ratings
-
-                          </span>
-
                         </div>
-
-
-                        <div className="mood-match">
-
-                          {Math.round(
-                            Number(
-                              movie.final_score || 0
-                            ) * 100
-                          )}
-                          % Recommendation Match
-
-                        </div>
-
-                      </div>
-
+                      )}
                     </div>
 
-                  ))}
+                    {/* MOVIE INFO */}
 
-                </div>
+                    <div className="movie-info">
+                      <h3>{movie.title}</h3>
 
-                <button className="next-button">
-                  ›
-                </button>
+                      <div className="genre">
+                        {movie.genres ? (
+                          movie.genres
+                            .split("|")
+                            .map(
+                              (
+                                genre,
+                                index,
+                                allGenres
+                              ) => (
+                                <React.Fragment
+                                  key={index}
+                                >
+                                  {genre}
 
+                                  {index <
+                                    allGenres.length -
+                                      1 && (
+                                    <span> • </span>
+                                  )}
+                                </React.Fragment>
+                              )
+                            )
+                        ) : (
+                          "No genre"
+                        )}
+                      </div>
+
+                      <div className="movie-meta">
+                        <span className="rating">
+                          ⭐{" "}
+                          {movie.average_rating != null
+                            ? Number(
+                                movie.average_rating
+                              ).toFixed(1)
+                            : "N/A"}
+                        </span>
+
+                        <span className="meta-divider">
+                          •
+                        </span>
+
+                        <span className="rating-count">
+                          {movie.rating_count ?? 0} ratings
+                        </span>
+                      </div>
+
+                      <div className="mood-match">
+                        {Math.round(
+                          Number(
+                            movie.final_score || 0
+                          ) * 100
+                        )}
+                        % Recommendation Match
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-            )}
-
+              <button className="next-button">›</button>
+            </div>
+          )}
         </section>
-
       </main>
-
     </div>
   );
 }

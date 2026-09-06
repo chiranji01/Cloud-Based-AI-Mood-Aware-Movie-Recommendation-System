@@ -66,9 +66,17 @@ return (
         </ProtectedRoute>
       }
     />
+    <Route
+    path="/mood"
+    element={
+    <ProtectedRoute>
+      <Mood />
+    </ProtectedRoute>
+    }
+   />
 
     <Route
-      path="/mood"
+      path="/mood/:mood"
       element={
         <ProtectedRoute>
           <Mood />

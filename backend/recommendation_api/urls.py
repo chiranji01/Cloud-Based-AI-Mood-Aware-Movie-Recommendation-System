@@ -45,6 +45,32 @@ urlpatterns = [
         name="similar_movies"
     ),
 
+    # =====================================================
+    # USER RATINGS API
+    # =====================================================
+
+    # GET:
+    # /api/ratings/?user_id=6
+    #
+    # POST:
+    # /api/ratings/
+    # DELETE:
+    # /api/ratings/123/
+
+    path(
+        "ratings/",
+        views.user_ratings,
+        name="ratings"
+    ),
+
+    path(
+    "ratings/<int:rating_id>/",
+    views.delete_rating,
+    name="delete_rating"
+    ),
+
+
+
 
     # =====================================================
     # TEMPORARY AI DEMONSTRATION PAGE
@@ -55,4 +81,13 @@ urlpatterns = [
         views.recommendation_demo,
         name="recommendation_demo"
     ),
+
+    path("movies/popular/", views.popular_movies, name="popular_movies"),
+
+    path(
+    "movies/search/",
+    views.search_movies,
+    name="search_movies"
+    ),
+
 ]

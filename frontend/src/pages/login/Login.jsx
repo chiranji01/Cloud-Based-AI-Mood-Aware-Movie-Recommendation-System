@@ -37,6 +37,7 @@ try {
   const data = await response.json();
 
   console.log("Login response:", data);
+  console.log("User being saved:", data.user);
 
   if (response.ok) {
     localStorage.setItem(

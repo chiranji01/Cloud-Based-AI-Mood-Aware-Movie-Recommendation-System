@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Home, Smile, Bookmark, User, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -7,6 +8,20 @@ import "./Sidebar.css";
 function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+  const handleLogout = () => {
+    // Remove logged-in user
+    localStorage.removeItem("user");
+
+    // Optional: remove any other login/session data
+    localStorage.removeItem("token");
+
+    // Go back to login page
+    navigate("/login");
+  };
 
   return (
     <aside className="sidebar">
@@ -90,7 +105,7 @@ function Sidebar() {
       {/* LOGOUT */}
       <button
         className="logout"
-        onClick={() => navigate("/login")}
+        onClick={handleLogout}
       >
         <LogOut size={18} />
         <span>Logout</span>

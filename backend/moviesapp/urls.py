@@ -1,6 +1,8 @@
-﻿from django.urls import path
+﻿
+from django.urls import path
 
 from . import views
+
 
 urlpatterns = [
 
@@ -20,6 +22,7 @@ urlpatterns = [
         name="movie-detail"
     ),
 
+
     # =====================================================
     # IMPORT MOVIES
     # =====================================================
@@ -29,6 +32,7 @@ urlpatterns = [
         views.import_movies,
         name="import-movies"
     ),
+
 
     # =====================================================
     # IMPORT TAGS
@@ -40,6 +44,7 @@ urlpatterns = [
         name="import-tags"
     ),
 
+
     # =====================================================
     # IMPORT RATINGS
     # =====================================================
@@ -50,21 +55,35 @@ urlpatterns = [
         name="import-ratings"
     ),
 
+
     # =====================================================
     # USER RATINGS
     # =====================================================
 
+    # POST
+    # Create a new rating OR update an existing rating
     path(
         "ratings/",
         views.add_rating,
         name="add-rating"
     ),
 
+    # GET
+    # Get all application ratings for a user
     path(
         "ratings/user/<int:user_id>/",
         views.user_ratings,
         name="user-ratings"
     ),
+
+    # DELETE
+    # Delete one application rating
+    path(
+        "ratings/<int:rating_id>/",
+        views.delete_rating,
+        name="delete-rating"
+    ),
+
 
     # =====================================================
     # IMPORT LINKS
@@ -76,11 +95,17 @@ urlpatterns = [
         name="import-links"
     ),
 
+
+    # =====================================================
+    # MOVIE LINKS
+    # =====================================================
+
     path(
         "links/",
         views.link_list,
         name="link-list"
     ),
+
 
     # =====================================================
     # AUTHENTICATION
@@ -98,6 +123,7 @@ urlpatterns = [
         name="register"
     ),
 
+
     # =====================================================
     # PROFILE
     # =====================================================
@@ -107,4 +133,5 @@ urlpatterns = [
         views.user_profile,
         name="user-profile"
     ),
+
 ]
