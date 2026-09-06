@@ -185,7 +185,6 @@ def calculate_genre_match(movie_genres, selected_genres):
         return 0.0
 
     movie_genres = movie_genres.split("|")
-
     matches = sum(
         genre in movie_genres
         for genre in selected_genres
@@ -234,7 +233,7 @@ def get_mood_recommendations(
 
     selected_genres = [
         x.strip()
-        for x in mood_profile.genres.split("|")
+        for x in mood_profile.genres.split(",")
         if x.strip()
     ]
 
