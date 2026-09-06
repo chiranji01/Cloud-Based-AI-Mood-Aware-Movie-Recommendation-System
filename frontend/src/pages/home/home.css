@@ -28,6 +28,7 @@ body {
 .main-content {
   margin-left: 158px;
   width: calc(100% - 158px);
+  min-height: 100vh;
   padding: 0 21px 35px;
 }
 
@@ -37,7 +38,7 @@ body {
 ===================================================== */
 
 .hero-section {
-  height: 170px;
+  height: 180px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -56,13 +57,18 @@ body {
 .hero-content {
   position: relative;
   z-index: 2;
+
   padding: 30px 26px;
+
   color: white;
 }
 
 .hero-content h1 {
-  font-size: 23px;
   margin-bottom: 9px;
+
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .hero-content h1 span {
@@ -70,8 +76,11 @@ body {
 }
 
 .hero-content p {
-  font-size: 12px;
+  max-width: 650px;
+
+  font-size: 13px;
   line-height: 1.6;
+
   color: #c8c8d3;
 }
 
@@ -81,17 +90,26 @@ body {
 
 .choose-mood-button {
   margin-top: 13px;
+
   border: none;
+  border-radius: 6px;
+
   background: #7030df;
   color: white;
-  padding: 8px 14px;
-  border-radius: 5px;
-  font-size: 10px;
+
+  padding: 9px 15px;
+
+  font-size: 12px;
+  font-weight: 600;
+
   cursor: pointer;
+
+  transition: 0.2s;
 }
 
 .choose-mood-button:hover {
   background: #8142ef;
+  transform: translateY(-1px);
 }
 
 
@@ -101,29 +119,43 @@ body {
 
 .quick-mood {
   background: white;
+
   border: 1px solid #e9e6ee;
   border-radius: 10px;
-  padding: 10px;
+
+  padding: 13px;
+
   margin-top: 13px;
 }
 
 .quick-mood h3 {
-  font-size: 11px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  color: #25263d;
 }
 
 .mood-list {
   display: grid;
+
   grid-template-columns: repeat(6, 1fr);
+
   gap: 12px;
 }
 
 .mood {
   border: none;
-  padding: 7px 5px;
   border-radius: 15px;
-  font-size: 9px;
+
+  padding: 8px 6px;
+
+  font-size: 11px;
+  font-weight: 600;
+
   cursor: pointer;
+
   transition: transform 0.2s ease;
 }
 
@@ -167,26 +199,34 @@ body {
 ===================================================== */
 
 .movie-section {
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .section-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+
+  margin-bottom: 10px;
 }
 
 .section-title h2 {
-  font-size: 12px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #25263d;
 }
 
 .view-all {
   border: none;
+
   background: transparent;
+
   color: #6330c5;
-  font-size: 9px;
+
+  font-size: 11px;
+  font-weight: 600;
+
   cursor: pointer;
 }
 
@@ -197,8 +237,11 @@ body {
 
 .movie-row {
   display: grid;
+
   grid-template-columns: repeat(6, 1fr);
+
   gap: 13px;
+
   position: relative;
 }
 
@@ -209,59 +252,84 @@ body {
 
 .movie-card {
   background: white;
-  border-radius: 7px;
-  overflow: hidden;
+
   border: 1px solid #e7e4ea;
+  border-radius: 7px;
+
+  overflow: hidden;
+
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+
   transition: 0.2s;
+
+  cursor: pointer;
 }
 
 .movie-card:hover {
   transform: translateY(-3px);
+
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
 }
 
 .poster {
   width: 100%;
-  height: 128px;
+  height: 150px;
+
   background: #222;
+
   overflow: hidden;
 }
 
 .poster img {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   display: block;
 }
 
 .movie-details {
-  padding: 7px;
+  padding: 8px;
 }
 
 .movie-details h3 {
-  font-size: 9px;
+  margin-bottom: 5px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  color: #25263d;
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 5px;
 }
 
 .movie-bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 3px;
+
+  gap: 5px;
 }
 
 .movie-bottom span {
   color: #777;
-  font-size: 7px;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .movie-bottom strong {
   color: #555;
-  font-size: 7px;
+
+  font-size: 11px;
+
+  white-space: nowrap;
 }
 
 
@@ -271,8 +339,9 @@ body {
 
 .next-button {
   position: absolute;
+
   right: -8px;
-  top: 55px;
+  top: 62px;
 
   width: 29px;
   height: 29px;
@@ -285,9 +354,11 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 
   font-size: 23px;
+
   color: #444;
 
   cursor: pointer;
+
   z-index: 5;
 }
 
@@ -297,28 +368,40 @@ body {
 ===================================================== */
 
 .popular-section {
-  margin-top: 17px;
+  margin-top: 18px;
 }
 
 .popular-card {
-  height: 150px;
+  height: 260px;
+
   border-radius: 7px;
+
   overflow: hidden;
+
   background: #222;
+
   transition: transform 0.2s ease;
+
+  cursor: pointer;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .popular-card img {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+  object-position: center;
+
   display: block;
 }
 
 .popular-card:hover {
   transform: translateY(-3px);
-}
 
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
 
 /* =====================================================
    RESPONSIVE
@@ -340,11 +423,18 @@ body {
 
   .main-content {
     margin-left: 65px;
+
     width: calc(100% - 65px);
+
+    padding: 0 12px 30px;
   }
 
   .movie-row {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .poster {
+    height: 145px;
   }
 }
 
@@ -356,11 +446,19 @@ body {
   }
 
   .hero-section {
-    height: 200px;
+    height: 210px;
+  }
+
+  .hero-content {
+    padding: 25px 20px;
   }
 
   .hero-content h1 {
-    font-size: 19px;
+    font-size: 22px;
+  }
+
+  .hero-content p {
+    font-size: 12px;
   }
 
   .mood-list {
@@ -369,5 +467,22 @@ body {
 
   .movie-row {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-title h2 {
+    font-size: 16px;
+  }
+
+  .poster {
+    height: 160px;
+  }
+
+  .movie-details h3 {
+    font-size: 13px;
+  }
+
+  .movie-bottom span,
+  .movie-bottom strong {
+    font-size: 10px;
   }
 }

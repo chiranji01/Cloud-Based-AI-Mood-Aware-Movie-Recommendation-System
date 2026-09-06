@@ -3,7 +3,7 @@
 ========================================= */
 
 .search-page {
-  padding: 30px 40px 50px;
+  padding: 18px 21px 50px;
   min-height: calc(100vh - 70px);
   background: #f8f8ff;
 }
@@ -14,19 +14,25 @@
 ========================================= */
 
 .search-results-header {
-  margin-bottom: 28px;
+  margin-bottom: 18px;
 }
 
 .search-results-header h1 {
-  margin: 0 0 8px;
-  font-size: 28px;
+  margin: 0 0 6px;
+
+  font-size: 27px;
   font-weight: 700;
+  line-height: 1.2;
+
   color: #1f1f2e;
 }
 
 .search-results-header p {
   margin: 0;
-  font-size: 15px;
+
+  font-size: 13px;
+  line-height: 1.5;
+
   color: #77798b;
 }
 
@@ -37,72 +43,133 @@
 
 /* =========================================
    MOVIE GRID
+   MATCH HOME PAGE
 ========================================= */
 
 .search-movie-grid {
+  width: 100%;
+
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 20px;
+
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+
+  gap: 13px;
+
+  align-items: start;
 }
 
 
 /* =========================================
    MOVIE CARD
+   SAME STYLE AS HOME
 ========================================= */
 
 .search-movie-card {
-  min-height: 120px;
-  padding: 22px;
+  width: 100%;
+  min-width: 0;
 
   background: #ffffff;
-  border: 1px solid #ececf4;
-  border-radius: 16px;
 
-  display: flex;
-  align-items: center;
+  border: 1px solid #e7e4ea;
+  border-radius: 7px;
+
+  overflow: hidden;
+
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 
   cursor: pointer;
 
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+  transition: 0.2s;
 }
 
 .search-movie-card:hover {
-  transform: translateY(-4px);
-  border-color: #d8c7ff;
-  box-shadow: 0 8px 22px rgba(108, 46, 232, 0.12);
+  transform: translateY(-3px);
+
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================
+   POSTER
+   SAME PROPORTION AS HOME
+========================================= */
+
+.search-poster {
+  width: 100%;
+  height: 223px;
+
+  background: #ded8ff;
+
+  overflow: hidden;
+}
+
+.search-poster img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+  object-position: center;
+
+  display: block;
+}
+
+
+/* =========================================
+   POSTER PLACEHOLDER
+========================================= */
+
+.search-poster-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ded8ff;
+
+  font-size: 32px;
 }
 
 
 /* =========================================
    MOVIE INFORMATION
+   SAME AS HOME CARD BOTTOM
 ========================================= */
 
 .search-movie-info {
   width: 100%;
+
+  padding: 8px;
+
+  background: #ffffff;
 }
 
 .search-movie-info h3 {
-  margin: 0 0 12px;
+  margin: 0 0 5px;
 
-  font-size: 17px;
-  font-weight: 650;
-  line-height: 1.4;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
 
-  color: #222232;
+  color: #25263d;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .search-movie-info p {
   margin: 0;
 
-  font-size: 13px;
-  line-height: 1.6;
+  font-size: 11px;
+  line-height: 1.4;
 
-  color: #77798b;
+  color: #777;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
@@ -117,7 +184,7 @@
   justify-content: center;
   align-items: center;
 
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 
   color: #6c2ee8;
@@ -132,11 +199,13 @@
   padding: 20px;
 
   background: #fff1f1;
+
   border: 1px solid #ffd5d5;
   border-radius: 12px;
 
   color: #c43d3d;
-  font-size: 14px;
+
+  font-size: 13px;
 }
 
 
@@ -152,11 +221,13 @@
   align-items: center;
 
   background: #ffffff;
+
   border: 1px solid #ececf4;
-  border-radius: 16px;
+  border-radius: 12px;
 
   color: #77798b;
-  font-size: 15px;
+
+  font-size: 13px;
 }
 
 
@@ -164,58 +235,62 @@
    RESPONSIVE
 ========================================= */
 
-@media (max-width: 900px) {
-  .search-page {
-    padding: 25px 20px 40px;
-  }
+@media (max-width: 1100px) {
 
   .search-movie-grid {
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .search-poster {
+    height: 220px;
   }
 }
 
-@media (max-width: 600px) {
+
+@media (max-width: 800px) {
+
+  .search-page {
+    padding: 14px 12px 40px;
+  }
+
   .search-movie-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .search-poster {
+    height: 210px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .search-page {
+    padding: 14px 10px 35px;
   }
 
   .search-results-header h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
-}
-.search-movie-card {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  min-height: 150px;
-}
 
-.search-poster {
-  width: 90px;
-  height: 130px;
-  flex-shrink: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #f0f0f5;
-}
+  .search-results-header p {
+    font-size: 12px;
+  }
 
-.search-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+  .search-movie-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
 
-.search-poster-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  background: #f3f0ff;
-}
+  .search-poster {
+    height: 200px;
+  }
 
-.search-movie-info {
-  flex: 1;
+  .search-movie-info h3 {
+    font-size: 13px;
+  }
+
+  .search-movie-info p {
+    font-size: 10px;
+  }
 }
