@@ -336,7 +336,7 @@ function Mood() {
             </div>
           )}
         </section>
-      </main>
+      </main> 
     </div>
   );
 }

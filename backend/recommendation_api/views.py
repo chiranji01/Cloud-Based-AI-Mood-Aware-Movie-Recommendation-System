@@ -685,7 +685,7 @@ def similar_movies(request, movie_id):
             # Calculate Jaccard Similarity: common genres / total unique genres (Dividing the number of common genres by the total number of unique genre)
             genre_similarity = len(common_genres) / len(all_genres) if all_genres else 0
 
-            recommendations.append({
+            recommendations.append({ 
 
                 "movieId":
                     movie.movie_id,

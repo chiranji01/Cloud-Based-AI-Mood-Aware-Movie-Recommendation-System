@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   ChevronRight,
   Play,
-  Plus,
+  Plus, 
   Star,
   Send,
   ArrowLeft,
